@@ -28,4 +28,8 @@ public class PreferenceKeys {
     public static final String USER_ID = "userId";
     public static final String CURRENT_PAGE = "page";
     public static final String USER_NAME = "userName";
+    public static final String CURRENT_TITLE = "currenTitle";
+    public static final String CURRENT_AUTHOR = "currenAuthor";
+    public static final String CURRENT_URL = "currentUrl";
+    public static final String IS_SUSCRIBER_ENABLED = "isSuscriberEnabled";
 }

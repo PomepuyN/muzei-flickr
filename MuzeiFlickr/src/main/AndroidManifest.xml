@@ -16,8 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.npi.muzeiflickr"
-    android:versionCode="10005"
-    android:versionName="1.0.5">
+    android:versionCode="10006"
+    android:versionName="1.0.6">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -54,6 +54,7 @@
             android:icon="@drawable/ic_source">
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource" />
+                <action android:name="com.npi.muzeiflickr.NEXT_FROM_WIDGET" />
             </intent-filter>
 
             <meta-data
@@ -63,6 +64,20 @@
                 android:name="settingsActivity"
                 android:value="com.npi.muzeiflickr.SettingsActivity" />
         </service>
+
+        <!-- Widget declaration -->
+        <receiver
+            android:name=".FlickrWidget"
+            android:label="@string/widget_name" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget" />
+        </receiver>
 
     </application>
 

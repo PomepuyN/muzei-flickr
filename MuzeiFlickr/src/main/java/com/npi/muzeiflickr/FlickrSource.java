@@ -19,6 +19,8 @@
 
 package com.npi.muzeiflickr;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -44,6 +46,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     private static final String SOURCE_NAME = "FlickrSource";
 
     public static final String ACTION_CLEAR_SERVICE = "com.npi.muzeiflickr.ACTION_CLEAR_SERVICE";
+    public static final String ACTION_REFRESH_FROM_WIDGET = "com.npi.muzeiflickr.NEXT_FROM_WIDGET";
     private List<PhotoEntity> storedPhotos;
 
     public FlickrSource() {
@@ -58,6 +61,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
     /**
      * Muzei ask for an Artwork update
+     *
      * @param reason reason for update
      * @throws RetryException
      */
@@ -105,6 +109,15 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                         Uri.parse(photo.url)))
                 .build());
 
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(PreferenceKeys.CURRENT_TITLE, photo.title);
+        editor.putString(PreferenceKeys.CURRENT_AUTHOR, name);
+        editor.putString(PreferenceKeys.CURRENT_URL, photo.url);
+        editor.commit();
+
+        //Update widgets
+        updateWidgets();
+
         //Update the cache
         storedPhotos.remove(0);
         savePhotos(settings, storedPhotos);
@@ -113,6 +126,14 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         if (storedPhotos.size() == 0) {
             requestPhotos();
         }
+    }
+
+    private void updateWidgets() {
+        Intent intent = new Intent(this, FlickrWidget.class);
+        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+        int ids[] = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), FlickrWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent);
     }
 
     /**
@@ -228,8 +249,14 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
             if (largestSize != null) {
 
+                FlickrService.UserResponse responseUser = null;
                 //Request user info (for the title)
-                FlickrService.UserResponse responseUser = service.getUser(photo.owner);
+                try {
+                    responseUser = service.getUser(photo.owner);
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage(), e);
+                    return;
+                }
 
                 if (responseUser == null || responseUser.person == null) {
                     Log.w(TAG, "Unable to get the infos for user");
@@ -248,7 +275,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 //Add the photo
                 PhotoEntity photoEntity = new PhotoEntity(photo);
                 photoEntity.userName = name;
-                photoEntity.url = "http://www.flickr.com/photos/"+photo.owner+"/"+photo.id;
+                photoEntity.url = "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id;
                 photoEntity.source = largestSize.source;
 
                 if (storedPhotos == null) {
@@ -294,13 +321,15 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     @Override
     protected void onHandleIntent(Intent intent) {
 
+
         if (intent == null) {
             super.onHandleIntent(intent);
             return;
         }
+        if (BuildConfig.DEBUG) Log.d(TAG, "Handle intent: " + intent.getAction());
 
         String action = intent.getAction();
-        if (ACTION_CLEAR_SERVICE.equals(action)) {
+        if (ACTION_CLEAR_SERVICE.equals(action) || ACTION_REFRESH_FROM_WIDGET.equals(action)) {
             scheduleUpdate(System.currentTimeMillis() + 1000);
             return;
 
@@ -308,5 +337,33 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         super.onHandleIntent(intent);
     }
+
+    @Override
+    protected void onDisabled() {
+        if (BuildConfig.DEBUG) Log.d(TAG, "onDisabled");
+        final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(PreferenceKeys.IS_SUSCRIBER_ENABLED, false);
+        editor.commit();
+
+        updateWidgets();
+
+        super.onDisabled();
+    }
+
+    @Override
+    protected void onEnabled() {
+        if (BuildConfig.DEBUG) Log.d(TAG, "onEnabled");
+        final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(PreferenceKeys.IS_SUSCRIBER_ENABLED, true);
+
+        editor.commit();
+
+        updateWidgets();
+
+        super.onEnabled();
+    }
+
 }
 

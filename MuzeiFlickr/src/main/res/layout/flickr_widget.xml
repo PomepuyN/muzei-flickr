@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/s_widget"
+        android:layout_centerInParent="true"
+        android:textColor="#444444"
+        android:id="@+id/widget_disabled"
+        android:gravity="center"
+        android:text="@string/widget_disabled"/>
+
+    <LinearLayout
+        android:background="@drawable/s_widget_left"
+        android:id="@+id/widget_left_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_toLeftOf="@+id/widget_play_button">
+
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/widget_title"
+            android:textSize="20sp"
+            android:textColor="#000"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:gravity="bottom"/>
+
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/widget_author"
+            android:textSize="18sp"
+            android:textColor="#000"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:gravity="top"
+            android:includeFontPadding="false"
+            android:fontFamily="sans-serif-light"/>
+    </LinearLayout>
+
+    <ImageView
+        android:background="@drawable/s_widget_right"
+        android:id="@+id/widget_play_button"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_menu_play_clip"
+        android:layout_alignParentRight="true" />
+</RelativeLayout>

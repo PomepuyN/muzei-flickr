@@ -38,4 +38,6 @@
     <string name="desc_betterpickers"><![CDATA[<b>Better Pickers</b> by <em>Derek Brameyer</em> - https://github.com/derekbrameyer/android-betterpickers]]></string>
     <string name="desc_calligraphy"><![CDATA[<b>Calligraphy</b> by <em>Christopher Jenkins</em> - https://github.com/chrisjenx/Calligraphy]]></string>
     <string name="developed_by"><![CDATA[Developed by <b>Nicolas POMEPUY</b>]]></string>
+    <string name="widget_name">Flickr for Muzei</string>
+    <string name="widget_disabled">Flickr for Muzei is disabled</string>
 </resources>
