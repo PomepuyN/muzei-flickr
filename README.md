@@ -1,7 +1,7 @@
 Flickr for Muzei
 ============
 
-![Icon][1]
+![Icon][3]
 
 A simple Flickr extension for Muzei
 
