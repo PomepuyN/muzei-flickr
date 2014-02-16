@@ -143,6 +143,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         sendBroadcast(intent);
     }
 
+
     /**
      * Load photos from flickr
      */

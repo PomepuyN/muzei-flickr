@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="height2">72dp</dimen>
+    <dimen name="height1">72dp</dimen>
     <dimen name="width4">294dp</dimen>
 </resources>

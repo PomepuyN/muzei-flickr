@@ -32,4 +32,5 @@ public class PreferenceKeys {
     public static final String CURRENT_AUTHOR = "currenAuthor";
     public static final String CURRENT_URL = "currentUrl";
     public static final String IS_SUSCRIBER_ENABLED = "isSuscriberEnabled";
+    public static final String WIDGETS = "widgets";
 }
