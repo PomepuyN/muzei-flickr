@@ -17,7 +17,7 @@
  * Muzei source
  */
 
-package com.npi.muzeiflickr;
+package com.npi.muzeiflickr.api;
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -31,6 +31,13 @@ import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.ui.widgets.FlickrWidget;
+import com.npi.muzeiflickr.data.PhotoEntity;
+import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.network.FlickrService;
+import com.npi.muzeiflickr.ui.activities.SettingsActivity;
+import com.npi.muzeiflickr.utils.Utils;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

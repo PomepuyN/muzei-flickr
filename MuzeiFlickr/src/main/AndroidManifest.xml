@@ -33,12 +33,12 @@
 
 
         <activity
-            android:name="com.npi.muzeiflickr.SettingsActivity"
+            android:name=".ui.activities.SettingsActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme"
             android:exported="true" />
         <activity
-            android:name="com.npi.muzeiflickr.AboutActivity"
+            android:name=".ui.activities.AboutActivity"
             android:theme="@style/AppTheme"
             android:label="@string/about">
             <intent-filter>
@@ -48,7 +48,7 @@
         </activity>
 
         <service
-            android:name=".FlickrSource"
+            android:name=".api.FlickrSource"
             android:label="@string/source_name"
             android:description="@string/source_description"
             android:icon="@drawable/ic_source">
@@ -62,12 +62,12 @@
                 android:value="#fff" />
             <meta-data
                 android:name="settingsActivity"
-                android:value="com.npi.muzeiflickr.SettingsActivity" />
+                android:value="com.npi.muzeiflickr.ui.activities.SettingsActivity" />
         </service>
 
         <!-- Widget declaration -->
         <receiver
-            android:name=".FlickrWidget"
+            android:name=".ui.widgets.FlickrWidget"
             android:label="@string/widget_name" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

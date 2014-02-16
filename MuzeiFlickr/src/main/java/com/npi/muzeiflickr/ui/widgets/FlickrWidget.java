@@ -1,4 +1,4 @@
-package com.npi.muzeiflickr;
+package com.npi.muzeiflickr.ui.widgets;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -11,6 +11,12 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+
+import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.R;
+import com.npi.muzeiflickr.api.FlickrSource;
+import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.ui.activities.SettingsActivity;
 
 /**
  * Created by nicolas on 15/02/14.

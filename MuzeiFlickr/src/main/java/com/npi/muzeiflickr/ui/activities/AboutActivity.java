@@ -1,4 +1,4 @@
-package com.npi.muzeiflickr;
+package com.npi.muzeiflickr.ui.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.npi.muzeiflickr.R;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;

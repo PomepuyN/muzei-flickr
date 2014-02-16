@@ -1,4 +1,4 @@
-package com.npi.muzeiflickr;
+package com.npi.muzeiflickr.data;
 
 /*
  *

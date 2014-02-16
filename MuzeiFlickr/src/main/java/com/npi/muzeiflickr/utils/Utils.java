@@ -1,4 +1,4 @@
-package com.npi.muzeiflickr;
+package com.npi.muzeiflickr.utils;
 
 import android.content.Context;
 import android.graphics.Point;

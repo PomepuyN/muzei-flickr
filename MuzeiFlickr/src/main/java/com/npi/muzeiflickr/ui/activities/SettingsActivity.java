@@ -1,4 +1,4 @@
-package com.npi.muzeiflickr;
+package com.npi.muzeiflickr.ui.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +22,12 @@ import android.widget.Toast;
 
 import com.doomonafireball.betterpickers.hmspicker.HmsPickerBuilder;
 import com.doomonafireball.betterpickers.hmspicker.HmsPickerDialogFragment;
+import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.R;
+import com.npi.muzeiflickr.network.FlickrService;
+import com.npi.muzeiflickr.api.FlickrSource;
+import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.utils.Utils;
 
 import retrofit.Callback;
 import retrofit.ErrorHandler;

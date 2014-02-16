@@ -17,7 +17,9 @@
  * Retrofit service describing requests
  */
 
-package com.npi.muzeiflickr;
+package com.npi.muzeiflickr.network;
+
+import com.npi.muzeiflickr.utils.Config;
 
 import java.util.List;
 
@@ -25,8 +27,8 @@ import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
-interface FlickrService {
-    @GET("/?&method=flickr.photos.search&per_page=5&safe_search=1&sort=interestingness-desc&format=json&license=1,2,3,4,5,6,7&privacy_filter=1&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
+public interface FlickrService {
+    @GET("/?&method=flickr.photos.search&per_page=5&safe_search=1&sort=interestingness-desc&format=json&license=1,2,3,4,5,6,7&privacy_filter=1&api_key="+ Config.CONSUMER_KEY+"&nojsoncallback=1")
     PhotosResponse getPopularPhotos(@Query("page") int page);
 
     @GET("/?&method=flickr.people.getPhotos&per_page=5&format=json&privacy_filter=1&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
@@ -41,52 +43,52 @@ interface FlickrService {
     @GET("/?&method=flickr.people.findByUsername&format=json&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
     void getUserByName(@Query("username") String user, Callback<UserByNameResponse> callback);
 
-    static class SizeResponse {
-        Sizes sizes;
+    public static class SizeResponse {
+        public Sizes sizes;
     }
 
-    static class UserByNameResponse {
-        UserResult user;
+    public static class UserByNameResponse {
+        public UserResult user;
     }
 
-    static class UserResponse {
-        Person person;
+    public static class UserResponse {
+        public Person person;
     }
 
-    static class PhotosResponse {
-        Response photos;
+    public static class PhotosResponse {
+        public Response photos;
     }
 
-    static class Sizes {
-        List<Size> size;
+    public static class Sizes {
+        public List<Size> size;
     }
 
-    static class Size {
-        int height;
-        String source;
+    public static class Size {
+        public int height;
+        public String source;
     }
 
-    static class Person {
-        Username realname;
-        Username username;
+    public static class Person {
+        public Username realname;
+        public Username username;
     }
 
-    static class Username {
-        String _content;
+    public static class Username {
+        public String _content;
     }
-    static class Response {
-        List<Photo> photo;
+    public static class Response {
+        public List<Photo> photo;
 
     }
-    static class Photo {
-        String id;
-        String title;
+    public static class Photo {
+        public String id;
+        public  String title;
         public String owner;
     }
 
 
-    static class UserResult {
-        String nsid;
+    public static class UserResult {
+        public String nsid;
     }
 
 }

@@ -1,4 +1,6 @@
-package com.npi.muzeiflickr;
+package com.npi.muzeiflickr.data;
+
+import com.npi.muzeiflickr.network.FlickrService;
 
 /*
  *
