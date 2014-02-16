@@ -26,12 +26,14 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.ui.widgets.FlickrWidget;
 import com.npi.muzeiflickr.data.PhotoEntity;
 import com.npi.muzeiflickr.data.PreferenceKeys;
@@ -220,13 +222,22 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             return;
         }
 
-        if (response.photos.photo.size() == 0) {
-            Log.w(TAG, "No photos returned from API.");
-            scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, 7200000));
+        //No photo
+        if (page == 1 && response.photos.photo.size() < 1) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt(PreferenceKeys.MODE, 0);
+            editor.putString(PreferenceKeys.SEARCH_TERM, "");
+            editor.commit();
+            Toast.makeText(this, getString(R.string.no_photo), Toast.LENGTH_LONG).show();
             return;
         }
 
-        //Store page number
+        if (BuildConfig.DEBUG) Log.d(TAG, "Stored page: " + page+"/"+response.photos.pages);
+        if (page >= response.photos.pages) {
+            page =0;
+        }
+
+
 
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt(PreferenceKeys.CURRENT_PAGE, page);

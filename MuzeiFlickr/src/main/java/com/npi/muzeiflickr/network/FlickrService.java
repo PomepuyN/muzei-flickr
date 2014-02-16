@@ -78,6 +78,7 @@ public interface FlickrService {
     }
     public static class Response {
         public List<Photo> photo;
+        public int pages;
 
     }
     public static class Photo {

@@ -40,4 +40,5 @@
     <string name="developed_by"><![CDATA[Developed by <b>Nicolas POMEPUY</b>]]></string>
     <string name="widget_name">Flickr for Muzei</string>
     <string name="widget_disabled">Flickr for Muzei is disabled</string>
+    <string name="no_photo">No photo found for this search. Reverting to default search.</string>
 </resources>
