@@ -355,12 +355,6 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         super.onHandleIntent(intent);
     }
 
-    @Override
-    protected void onArtworkLoaded() {
-        if (BuildConfig.DEBUG) Log.d(TAG, "onArtworkLoaded");
-        super.onArtworkLoaded();
-
-    }
 
     @Override
     protected void onDisabled() {
