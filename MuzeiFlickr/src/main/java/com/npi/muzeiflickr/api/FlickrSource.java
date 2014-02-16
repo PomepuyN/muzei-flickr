@@ -26,19 +26,17 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.npi.muzeiflickr.BuildConfig;
-import com.npi.muzeiflickr.R;
-import com.npi.muzeiflickr.ui.widgets.FlickrWidget;
 import com.npi.muzeiflickr.data.PhotoEntity;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.ui.activities.SettingsActivity;
+import com.npi.muzeiflickr.ui.widgets.FlickrWidget;
 import com.npi.muzeiflickr.utils.Utils;
 
 import java.lang.reflect.Type;
@@ -228,7 +226,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             editor.putInt(PreferenceKeys.MODE, 0);
             editor.putString(PreferenceKeys.SEARCH_TERM, "");
             editor.commit();
-            Toast.makeText(this, getString(R.string.no_photo), Toast.LENGTH_LONG).show();
+            Log.w(TAG, "No photo in search");
             return;
         }
 
@@ -355,6 +353,13 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         }
 
         super.onHandleIntent(intent);
+    }
+
+    @Override
+    protected void onArtworkLoaded() {
+        if (BuildConfig.DEBUG) Log.d(TAG, "onArtworkLoaded");
+        super.onArtworkLoaded();
+
     }
 
     @Override
