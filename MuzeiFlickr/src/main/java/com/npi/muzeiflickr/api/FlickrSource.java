@@ -29,17 +29,14 @@ import android.util.Log;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.npi.muzeiflickr.BuildConfig;
-import com.npi.muzeiflickr.data.PhotoEntity;
 import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.ui.activities.SettingsActivity;
 import com.npi.muzeiflickr.ui.widgets.FlickrWidget;
 import com.npi.muzeiflickr.utils.Utils;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +51,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
     public static final String ACTION_CLEAR_SERVICE = "com.npi.muzeiflickr.ACTION_CLEAR_SERVICE";
     public static final String ACTION_REFRESH_FROM_WIDGET = "com.npi.muzeiflickr.NEXT_FROM_WIDGET";
-    private List<PhotoEntity> storedPhotos;
+    private List<Photo> storedPhotos;
 
     public FlickrSource() {
         super(SOURCE_NAME);
@@ -86,7 +83,11 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         //The memory photo cache is empty let's populate it
         if (storedPhotos == null) {
-            storedPhotos = retrievePhotos(settings);
+//            try {
+                storedPhotos = Photo.listAll(Photo.class);
+//            } catch (NullPointerException e) {
+//
+//            }
         }
 
         //No photo in the cache, let load some from flickr
@@ -97,11 +98,9 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             throw new RetryException();
         }
 
-        if (BuildConfig.DEBUG)
-            Log.d(TAG, "Json stored: " + settings.getString(PreferenceKeys.PHOTOS, ""));
 
         //Get the photo
-        PhotoEntity photo = storedPhotos.get(0);
+        Photo photo = storedPhotos.get(0);
 
 
         String name = photo.userName.substring(0, 1).toUpperCase() + photo.userName.substring(1);
@@ -111,7 +110,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 .title(photo.title)
                 .byline(name)
                 .imageUri(Uri.parse(photo.source))
-                .token(photo.id)
+                .token(photo.photoId)
                 .viewIntent(new Intent(Intent.ACTION_VIEW,
                         Uri.parse(photo.url)))
                 .build());
@@ -126,8 +125,9 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         updateWidgets();
 
         //Update the cache
+        storedPhotos.get(0).delete();
         storedPhotos.remove(0);
-        savePhotos(settings, storedPhotos);
+
         scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, 7200000));
         //No photo left, let's load some more
         if (storedPhotos.size() == 0) {
@@ -155,7 +155,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         if (BuildConfig.DEBUG) Log.d(TAG, "Start service");
 
         RestAdapter restAdapter = new RestAdapter.Builder()
-//                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setLogLevel(RestAdapter.LogLevel.FULL)
                 .setServer("http://api.flickr.com/services/rest")
                 .setRequestInterceptor(new RequestInterceptor() {
                     @Override
@@ -290,21 +290,21 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
 
                 //Add the photo
-                PhotoEntity photoEntity = new PhotoEntity(photo);
+                Photo photoEntity = new Photo(this.getApplicationContext());
                 photoEntity.userName = name;
                 photoEntity.url = "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id;
                 photoEntity.source = largestSize.source;
+                photoEntity.title = photo.title;
+                photoEntity.photoId = photo.id;
 
                 if (storedPhotos == null) {
-                    storedPhotos = retrievePhotos(settings);
+                    storedPhotos = Photo.listAll(Photo.class);
                 }
                 if (storedPhotos == null) {
-                    storedPhotos = new ArrayList<PhotoEntity>();
+                    storedPhotos = new ArrayList<Photo>();
                 }
                 storedPhotos.add(photoEntity);
-
-                savePhotos(settings, storedPhotos);
-
+                photoEntity.save();
 
             }
         }
@@ -312,27 +312,6 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
     }
 
-    // Retrieve photo list from SharedPreferences
-    private List<PhotoEntity> retrievePhotos(SharedPreferences settings) {
-        Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<PhotoEntity>>() {
-        }.getType();
-
-        return gson.fromJson(settings.getString(PreferenceKeys.PHOTOS, ""), type);
-
-    }
-
-    // Save photo list in SharedPreferences
-    private void savePhotos(SharedPreferences settings, List<PhotoEntity> photos) {
-        Gson gson = new Gson();
-        String storablePhotosJson = gson.toJson(photos);
-
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.PHOTOS, storablePhotosJson);
-
-
-        editor.commit();
-    }
 
 
     @Override

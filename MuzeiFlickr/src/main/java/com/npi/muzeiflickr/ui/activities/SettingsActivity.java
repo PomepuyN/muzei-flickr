@@ -24,6 +24,7 @@ import com.doomonafireball.betterpickers.hmspicker.HmsPickerBuilder;
 import com.doomonafireball.betterpickers.hmspicker.HmsPickerDialogFragment;
 import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
+import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
@@ -229,7 +230,7 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
      */
     private void invalidateQueryValues(SharedPreferences.Editor editor) {
 
-        editor.putString(PreferenceKeys.PHOTOS, "");
+        Photo.deleteAll(Photo.class);
         editor.putInt(PreferenceKeys.CURRENT_PAGE, 0);
         editor.commit();
         startService(new Intent(SettingsActivity.this, FlickrSource.class).setAction(FlickrSource.ACTION_CLEAR_SERVICE));

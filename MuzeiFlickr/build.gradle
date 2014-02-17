@@ -35,11 +35,12 @@ dependencies {
     compile project(':api')
     compile 'uk.co.chrisjenx.calligraphy:calligraphy:0.6.+'
     compile 'com.doomonafireball.betterpickers:library:1.5.2'
+    compile files('libs/sugar-1.2.jar')
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.0"
+    buildToolsVersion '19.0.0'
 
     defaultConfig {
         minSdkVersion 17
