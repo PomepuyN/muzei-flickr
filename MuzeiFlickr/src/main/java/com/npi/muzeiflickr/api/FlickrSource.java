@@ -51,6 +51,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
     public static final String ACTION_CLEAR_SERVICE = "com.npi.muzeiflickr.ACTION_CLEAR_SERVICE";
     public static final String ACTION_REFRESH_FROM_WIDGET = "com.npi.muzeiflickr.NEXT_FROM_WIDGET";
+    public static final int DEFAULT_REFRESH_TIME = 7200000;
     private List<Photo> storedPhotos;
 
     public FlickrSource() {
@@ -76,7 +77,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         // Check if we cancel the update due to WIFI connection
         if (settings.getBoolean(PreferenceKeys.WIFI_ONLY, false) && !Utils.isWifiConnected(this)) {
             if (BuildConfig.DEBUG) Log.d(TAG, "Refresh avoided: no wifi");
-            scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, 7200000));
+            scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, DEFAULT_REFRESH_TIME));
             return;
         }
 
@@ -190,7 +191,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                     @Override
                     public Throwable handleError(RetrofitError retrofitError) {
                         //Issue with update. Let's wait for the next time
-                        scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, 7200000));
+                        scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, DEFAULT_REFRESH_TIME));
                         return retrofitError;
                     }
                 })

@@ -136,7 +136,7 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
         //Other settings population
         String search = settings.getString(PreferenceKeys.SEARCH_TERM, "landscape");
         String user = settings.getString(PreferenceKeys.USER_NAME, "");
-        int refreshRate = settings.getInt(PreferenceKeys.REFRESH_TIME, 7200000);
+        int refreshRate = settings.getInt(PreferenceKeys.REFRESH_TIME, FlickrSource.DEFAULT_REFRESH_TIME);
         int mode = settings.getInt(PreferenceKeys.MODE, 0);
 
         mRefreshRate.setText(Utils.convertDurationtoString(refreshRate));
