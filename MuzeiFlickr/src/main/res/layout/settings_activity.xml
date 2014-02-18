@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,18 +17,18 @@
         android:layout_marginRight="5dp"
         android:scaleType="centerInside"
         android:src="@drawable/stat_sys_certificate_info"/>
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:layout_marginBottom="10dp">
 
         <TextView
+            android:id="@+id/title_flickr"
             style="@style/Settings.Shadow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -42,250 +43,114 @@
             android:layout_height="wrap_content"
             android:text="@string/settings_title_bottom"
             android:textSize="18sp"
-            android:layout_gravity="center_horizontal"
+            android:layout_toRightOf="@+id/title_flickr"
+            android:layout_alignBaseline="@+id/title_flickr"
+            android:layout_marginLeft="5dp"
             android:textColor="@android:color/white"
             android:fontFamily="fonts/alegreya-black-italic.ttf"/>
 
-        </LinearLayout>
+        </RelativeLayout>
 
 
 
 
-    <ScrollView
-        android:layout_below="@+id/title"
-        android:id="@+id/content_container"
-        android:layout_above="@+id/buttons_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-
-            android:orientation="vertical"
-            android:layout_margin="15dp">
-
-            <TextView
-
-                style="@style/Settings.Shadow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/content_type"
-                android:textSize="18sp"
-                android:layout_gravity="center_horizontal"
-                android:textColor="@android:color/white"
-                android:fontFamily="fonts/roboto-slab-bold.ttf"
-                android:layout_marginBottom="10dp"
-                android:textAllCaps="true" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="25dp"
-                android:layout_marginRight="25dp"
-                android:background="#22ffffff" />
-
-            <Spinner
-                android:id="@+id/mode_chooser"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" />
-
-            <LinearLayout
-                android:id="@+id/search_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginTop="20dp"
-                android:visibility="gone">
-
-                <TextView
-
-                    style="@style/Settings.Shadow"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/search_terms"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/white"
-                    android:fontFamily="fonts/roboto-slab-bold.ttf"
-                    android:textAllCaps="true" />
-
-                <EditText
-                    android:id="@+id/text_search"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/landscape"
-                    android:singleLine="true"
-                    android:textColor="@android:color/white" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/user_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginTop="20dp"
-                android:visibility="gone">
-
-                <TextView
-
-                    style="@style/Settings.Shadow"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/username"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/white"
-                    android:fontFamily="fonts/roboto-slab-bold.ttf"
-                    android:textAllCaps="true" />
-
-                <EditText
-                    android:id="@+id/text_user"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:textColor="@android:color/white" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/location_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginTop="20dp"
-                android:visibility="gone">
-
-                <TextView
-
-                    style="@style/Settings.Shadow"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/location"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/white"
-                    android:fontFamily="fonts/roboto-slab-bold.ttf"
-                    android:textAllCaps="true" />
-
-                <EditText
-                    android:id="@+id/text_location"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="type"
-                    android:singleLine="true"
-                    android:textColor="@android:color/white" />
-            </LinearLayout>
-
-            <TextView
-
-                style="@style/Settings.Shadow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_settings"
-                android:textSize="18sp"
-                android:layout_marginTop="45dp"
-                android:layout_marginBottom="10dp"
-                android:layout_gravity="center_horizontal"
-                android:textColor="@android:color/white"
-                android:fontFamily="fonts/roboto-slab-bold.ttf"
-                android:textAllCaps="true" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="25dp"
-                android:layout_marginRight="25dp"
-                android:background="#22ffffff" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp">
-
-                <TextView
-
-                    style="@style/Settings.Shadow"
-                    android:layout_width="match_parent"
-                    android:layout_toLeftOf="@+id/refresh_rate"
-                    android:layout_alignParentLeft="true"
-                    android:layout_height="wrap_content"
-                    android:text="@string/refresh_rate"
-                    android:textSize="14sp"
-                    android:layout_centerVertical="true"
-                    android:textColor="@android:color/white"
-                    android:fontFamily="fonts/roboto-slab-bold.ttf"
-                    android:textAllCaps="true" />
-
-                <TextView
-
-                    android:layout_alignParentRight="true"
-                    android:id="@+id/refresh_rate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:drawableLeft="@drawable/ic_audio_alarm"
-                    android:drawablePadding="5dp"
-                    android:textColor="@android:color/white"
-                    android:gravity="center_vertical"
-                    android:layout_gravity="right"
-                    style="@style/Settings.Shadow"/>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-
-                    style="@style/Settings.Shadow"
-                    android:layout_width="match_parent"
-                    android:layout_toLeftOf="@+id/wifi_only"
-                    android:layout_alignParentLeft="true"
-                    android:layout_height="wrap_content"
-                    android:text="@string/refresh_3G"
-                    android:textSize="14sp"
-                    android:layout_centerVertical="true"
-                    android:textColor="@android:color/white"
-                    android:fontFamily="fonts/roboto-slab-bold.ttf"
-                    android:textAllCaps="true" />
-
-                <Switch
-                    android:layout_alignParentRight="true"
-                    android:id="@+id/wifi_only"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-
-                    android:textOn="ON"
-                    android:textOff="OFF"
-                    android:layout_gravity="right" />
-            </RelativeLayout>
-        </LinearLayout>
-    </ScrollView>
-
-
-    <LinearLayout
-        android:id="@+id/buttons_container"
+    <com.mobeta.android.dslv.DragSortListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:id="@+id/content_list"
+        android:layout_below="@+id/title"
+        android:divider="@color/apptheme_color"
+        android:listSelector="@android:color/transparent"
+        app:collapsed_height="1dp"
+        app:drag_enabled="true"
+        app:drag_scroll_start="0.33"
+        app:drag_start_mode="onMove"
+        app:sort_enabled="false"
+        app:fling_handle_id="@id/item_main_container"
+        app:float_alpha="1"
+        app:float_background_color="@android:color/transparent"
+        app:max_drag_scroll_speed="0.5"
+        app:remove_enabled="true"
+        app:remove_mode="flingRemove"
+        app:slide_shuffle_speed="0.3"
+        android:layout_above="@+id/refresh_rate_container"/>
 
-        <Button
-            android:id="@+id/cancel_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+
+    <RelativeLayout
+        android:id="@+id/refresh_rate_container"
+        android:layout_above="@+id/wifi_only_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+
+            style="@style/Settings.Shadow"
+            android:layout_width="match_parent"
+            android:layout_toLeftOf="@+id/refresh_rate"
+            android:layout_alignParentLeft="true"
             android:layout_height="wrap_content"
-            android:text="@android:string/cancel" />
+            android:text="@string/refresh_rate"
+            android:textSize="14sp"
+            android:layout_centerVertical="true"
+            android:textColor="@android:color/white"
+            android:fontFamily="fonts/roboto-slab-bold.ttf"
+            android:textAllCaps="true" />
 
-        <Button
-            android:id="@+id/ok_button"
-            android:layout_width="0dp"
+        <TextView
+
+            android:layout_alignParentRight="true"
+            android:id="@+id/refresh_rate"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@android:string/ok" />
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:drawableLeft="@drawable/ic_audio_alarm"
+            android:drawablePadding="5dp"
+            android:textColor="@android:color/white"
+            android:gravity="center_vertical"
+            android:layout_gravity="right"
+            style="@style/Settings.Shadow"/>
+    </RelativeLayout>
 
-    </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/wifi_only_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+
+            style="@style/Settings.Shadow"
+            android:layout_width="match_parent"
+            android:layout_toLeftOf="@+id/wifi_only"
+            android:layout_alignParentLeft="true"
+            android:layout_height="wrap_content"
+            android:text="@string/refresh_3G"
+            android:textSize="14sp"
+            android:layout_centerVertical="true"
+            android:textColor="@android:color/white"
+            android:fontFamily="fonts/roboto-slab-bold.ttf"
+            android:textAllCaps="true" />
+
+        <Switch
+            android:layout_alignParentRight="true"
+            android:id="@+id/wifi_only"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+
+            android:textOn="ON"
+            android:textOff="OFF"
+            android:layout_gravity="right" />
+    </RelativeLayout>
+
 
 
 </RelativeLayout>

@@ -27,6 +27,9 @@ apply plugin: 'android'
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://github.com/Goddchen/mvn-repo/raw/master/'
+    }
 }
 
 dependencies {
@@ -35,6 +38,7 @@ dependencies {
     compile project(':api')
     compile 'uk.co.chrisjenx.calligraphy:calligraphy:0.6.+'
     compile 'com.doomonafireball.betterpickers:library:1.5.2'
+    compile 'com.mobeta.android.dslv:drag-sort-listview:0.6.1'
     compile files('libs/sugar-1.2.jar')
 }
 

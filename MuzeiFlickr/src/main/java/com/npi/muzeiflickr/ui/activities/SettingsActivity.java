@@ -1,37 +1,44 @@
 package com.npi.muzeiflickr.ui.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.doomonafireball.betterpickers.hmspicker.HmsPickerBuilder;
-import com.doomonafireball.betterpickers.hmspicker.HmsPickerDialogFragment;
+import com.mobeta.android.dslv.DragSortListView;
 import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
-import com.npi.muzeiflickr.db.Photo;
-import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.db.RequestData;
+import com.npi.muzeiflickr.db.Search;
+import com.npi.muzeiflickr.db.User;
+import com.npi.muzeiflickr.network.FlickrService;
+import com.npi.muzeiflickr.ui.adapters.RequestAdapter;
+import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
+import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerDialogFragment;
 import com.npi.muzeiflickr.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.Callback;
 import retrofit.ErrorHandler;
+import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -56,10 +63,31 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  * Created by nicolas on 14/02/14.
  * Main settings activity
  */
-public class SettingsActivity extends FragmentActivity implements HmsPickerDialogFragment.HmsPickerDialogHandler {
+public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler {
     public static final String PREFS_NAME = "main_prefs";
     private static final String TAG = SettingsActivity.class.getSimpleName();
     private TextView mRefreshRate;
+
+    private DragSortListView mRequestList;
+    private RequestAdapter mRequestAdapter;
+
+    private DragSortListView.RemoveListener onRemove =
+            new DragSortListView.RemoveListener() {
+                @Override
+                public void remove(int which) {
+
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Removing item");
+
+                    RequestData item = mRequestAdapter.getItem(which);
+                    mRequestAdapter.remove(item);
+                    if (item instanceof User) {
+                        ((User)item).delete();
+                    } else if (item instanceof Search) {
+                        ((Search)item).delete();
+                    }
+                    mRequestAdapter.notifyDataSetChanged();
+                }
+            };
 
     //Needed for Calligraphy
     @Override
@@ -78,18 +106,28 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
         final SharedPreferences.Editor editor = settings.edit();
 
         //Find views
-        Button okButton = (Button) findViewById(R.id.ok_button);
-        Button cancelButton = (Button) findViewById(R.id.cancel_button);
-        final EditText searchText = (EditText) findViewById(R.id.text_search);
-        final EditText userText = (EditText) findViewById(R.id.text_user);
-        final Spinner modeChooser = (Spinner) findViewById(R.id.mode_chooser);
 
-        final LinearLayout searchContainer = (LinearLayout) findViewById(R.id.search_container);
-        final LinearLayout userContainer = (LinearLayout) findViewById(R.id.user_container);
-        final LinearLayout locationContainer = (LinearLayout) findViewById(R.id.location_container);
         Switch wifiOnly = (Switch) findViewById(R.id.wifi_only);
         mRefreshRate = (TextView) findViewById(R.id.refresh_rate);
         ImageView aboutShortcut = (ImageView) findViewById(R.id.about);
+        mRequestList = (DragSortListView) findViewById(R.id.content_list);
+
+        List<RequestData> items = new ArrayList<RequestData>();
+        items.addAll(Search.listAll(Search.class));
+        items.addAll(User.listAll(User.class));
+
+
+        mRequestAdapter = new RequestAdapter(this, items);
+        mRequestList.setAdapter(mRequestAdapter);
+
+        final View footerView = getLayoutInflater().inflate(R.layout.list_footer, null);
+        mRequestList.addFooterView(footerView);
+
+        mRequestList.setRemoveListener(onRemove);
+
+        populateFooter(footerView);
+
+
 
         //Wifi status and setting
         wifiOnly.setChecked(settings.getBoolean(PreferenceKeys.WIFI_ONLY, false));
@@ -106,113 +144,22 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.modes, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        modeChooser.setAdapter(adapter);
-
-        modeChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                //Visibility of elements when mode is changed
-                switch (position) {
-                    case 0:
-                        searchContainer.setVisibility(View.VISIBLE);
-                        userContainer.setVisibility(View.GONE);
-                        locationContainer.setVisibility(View.GONE);
-                        break;
-                    case 1:
-                        searchContainer.setVisibility(View.GONE);
-                        userContainer.setVisibility(View.VISIBLE);
-                        locationContainer.setVisibility(View.GONE);
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
 
 
         //Other settings population
-        String search = settings.getString(PreferenceKeys.SEARCH_TERM, "landscape");
-        String user = settings.getString(PreferenceKeys.USER_NAME, "");
         int refreshRate = settings.getInt(PreferenceKeys.REFRESH_TIME, FlickrSource.DEFAULT_REFRESH_TIME);
-        int mode = settings.getInt(PreferenceKeys.MODE, 0);
 
         mRefreshRate.setText(Utils.convertDurationtoString(refreshRate));
-
-        modeChooser.setSelection(mode);
-
-        if (!search.equals("landscape")) {
-            searchText.setText(search);
-        }
-        userText.setText(user);
-
         mRefreshRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HmsPickerBuilder hpb = new HmsPickerBuilder()
+                HHmsPickerBuilder hpb = new HHmsPickerBuilder()
                         .setFragmentManager(getSupportFragmentManager())
                         .setStyleResId(R.style.BetterPickersDialogFragment);
                 hpb.show();
             }
         });
 
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                int currentMode = settings.getInt(PreferenceKeys.MODE, 0);
-
-                //Depending on the chosen mode actions will be different
-                switch (modeChooser.getSelectedItemPosition()) {
-                    //Search
-                    case 0:
-                        if (BuildConfig.DEBUG) Log.d(TAG, "Mode search selected");
-                        String currentSearch = settings.getString(PreferenceKeys.SEARCH_TERM, "");
-
-                        editor.putInt(PreferenceKeys.MODE, 0);
-
-                        editor.putString(PreferenceKeys.SEARCH_TERM, searchText.getText().toString());
-
-                        //We only invalidate the cache and launch an update if something has changed
-                        if (currentMode != modeChooser.getSelectedItemPosition() || !searchText.getText().toString().equals(currentSearch)) {
-                            invalidateQueryValues(editor);
-                        }
-
-                        break;
-                    //User
-                    case 1:
-                        if (BuildConfig.DEBUG) Log.d(TAG, "Mode user selected");
-                        editor.putInt(PreferenceKeys.MODE, 1);
-
-                        String userTextS = userText.getText().toString();
-                        //Let's see if this user exist
-                        if (TextUtils.isEmpty(userTextS) || !userTextS.equals(settings.getString(PreferenceKeys.USER_NAME, ""))) {
-                            getUserId(userTextS);
-                        }
-
-                        //If the mode has changed, invalidate the cache and launch an update
-                        if (currentMode != modeChooser.getSelectedItemPosition()) {
-                            invalidateQueryValues(editor);
-                        }
-
-
-                        break;
-                }
-
-                // Commit the edits!
-                editor.commit();
-                finish();
-
-            }
-        });
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         aboutShortcut.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -223,19 +170,147 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
 
     }
 
-    /**
-     * Invalidates the cache and launch an update
-     *
-     * @param editor
-     */
-    private void invalidateQueryValues(SharedPreferences.Editor editor) {
+    private void populateFooter(View footerView) {
+        final View footerButton = footerView.findViewById(R.id.list_footer_button);
+        final Spinner footerModeChooser = (Spinner)footerView.findViewById(R.id.mode_chooser);
+        final RelativeLayout addItemContainer = (RelativeLayout) footerView.findViewById(R.id.new_item_container);
+        final ImageButton footerSearchButton = (ImageButton) footerView.findViewById(R.id.footer_search_button);
+        final ProgressBar footerProgress = (ProgressBar) footerView.findViewById(R.id.footer_progress);
+        final EditText footerTerm = (EditText) footerView.findViewById(R.id.footer_term);
 
-        Photo.deleteAll(Photo.class);
-        editor.putInt(PreferenceKeys.CURRENT_PAGE, 0);
-        editor.commit();
-        startService(new Intent(SettingsActivity.this, FlickrSource.class).setAction(FlickrSource.ACTION_CLEAR_SERVICE));
+        footerButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                int[] pos = new int[2];
+                footerButton.getLocationInWindow(pos);
 
+                String contentDesc = footerButton.getContentDescription().toString();
+                Toast t = Toast.makeText(SettingsActivity.this, contentDesc, Toast.LENGTH_SHORT);
+                t.show();
+                t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, pos[1] + (footerButton.getHeight() / 2));
+
+                return true;
+            }
+        });
+
+        footerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addItemContainer.animate().alpha(1F);
+                footerButton.animate().alpha(0F);
+            }
+        });
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.modes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        footerModeChooser.setAdapter(adapter);
+
+        footerSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (footerModeChooser.getSelectedItemPosition()) {
+                    case 0:
+
+                        //It's a search
+
+                        footerSearchButton.setVisibility(View.GONE);
+                        footerProgress.setVisibility(View.VISIBLE);
+
+                        getSearch(footerTerm.getText().toString(), new SearchInfoListener() {
+                            @Override
+                            public void onSuccess(Search search) {
+                                mRequestAdapter.add(search);
+                                mRequestAdapter.notifyDataSetChanged();
+                                footerSearchButton.setVisibility(View.VISIBLE);
+                                footerProgress.setVisibility(View.GONE);
+                                footerTerm.setText("");
+                                footerModeChooser.setSelection(0);
+                                addItemContainer.animate().alpha(0F);
+                                footerButton.animate().alpha(1F);
+                            }
+
+                            @Override
+                            public void onError(String reason) {
+                                Toast.makeText(SettingsActivity.this, reason, Toast.LENGTH_LONG).show();
+                                footerSearchButton.setVisibility(View.VISIBLE);
+                                footerProgress.setVisibility(View.GONE);
+                            }
+                        });
+
+                        break;
+                    case 1:
+                        //It's an user
+                        footerSearchButton.setVisibility(View.GONE);
+                        footerProgress.setVisibility(View.VISIBLE);
+
+                        getUserId(footerTerm.getText().toString(), new UserInfoListener() {
+                            @Override
+                            public void onSuccess(User user) {
+                                mRequestAdapter.add(user);
+                                mRequestAdapter.notifyDataSetChanged();
+                                footerSearchButton.setVisibility(View.VISIBLE);
+                                footerProgress.setVisibility(View.GONE);
+                                footerTerm.setText("");
+                                footerModeChooser.setSelection(0);
+                                addItemContainer.animate().alpha(0F);
+                                footerButton.animate().alpha(1F);
+                            }
+
+                            @Override
+                            public void onError(String reason) {
+                                Toast.makeText(SettingsActivity.this, reason, Toast.LENGTH_LONG).show();
+                                footerSearchButton.setVisibility(View.VISIBLE);
+                                footerProgress.setVisibility(View.GONE);
+                            }
+                        });
+                        break;
+                }
+            }
+        });
     }
+
+    private void getSearch(final String search, final SearchInfoListener userInfoListener) {
+        RestAdapter restAdapter = new RestAdapter.Builder()
+//                        .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setServer("http://api.flickr.com/services/rest")
+                .setRequestInterceptor(new RequestInterceptor() {
+                    @Override
+                    public void intercept(RequestFacade request) {
+                        request.addQueryParam("text", search);
+                    }
+                })
+                .setErrorHandler(new ErrorHandler() {
+                    @Override
+                    public Throwable handleError(RetrofitError retrofitError) {
+                        userInfoListener.onError(getString(R.string.network_error));
+                        return retrofitError;
+                    }
+                })
+                .build();
+
+        final FlickrService service = restAdapter.create(FlickrService.class);
+        service.getPopularPhotos(0, new Callback<FlickrService.PhotosResponse>() {
+            @Override
+            public void success(FlickrService.PhotosResponse photosResponse, Response response) {
+                if (photosResponse.photos.photo.size() > 0) {
+                    Search searchDB = new Search(SettingsActivity.this, search,0, 0, photosResponse.photos.total);
+                    searchDB.save();
+                    userInfoListener.onSuccess(searchDB);
+                } else {
+                    userInfoListener.onError(getString(R.string.user_no_photo));
+
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                userInfoListener.onError(getString(R.string.network_error));
+            }
+        });
+    }
+
+
 
     /**
      * The duration picker has been closed
@@ -262,13 +337,11 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
      *
      * @param user the user to search
      */
-    private void getUserId(final String user) {
+    private void getUserId(final String user, final UserInfoListener userInfoListener) {
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-                final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-                final SharedPreferences.Editor editor = settings.edit();
 
                 RestAdapter restAdapter = new RestAdapter.Builder()
 //                        .setLogLevel(RestAdapter.LogLevel.FULL)
@@ -276,13 +349,13 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
                         .setErrorHandler(new ErrorHandler() {
                             @Override
                             public Throwable handleError(RetrofitError retrofitError) {
-                                revertIfInvalidUser(settings, editor, user);
+                                userInfoListener.onError(getString(R.string.network_error));
                                 return retrofitError;
                             }
                         })
                         .build();
 
-                FlickrService service = restAdapter.create(FlickrService.class);
+                final FlickrService service = restAdapter.create(FlickrService.class);
                 service.getUserByName(user, new Callback<FlickrService.UserByNameResponse>() {
                     @Override
                     public void success(FlickrService.UserByNameResponse userByNameResponse, Response response) {
@@ -291,8 +364,8 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
 
                         //The user has not been found
                         if (userByNameResponse == null || userByNameResponse.user == null || userByNameResponse.user.nsid == null) {
-
-                            revertIfInvalidUser(settings, editor, user);
+                            if (BuildConfig.DEBUG)  Log.d(TAG, "User not found");
+                            userInfoListener.onError(getString(R.string.user_not_found));
 
                             return;
                         }
@@ -302,19 +375,54 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "User found: " + userByNameResponse.user.nsid + " for " + user);
                         }
-                        String userId = userByNameResponse.user.nsid;
+                        final String userId = userByNameResponse.user.nsid;
 
-                        SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PreferenceKeys.USER_ID, userId);
-                        editor.putString(PreferenceKeys.USER_NAME, user);
-                        invalidateQueryValues(editor);
-                        editor.commit();
+
+                        //User has been found, let's see if he has photos
+
+                        RestAdapter restAdapter = new RestAdapter.Builder()
+                                .setLogLevel(RestAdapter.LogLevel.FULL)
+                                .setServer("http://api.flickr.com/services/rest")
+                                .setRequestInterceptor(new RequestInterceptor() {
+                                    @Override
+                                    public void intercept(RequestFacade request) {
+                                                request.addQueryParam("user_id", userId);
+                                    }
+                                })
+                                .setErrorHandler(new ErrorHandler() {
+                                    @Override
+                                    public Throwable handleError(RetrofitError retrofitError) {
+                                        userInfoListener.onError(getString(R.string.user_no_photo));
+                                        return retrofitError;
+                                    }
+                                })
+                                .build();
+
+                        FlickrService service = restAdapter.create(FlickrService.class);
+                        service.getPopularPhotosByUser(0, new Callback<FlickrService.PhotosResponse>() {
+                            @Override
+                            public void success(FlickrService.PhotosResponse photosResponse, Response response) {
+                                if (photosResponse.photos.photo.size() > 0) {
+                                    User userDB = new User(SettingsActivity.this, userId, user,0, 0, photosResponse.photos.total);
+                                    userDB.save();
+                                    userInfoListener.onSuccess(userDB);
+                                } else {
+                                    userInfoListener.onError(getString(R.string.user_no_photo));
+
+                                }
+                            }
+
+                            @Override
+                            public void failure(RetrofitError retrofitError) {
+                                userInfoListener.onError(getString(R.string.user_no_photo));
+                            }
+                        });
 
                     }
 
                     @Override
                     public void failure(RetrofitError retrofitError) {
-                        revertIfInvalidUser(settings, editor, user);
+
                     }
                 });
 
@@ -323,25 +431,17 @@ public class SettingsActivity extends FragmentActivity implements HmsPickerDialo
 
     }
 
-    /**
-     * Reverts to the correct mode and settings if the user has not been found
-     * @param settings SharedPreferences to be used
-     * @param editor SharedPreferences.Editor to be used
-     * @param user user name not found
-     */
-    private void revertIfInvalidUser(SharedPreferences settings, SharedPreferences.Editor editor, String user) {
-        //The last user had been set
-        if (TextUtils.isEmpty(settings.getString(PreferenceKeys.USER_NAME, ""))) {
 
-            //Reverting to search mode
 
-            Toast.makeText(this, getString(R.string.user_not_found_revert, user), Toast.LENGTH_LONG).show();
-            editor.putInt(PreferenceKeys.MODE, 0);
-            editor.commit();
-            invalidateQueryValues(editor);
-        } else {
-            //Reverting to previous user
-            Toast.makeText(this, getString(R.string.user_not_found_no_revert, user), Toast.LENGTH_LONG).show();
-        }
+    private interface UserInfoListener {
+        void onSuccess(User user);
+        void onError(String reason);
+    }
+
+    private interface SearchInfoListener {
+
+        void onSuccess(Search search);
+        void onError(String reason);
+
     }
 }

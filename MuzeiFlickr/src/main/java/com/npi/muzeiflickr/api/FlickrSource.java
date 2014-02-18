@@ -84,11 +84,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         //The memory photo cache is empty let's populate it
         if (storedPhotos == null) {
-//            try {
                 storedPhotos = Photo.listAll(Photo.class);
-//            } catch (NullPointerException e) {
-//
-//            }
         }
 
         //No photo in the cache, let load some from flickr

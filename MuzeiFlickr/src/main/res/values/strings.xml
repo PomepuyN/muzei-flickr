@@ -41,4 +41,8 @@
     <string name="widget_name">Flickr for Muzei</string>
     <string name="widget_disabled">Flickr for Muzei is disabled</string>
     <string name="no_photo">No photo found for this search. Reverting to default search.</string>
+    <string name="add_item">Add item</string>
+    <string name="user_no_photo">User has no photo</string>
+    <string name="user_not_found">User not found</string>
+    <string name="network_error">Network error</string>
 </resources>

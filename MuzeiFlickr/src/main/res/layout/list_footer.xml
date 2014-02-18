@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/new_item_container"
+        android:alpha="0"
+        android:paddingLeft="15dp"
+        android:paddingRight="5dp"
+        android:layout_marginTop="5dp"
+        android:background="#11ffffff">
+
+        <Spinner
+            android:id="@+id/mode_chooser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/footer_term"
+            android:layout_toLeftOf="@+id/footer_search_button_container"
+            android:layout_toRightOf="@+id/mode_chooser"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp" />
+
+        <FrameLayout
+            android:id="@+id/footer_search_button_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true">
+
+            <ImageButton
+                android:id="@+id/footer_search_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/icon_search" />
+            <ProgressBar
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:id="@+id/footer_progress"
+                android:visibility="gone"/>
+
+        </FrameLayout>
+
+
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/list_footer_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="10dp"
+        android:layout_centerInParent="true"
+        android:contentDescription="@string/add_item"
+        android:background="@drawable/s_plus_button" />
+
+</RelativeLayout>
