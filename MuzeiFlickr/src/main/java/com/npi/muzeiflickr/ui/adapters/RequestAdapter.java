@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.npi.muzeiflickr.R;
@@ -45,7 +44,6 @@ public class RequestAdapter extends ArrayAdapter<RequestData> {
             holder = new LocalHolder();
             holder.title = (TextView) convertView.findViewById(R.id.title);
             // holder.email = (OTextView) convertView.findViewById(R.id.about_email);
-            holder.type_icon = (ImageView) convertView.findViewById(R.id.type_icon);
             holder.photoCount = (TextView) convertView.findViewById(R.id.photo_count);
             convertView.setTag(holder);
         } else {
@@ -54,15 +52,14 @@ public class RequestAdapter extends ArrayAdapter<RequestData> {
 
         RequestData item  = getItem(position);
 
-        holder.type_icon.setImageDrawable(mContext.getResources().getDrawable(item.getIconRessource()));
         holder.title.setText(item.getTitle());
+        holder.title.setCompoundDrawablesRelativeWithIntrinsicBounds(mContext.getResources().getDrawable(item.getIconRessource()), null, null,null);
         holder.photoCount.setText(item.getCurrentPhotoIndex()+" / "+item.getPhotoTotal());
 
         return convertView;
     }
 
     static class LocalHolder {
-        public ImageView type_icon;
         public TextView title;
         public TextView photoCount;
     }

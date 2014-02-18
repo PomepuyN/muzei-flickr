@@ -14,24 +14,18 @@
         android:layout_marginLeft="45dp"
         android:layout_marginRight="45dp">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/type_icon"
-            android:layout_marginRight="8dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:layout_centerVertical="true"
             style="@style/Settings.Shadow"
             android:textColor="@android:color/white"
             android:id="@+id/title"
             android:layout_toLeftOf="@+id/photo_count"
-            android:layout_toRightOf="@+id/type_icon"/>
+            android:drawablePadding="5dp"
+            android:layout_alignParentLeft="true"/>
 
         <TextView
             android:layout_width="wrap_content"

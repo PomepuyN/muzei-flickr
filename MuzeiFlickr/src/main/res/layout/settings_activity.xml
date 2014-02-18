@@ -7,6 +7,8 @@
     android:layout_height="match_parent"
     android:background="#22000000">
 
+
+
     <ImageView
         android:id="@+id/about"
         android:layout_width="48dp"
@@ -16,7 +18,8 @@
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
         android:scaleType="centerInside"
-        android:src="@drawable/stat_sys_certificate_info"/>
+        android:src="@drawable/stat_sys_certificate_info" />
+
     <RelativeLayout
         android:id="@+id/title"
         android:layout_width="wrap_content"
@@ -35,7 +38,7 @@
             android:text="@string/settings_title"
             android:textSize="32sp"
             android:textColor="@android:color/white"
-            android:fontFamily="fonts/alegreya-black-italic.ttf"/>
+            android:fontFamily="fonts/alegreya-black-italic.ttf" />
 
         <TextView
             style="@style/Settings.Shadow"
@@ -47,12 +50,9 @@
             android:layout_alignBaseline="@+id/title_flickr"
             android:layout_marginLeft="5dp"
             android:textColor="@android:color/white"
-            android:fontFamily="fonts/alegreya-black-italic.ttf"/>
+            android:fontFamily="fonts/alegreya-black-italic.ttf" />
 
-        </RelativeLayout>
-
-
-
+    </RelativeLayout>
 
 
     <com.mobeta.android.dslv.DragSortListView
@@ -74,7 +74,7 @@
         app:remove_enabled="true"
         app:remove_mode="flingRemove"
         app:slide_shuffle_speed="0.3"
-        android:layout_above="@+id/refresh_rate_container"/>
+        android:layout_above="@+id/refresh_rate_container" />
 
 
     <RelativeLayout
@@ -113,7 +113,7 @@
             android:textColor="@android:color/white"
             android:gravity="center_vertical"
             android:layout_gravity="right"
-            style="@style/Settings.Shadow"/>
+            style="@style/Settings.Shadow" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -151,6 +151,48 @@
             android:layout_gravity="right" />
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/undo_container"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@drawable/undo_background"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="15dp">
+
+        <TextView
+            android:id="@+id/last_deleted_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:textSize="14sp"
+            android:layout_marginLeft="15dp"
+            android:layout_toLeftOf="@+id/undo_separator"/>
+
+        <View
+            android:id="@+id/undo_separator"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#000000"
+            android:layout_toLeftOf="@+id/last_deleted_undo"/>
+
+        <TextView
+            android:text="@string/undo"
+            android:id="@+id/last_deleted_undo"
+            android:background="@drawable/s_undo_background"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentRight="true"
+            android:paddingRight="15dp"
+            android:paddingLeft="10dp"
+            android:textAllCaps="true"
+            android:textSize="16sp"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
 
 
 </RelativeLayout>

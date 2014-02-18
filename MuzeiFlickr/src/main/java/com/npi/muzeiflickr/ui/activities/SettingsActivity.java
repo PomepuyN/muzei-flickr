@@ -71,6 +71,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     private DragSortListView mRequestList;
     private RequestAdapter mRequestAdapter;
 
+    private RequestData mLastDeletedItem;
+    private RelativeLayout mUndoContainer;
+    private TextView mLastDeletedItemText;
     private DragSortListView.RemoveListener onRemove =
             new DragSortListView.RemoveListener() {
                 @Override
@@ -85,7 +88,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     } else if (item instanceof Search) {
                         ((Search)item).delete();
                     }
+                    mLastDeletedItem = item;
                     mRequestAdapter.notifyDataSetChanged();
+                    mLastDeletedItemText.setText(item.getTitle());
+                    mUndoContainer.setVisibility(View.VISIBLE);
                 }
             };
 
@@ -111,6 +117,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mRefreshRate = (TextView) findViewById(R.id.refresh_rate);
         ImageView aboutShortcut = (ImageView) findViewById(R.id.about);
         mRequestList = (DragSortListView) findViewById(R.id.content_list);
+        mUndoContainer = (RelativeLayout) findViewById(R.id.undo_container);
+        mLastDeletedItemText = (TextView) findViewById(R.id.last_deleted_item);
+        TextView mLastDeletedUndo = (TextView) findViewById(R.id.last_deleted_undo);
 
         List<RequestData> items = new ArrayList<RequestData>();
         items.addAll(Search.listAll(Search.class));
@@ -126,8 +135,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mRequestList.setRemoveListener(onRemove);
 
         populateFooter(footerView);
-
-
 
         //Wifi status and setting
         wifiOnly.setChecked(settings.getBoolean(PreferenceKeys.WIFI_ONLY, false));
@@ -165,6 +172,24 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             @Override
             public void onClick(View v) {
                 AboutActivity.launchActivity(SettingsActivity.this);
+            }
+        });
+
+        mLastDeletedUndo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mLastDeletedItem instanceof User) {
+                    User user = ((User) mLastDeletedItem);
+                    user.setId(null);
+                    user.save();
+                } else if (mLastDeletedItem instanceof Search) {
+                    Search search = ((Search)mLastDeletedItem);
+                    search.setId(null);
+                    search.save();
+                }
+                mRequestAdapter.add(mLastDeletedItem);
+                mRequestAdapter.notifyDataSetChanged();
+                mUndoContainer.setVisibility(View.GONE);
             }
         });
 
