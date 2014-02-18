@@ -45,4 +45,6 @@
     <string name="user_no_photo">User has no photo</string>
     <string name="user_not_found">User not found</string>
     <string name="network_error">Network error</string>
+    <string name="search_exists">Search already exists</string>
+    <string name="user_exists">User already exists</string>
 </resources>

@@ -209,15 +209,25 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         footerSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String searchString = footerTerm.getText().toString();
                 switch (footerModeChooser.getSelectedItemPosition()) {
                     case 0:
 
                         //It's a search
 
+                        //Looking for a same existing search
+                        List<Search> searchs = Search.listAll(Search.class);
+                        for (Search search:searchs) {
+                            if (search.getTitle().equals(searchString)) {
+                                Toast.makeText(SettingsActivity.this, getString(R.string.search_exists), Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                        }
+
                         footerSearchButton.setVisibility(View.GONE);
                         footerProgress.setVisibility(View.VISIBLE);
 
-                        getSearch(footerTerm.getText().toString(), new SearchInfoListener() {
+                        getSearch(searchString, new SearchInfoListener() {
                             @Override
                             public void onSuccess(Search search) {
                                 mRequestAdapter.add(search);
@@ -241,10 +251,20 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         break;
                     case 1:
                         //It's an user
+
+                        //Looking for a same existing search
+                        List<User> users = User.listAll(User.class);
+                        for (User user:users) {
+                            if (user.getTitle().equals(searchString)) {
+                                Toast.makeText(SettingsActivity.this, getString(R.string.user_exists), Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                        }
+
                         footerSearchButton.setVisibility(View.GONE);
                         footerProgress.setVisibility(View.VISIBLE);
 
-                        getUserId(footerTerm.getText().toString(), new UserInfoListener() {
+                        getUserId(searchString, new UserInfoListener() {
                             @Override
                             public void onSuccess(User user) {
                                 mRequestAdapter.add(user);
