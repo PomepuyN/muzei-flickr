@@ -45,10 +45,12 @@ import com.npi.muzeiflickr.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit.Callback;
 import retrofit.ErrorHandler;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class FlickrSource extends RemoteMuzeiArtSource {
     private static final String TAG = "FlickrSource";
@@ -273,116 +275,148 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 .build();
 
 
-        FlickrService service = restAdapter.create(FlickrService.class);
+        final FlickrService service = restAdapter.create(FlickrService.class);
         //Request the correct page
-        int page = settings.getInt(PreferenceKeys.CURRENT_PAGE, -1) + 1;
+        final int page = settings.getInt(PreferenceKeys.CURRENT_PAGE, -1) + 1;
         if (BuildConfig.DEBUG) Log.d(TAG, "Requesting page: " + page);
 
         FlickrService.PhotosResponse response = null;
         int mode = settings.getInt(PreferenceKeys.MODE, 0);
 
+        Callback<FlickrService.PhotosResponse> photosResponseCallback = new Callback<FlickrService.PhotosResponse>() {
+            @Override
+            public void success(FlickrService.PhotosResponse photosResponse, Response response) {
+                if (response == null || photosResponse.photos.photo == null || photosResponse.photos == null) {
+                    Log.w(TAG, "Unable to get the photo list");
+                    return;
+                }
+
+                //No photo
+                if (page == 1 && photosResponse.photos.photo.size() < 1) {
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putInt(PreferenceKeys.MODE, 0);
+                    editor.putString(PreferenceKeys.SEARCH_TERM, "");
+                    editor.commit();
+                    Log.w(TAG, "No photo in search");
+                    return;
+                }
+
+                if (BuildConfig.DEBUG) Log.d(TAG, "Stored page: " + page + "/" + photosResponse.photos.pages);
+                SharedPreferences.Editor editor = settings.edit();
+                if (page >= photosResponse.photos.pages) {
+                    editor.putInt(PreferenceKeys.CURRENT_PAGE, 0);
+                } else {
+                    editor.putInt(PreferenceKeys.CURRENT_PAGE, page);
+
+                }
+
+
+                if (BuildConfig.DEBUG) Log.d(TAG, "Stored page: " + page);
+
+
+                editor.commit();
+
+                //Store photos
+                for (final FlickrService.Photo photo : photosResponse.photos.photo) {
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Getting infos for photo: " + photo.id);
+
+
+                    service.getSize(photo.id, new Callback<FlickrService.SizeResponse>() {
+                        @Override
+                        public void success(FlickrService.SizeResponse responseSize, Response response) {
+                            if (responseSize == null || responseSize.sizes == null) {
+                                Log.w(TAG, "Unable to get the infos for photo");
+                                return;
+                            }
+
+                            //Get the largest size limited to screen height to avoid too much loading
+                            int currentSizeHeight = 0;
+                            FlickrService.Size largestSize = null;
+                            for (FlickrService.Size size : responseSize.sizes.size) {
+                                if (size.height > currentSizeHeight && size.height < Utils.getScreenHeight(FlickrSource.this)) {
+                                    currentSizeHeight = size.height;
+                                    largestSize = size;
+                                }
+                            }
+
+                            if (largestSize != null) {
+
+                                FlickrService.UserResponse responseUser = null;
+                                //Request user info (for the title)
+                                final FlickrService.Size finalLargestSize = largestSize;
+                                service.getUser(photo.owner, new Callback<FlickrService.UserResponse>() {
+                                        @Override
+                                        public void success(FlickrService.UserResponse responseUser, Response response) {
+                                            if (responseUser == null || responseUser.person == null) {
+                                                Log.w(TAG, "Unable to get the infos for user");
+                                                return;
+                                            }
+
+                                            String name = "";
+                                            if (responseUser.person.realname != null) {
+                                                name = responseUser.person.realname._content;
+                                            }
+                                            if (TextUtils.isEmpty(name) && responseUser.person.username != null) {
+                                                name = responseUser.person.username._content;
+                                            }
+
+
+                                            //Add the photo
+                                            Photo photoEntity = new Photo(FlickrSource.this);
+                                            photoEntity.userName = name;
+                                            photoEntity.url = "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id;
+                                            photoEntity.source = finalLargestSize.source;
+                                            photoEntity.title = photo.title;
+                                            photoEntity.photoId = photo.id;
+
+                                            if (storedPhotos == null) {
+                                                storedPhotos = Photo.listAll(Photo.class);
+                                            }
+                                            if (storedPhotos == null) {
+                                                storedPhotos = new ArrayList<Photo>();
+                                            }
+                                            storedPhotos.add(photoEntity);
+                                            photoEntity.save();
+                                        }
+
+                                        @Override
+                                        public void failure(RetrofitError retrofitError) {
+
+                                        }
+                                    });
+
+
+
+                            }
+                        }
+
+                        @Override
+                        public void failure(RetrofitError retrofitError) {
+
+                        }
+                    });
+
+
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+
+            }
+        };
+
         switch (mode) {
             case 0:
-                response = service.getPopularPhotos(page);
+                service.getPopularPhotos(page, photosResponseCallback);
 
                 break;
             case 1:
-                response = service.getPopularPhotosByUser(page);
+                service.getPopularPhotosByUser(page, photosResponseCallback);
                 break;
         }
 
-        if (response == null || response.photos.photo == null || response.photos == null) {
-            Log.w(TAG, "Unable to get the photo list");
-            return;
-        }
 
-        //No photo
-        if (page == 1 && response.photos.photo.size() < 1) {
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putInt(PreferenceKeys.MODE, 0);
-            editor.putString(PreferenceKeys.SEARCH_TERM, "");
-            editor.commit();
-            Log.w(TAG, "No photo in search");
-            return;
-        }
-
-        if (BuildConfig.DEBUG) Log.d(TAG, "Stored page: " + page + "/" + response.photos.pages);
-        if (page >= response.photos.pages) {
-            page = 0;
-        }
-
-
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(PreferenceKeys.CURRENT_PAGE, page);
-        if (BuildConfig.DEBUG) Log.d(TAG, "Stored page: " + page);
-
-
-        editor.commit();
-
-        //Store photos
-        for (FlickrService.Photo photo : response.photos.photo) {
-            if (BuildConfig.DEBUG) Log.d(TAG, "Getting infos for photo: " + photo.id);
-            FlickrService.SizeResponse responseSize = service.getSize(photo.id);
-
-            if (responseSize == null || responseSize.sizes == null) {
-                Log.w(TAG, "Unable to get the infos for photo");
-                return;
-            }
-
-            //Get the largest size limited to screen height to avoid too much loading
-            int currentSizeHeight = 0;
-            FlickrService.Size largestSize = null;
-            for (FlickrService.Size size : responseSize.sizes.size) {
-                if (size.height > currentSizeHeight && size.height < Utils.getScreenHeight(this)) {
-                    currentSizeHeight = size.height;
-                    largestSize = size;
-                }
-            }
-
-            if (largestSize != null) {
-
-                FlickrService.UserResponse responseUser = null;
-                //Request user info (for the title)
-                try {
-                    responseUser = service.getUser(photo.owner);
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
-                    return;
-                }
-
-                if (responseUser == null || responseUser.person == null) {
-                    Log.w(TAG, "Unable to get the infos for user");
-                    return;
-                }
-
-                String name = "";
-                if (responseUser.person.realname != null) {
-                    name = responseUser.person.realname._content;
-                }
-                if (TextUtils.isEmpty(name) && responseUser.person.username != null) {
-                    name = responseUser.person.username._content;
-                }
-
-
-                //Add the photo
-                Photo photoEntity = new Photo(this.getApplicationContext());
-                photoEntity.userName = name;
-                photoEntity.url = "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id;
-                photoEntity.source = largestSize.source;
-                photoEntity.title = photo.title;
-                photoEntity.photoId = photo.id;
-
-                if (storedPhotos == null) {
-                    storedPhotos = Photo.listAll(Photo.class);
-                }
-                if (storedPhotos == null) {
-                    storedPhotos = new ArrayList<Photo>();
-                }
-                storedPhotos.add(photoEntity);
-                photoEntity.save();
-
-            }
-        }
 
 
     }

@@ -38,13 +38,16 @@ public interface FlickrService {
     void getPopularPhotosByUser(@Query("page") int page, Callback<PhotosResponse> callback);
 
     @GET("/?&method=flickr.people.getInfo&format=json&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
-    UserResponse getUser(@Query("user_id") String owner);
+    void getUser(@Query("user_id") String owner, Callback<UserResponse> callback);
 
     @GET("/?&method=flickr.photos.search&per_page=5&safe_search=1&sort=interestingness-desc&format=json&license=1,2,3,4,5,6,7&privacy_filter=1&api_key="+ Config.CONSUMER_KEY+"&nojsoncallback=1")
     void getPopularPhotos(@Query("page") int page, Callback<PhotosResponse> callback);
 
     @GET("/?&method=flickr.photos.getSizes&format=json&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
     SizeResponse getSize(@Query("photo_id") String photo);
+
+    @GET("/?&method=flickr.photos.getSizes&format=json&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
+    void getSize(@Query("photo_id") String photo, Callback<SizeResponse> callback);
 
     @GET("/?&method=flickr.people.findByUsername&format=json&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
     void getUserByName(@Query("username") String user, Callback<UserByNameResponse> callback);
