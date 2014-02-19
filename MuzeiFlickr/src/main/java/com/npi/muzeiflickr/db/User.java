@@ -13,8 +13,8 @@ public class User extends SugarRecord<User> implements RequestData {
     int total;
     int current;
     String userName;
-    String userId;
-    int page;
+    public String userId;
+    public int page;
 
     public User(Context context) {
         super(context);
@@ -47,5 +47,16 @@ public class User extends SugarRecord<User> implements RequestData {
     @Override
     public String getCurrentPhotoIndex() {
         return String.valueOf(current);
+    }
+
+    @Override
+    public int getCurrentPage() {
+        return page;
+    }
+
+    @Override
+    public void setPage(int i) {
+        page = i;
+        save();
     }
 }

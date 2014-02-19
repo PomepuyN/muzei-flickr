@@ -22,9 +22,6 @@ public class PreferenceKeys {
     public static final String WIFI_ONLY = "wifi_only";
 
     public static final String REFRESH_TIME = "refresh";
-    public static final String MODE = "mode";
-    public static final String SEARCH_TERM = "search";
-    public static final String USER_ID = "userId";
     public static final String CURRENT_PAGE = "page";
     public static final String USER_NAME = "userName";
     public static final String CURRENT_TITLE = "currenTitle";

@@ -37,20 +37,19 @@ import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.Photo;
+import com.npi.muzeiflickr.db.RequestData;
+import com.npi.muzeiflickr.db.Search;
+import com.npi.muzeiflickr.db.User;
+import com.npi.muzeiflickr.network.FlickrApiData;
 import com.npi.muzeiflickr.network.FlickrService;
+import com.npi.muzeiflickr.network.FlickrServiceInterface;
 import com.npi.muzeiflickr.ui.activities.SettingsActivity;
 import com.npi.muzeiflickr.ui.widgets.FlickrWidget;
 import com.npi.muzeiflickr.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import retrofit.Callback;
-import retrofit.ErrorHandler;
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 public class FlickrSource extends RemoteMuzeiArtSource {
     private static final String TAG = "FlickrSource";
@@ -111,6 +110,8 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             throw new RetryException();
         }
 
+        Collections.shuffle(storedPhotos);
+
 
         //Get the photo
         Photo photo = storedPhotos.get(0);
@@ -154,7 +155,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     private void manageUserCommands(SharedPreferences settings) {
         List<UserCommand> commands = new ArrayList<UserCommand>();
         commands.add(new UserCommand(COMMAND_ID_SHARE, getString(R.string.share)));
-        commands.add(new UserCommand(BUILTIN_COMMAND_ID_NEXT_ARTWORK,""));
+        commands.add(new UserCommand(BUILTIN_COMMAND_ID_NEXT_ARTWORK, ""));
         if (settings.getBoolean(PreferenceKeys.PAUSED, false)) {
             commands.add(new UserCommand(COMMAND_ID_RESTART, getString(R.string.restart)));
         } else {
@@ -232,192 +233,144 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         if (BuildConfig.DEBUG) Log.d(TAG, "Start service");
 
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setServer("http://api.flickr.com/services/rest")
-                .setRequestInterceptor(new RequestInterceptor() {
-                    @Override
-                    public void intercept(RequestInterceptor.RequestFacade request) {
+        List<User> users = User.listAll(User.class);
+        List<Search> searches = Search.listAll(Search.class);
 
-                        //Change the request depending on the mode
-                        int mode = settings.getInt(PreferenceKeys.MODE, 0);
-
-                        switch (mode) {
-                            case 0:
-
-                                String search = settings.getString(PreferenceKeys.SEARCH_TERM, "landscape");
-                                if (TextUtils.isEmpty(search)) search = "landscape";
-                                if (BuildConfig.DEBUG) Log.d(TAG, "Request: " + search);
-                                request.addQueryParam("text", search);
-
-                                break;
-
-                            case 1:
-
-                                String user = settings.getString(PreferenceKeys.USER_ID, "");
-                                request.addQueryParam("user_id", user);
-
-                                break;
-
-                        }
+        for (final User user : users) {
 
 
-                    }
-                })
-                .setErrorHandler(new ErrorHandler() {
-                    @Override
-                    public Throwable handleError(RetrofitError retrofitError) {
-                        //Issue with update. Let's wait for the next time
-                        scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, DEFAULT_REFRESH_TIME));
-                        return retrofitError;
-                    }
-                })
-                .build();
-
-
-        final FlickrService service = restAdapter.create(FlickrService.class);
-        //Request the correct page
-        final int page = settings.getInt(PreferenceKeys.CURRENT_PAGE, -1) + 1;
-        if (BuildConfig.DEBUG) Log.d(TAG, "Requesting page: " + page);
-
-        FlickrService.PhotosResponse response = null;
-        int mode = settings.getInt(PreferenceKeys.MODE, 0);
-
-        Callback<FlickrService.PhotosResponse> photosResponseCallback = new Callback<FlickrService.PhotosResponse>() {
-            @Override
-            public void success(FlickrService.PhotosResponse photosResponse, Response response) {
-                if (response == null || photosResponse.photos.photo == null || photosResponse.photos == null) {
-                    Log.w(TAG, "Unable to get the photo list");
-                    return;
-                }
-
-                //No photo
-                if (page == 1 && photosResponse.photos.photo.size() < 1) {
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putInt(PreferenceKeys.MODE, 0);
-                    editor.putString(PreferenceKeys.SEARCH_TERM, "");
-                    editor.commit();
-                    Log.w(TAG, "No photo in search");
-                    return;
-                }
-
-                if (BuildConfig.DEBUG) Log.d(TAG, "Stored page: " + page + "/" + photosResponse.photos.pages);
-                SharedPreferences.Editor editor = settings.edit();
-                if (page >= photosResponse.photos.pages) {
-                    editor.putInt(PreferenceKeys.CURRENT_PAGE, 0);
-                } else {
-                    editor.putInt(PreferenceKeys.CURRENT_PAGE, page);
+            if (BuildConfig.DEBUG) Log.d(TAG, "User" + user.getTitle() + " - page " + user.page);
+            FlickrService.getPopularPhotosByUser(user.userId, user.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                @Override
+                public void onFailure() {
 
                 }
 
-
-                if (BuildConfig.DEBUG) Log.d(TAG, "Stored page: " + page);
-
-
-                editor.commit();
-
-                //Store photos
-                for (final FlickrService.Photo photo : photosResponse.photos.photo) {
-                    if (BuildConfig.DEBUG) Log.d(TAG, "Getting infos for photo: " + photo.id);
+                @Override
+                public void onSuccess(FlickrApiData.PhotosResponse response) {
+                    managePhotoResponse(user, response);
+                }
+            });
 
 
-                    service.getSize(photo.id, new Callback<FlickrService.SizeResponse>() {
-                        @Override
-                        public void success(FlickrService.SizeResponse responseSize, Response response) {
-                            if (responseSize == null || responseSize.sizes == null) {
-                                Log.w(TAG, "Unable to get the infos for photo");
-                                return;
-                            }
+        }
+        for (final Search search : searches) {
 
-                            //Get the largest size limited to screen height to avoid too much loading
-                            int currentSizeHeight = 0;
-                            FlickrService.Size largestSize = null;
-                            for (FlickrService.Size size : responseSize.sizes.size) {
-                                if (size.height > currentSizeHeight && size.height < Utils.getScreenHeight(FlickrSource.this)) {
-                                    currentSizeHeight = size.height;
-                                    largestSize = size;
-                                }
-                            }
-
-                            if (largestSize != null) {
-
-                                FlickrService.UserResponse responseUser = null;
-                                //Request user info (for the title)
-                                final FlickrService.Size finalLargestSize = largestSize;
-                                service.getUser(photo.owner, new Callback<FlickrService.UserResponse>() {
-                                        @Override
-                                        public void success(FlickrService.UserResponse responseUser, Response response) {
-                                            if (responseUser == null || responseUser.person == null) {
-                                                Log.w(TAG, "Unable to get the infos for user");
-                                                return;
-                                            }
-
-                                            String name = "";
-                                            if (responseUser.person.realname != null) {
-                                                name = responseUser.person.realname._content;
-                                            }
-                                            if (TextUtils.isEmpty(name) && responseUser.person.username != null) {
-                                                name = responseUser.person.username._content;
-                                            }
-
-
-                                            //Add the photo
-                                            Photo photoEntity = new Photo(FlickrSource.this);
-                                            photoEntity.userName = name;
-                                            photoEntity.url = "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id;
-                                            photoEntity.source = finalLargestSize.source;
-                                            photoEntity.title = photo.title;
-                                            photoEntity.photoId = photo.id;
-
-                                            if (storedPhotos == null) {
-                                                storedPhotos = Photo.listAll(Photo.class);
-                                            }
-                                            if (storedPhotos == null) {
-                                                storedPhotos = new ArrayList<Photo>();
-                                            }
-                                            storedPhotos.add(photoEntity);
-                                            photoEntity.save();
-                                        }
-
-                                        @Override
-                                        public void failure(RetrofitError retrofitError) {
-
-                                        }
-                                    });
-
-
-
-                            }
-                        }
-
-                        @Override
-                        public void failure(RetrofitError retrofitError) {
-
-                        }
-                    });
-
+            FlickrService.getPopularPhotos(search.term, search.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                @Override
+                public void onFailure() {
 
                 }
-            }
 
-            @Override
-            public void failure(RetrofitError retrofitError) {
+                @Override
+                public void onSuccess(FlickrApiData.PhotosResponse response) {
+                    managePhotoResponse(search, response);
+                }
+            });
 
-            }
-        };
 
-        switch (mode) {
-            case 0:
-                service.getPopularPhotos(page, photosResponseCallback);
-
-                break;
-            case 1:
-                service.getPopularPhotosByUser(page, photosResponseCallback);
-                break;
         }
 
 
+    }
 
+    private void managePhotoResponse(RequestData requestData, FlickrApiData.PhotosResponse photosResponse) {
+
+        if (photosResponse == null || photosResponse.photos.photo == null || photosResponse.photos == null) {
+            Log.w(TAG, "Unable to get the photo list");
+            return;
+        }
+
+        int currentPage = requestData.getCurrentPage();
+        if (photosResponse.photos.pages < currentPage) {
+            if (BuildConfig.DEBUG)
+                Log.d(TAG, "Last page: " + currentPage + "/" + photosResponse.photos.pages);
+            requestData.setPage(1);
+        } else {
+            if (BuildConfig.DEBUG) Log.d(TAG, "Set page to " + String.valueOf(currentPage + 1));
+            requestData.setPage(currentPage + 1);
+        }
+
+
+        //Store photos
+        for (final FlickrApiData.Photo photo : photosResponse.photos.photo) {
+            if (BuildConfig.DEBUG) Log.d(TAG, "Getting infos for photo: " + photo.id);
+
+
+            FlickrService.getInstance().getSize(photo.id, new FlickrServiceInterface.IRequestListener<FlickrApiData.SizeResponse>() {
+                @Override
+                public void onFailure() {
+
+                }
+
+                @Override
+                public void onSuccess(FlickrApiData.SizeResponse responseSize) {
+                    if (responseSize == null || responseSize.sizes == null) {
+                        Log.w(TAG, "Unable to get the infos for photo");
+                        return;
+                    }
+
+                    //Get the largest size limited to screen height to avoid too much loading
+                    int currentSizeHeight = 0;
+                    FlickrApiData.Size largestSize = null;
+                    for (FlickrApiData.Size size : responseSize.sizes.size) {
+                        if (size.height > currentSizeHeight && size.height < Utils.getScreenHeight(FlickrSource.this)) {
+                            currentSizeHeight = size.height;
+                            largestSize = size;
+                        }
+                    }
+
+                    if (largestSize != null) {
+
+                        FlickrApiData.UserResponse responseUser = null;
+                        //Request user info (for the title)
+                        final FlickrApiData.Size finalLargestSize = largestSize;
+
+                        FlickrService.getInstance().getUser(photo.owner, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserResponse>() {
+                            @Override
+                            public void onFailure() {
+
+                            }
+
+                            @Override
+                            public void onSuccess(FlickrApiData.UserResponse responseUser) {
+                                if (responseUser == null || responseUser.person == null) {
+                                    Log.w(TAG, "Unable to get the infos for user");
+                                    return;
+                                }
+
+                                String name = "";
+                                if (responseUser.person.realname != null) {
+                                    name = responseUser.person.realname._content;
+                                }
+                                if (TextUtils.isEmpty(name) && responseUser.person.username != null) {
+                                    name = responseUser.person.username._content;
+                                }
+
+
+                                //Add the photo
+                                Photo photoEntity = new Photo(FlickrSource.this);
+                                photoEntity.userName = name;
+                                photoEntity.url = "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id;
+                                photoEntity.source = finalLargestSize.source;
+                                photoEntity.title = photo.title;
+                                photoEntity.photoId = photo.id;
+
+                                if (storedPhotos == null) {
+                                    storedPhotos = Photo.listAll(Photo.class);
+                                }
+                                if (storedPhotos == null) {
+                                    storedPhotos = new ArrayList<Photo>();
+                                }
+                                storedPhotos.add(photoEntity);
+                                photoEntity.save();
+                            }
+                        });
+
+                    }
+                }
+            });
+        }
 
     }
 

@@ -13,8 +13,8 @@ public class Search extends SugarRecord<Search> implements RequestData {
         super(context);
     }
 
-    String term;
-    int page;
+    public String term;
+    public int page;
     int total;
     int current;
 
@@ -45,5 +45,16 @@ public class Search extends SugarRecord<Search> implements RequestData {
     @Override
     public String getCurrentPhotoIndex() {
         return String.valueOf(current);
+    }
+
+    @Override
+    public int getCurrentPage() {
+        return page;
+    }
+
+    @Override
+    public void setPage(int i) {
+        page = i;
+        save();
     }
 }

@@ -12,4 +12,8 @@ public interface RequestData {
     String getPhotoTotal();
 
     String getCurrentPhotoIndex();
+
+    int getCurrentPage();
+
+    void setPage(int i);
 }

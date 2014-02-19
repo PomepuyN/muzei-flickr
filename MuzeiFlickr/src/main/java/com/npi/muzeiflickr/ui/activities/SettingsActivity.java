@@ -27,7 +27,8 @@ import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
 import com.npi.muzeiflickr.db.User;
-import com.npi.muzeiflickr.network.FlickrService;
+import com.npi.muzeiflickr.network.FlickrApiData;
+import com.npi.muzeiflickr.network.FlickrServiceInterface;
 import com.npi.muzeiflickr.ui.adapters.RequestAdapter;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerDialogFragment;
@@ -38,7 +39,6 @@ import java.util.List;
 
 import retrofit.Callback;
 import retrofit.ErrorHandler;
-import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -319,12 +319,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         RestAdapter restAdapter = new RestAdapter.Builder()
 //                        .setLogLevel(RestAdapter.LogLevel.FULL)
                 .setServer("http://api.flickr.com/services/rest")
-                .setRequestInterceptor(new RequestInterceptor() {
-                    @Override
-                    public void intercept(RequestFacade request) {
-                        request.addQueryParam("text", search);
-                    }
-                })
                 .setErrorHandler(new ErrorHandler() {
                     @Override
                     public Throwable handleError(RetrofitError retrofitError) {
@@ -334,10 +328,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 })
                 .build();
 
-        final FlickrService service = restAdapter.create(FlickrService.class);
-        service.getPopularPhotos(0, new Callback<FlickrService.PhotosResponse>() {
+        final FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
+
+
+
+        service.getPopularPhotos(search, 0, new Callback<FlickrApiData.PhotosResponse>() {
             @Override
-            public void success(FlickrService.PhotosResponse photosResponse, Response response) {
+            public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
                 if (photosResponse.photos.photo.size() > 0) {
                     Search searchDB = new Search(SettingsActivity.this, search,0, 0, photosResponse.photos.total);
                     searchDB.save();
@@ -400,10 +397,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         })
                         .build();
 
-                final FlickrService service = restAdapter.create(FlickrService.class);
-                service.getUserByName(user, new Callback<FlickrService.UserByNameResponse>() {
+                final FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
+                service.getUserByName(user, new Callback<FlickrApiData.UserByNameResponse>() {
                     @Override
-                    public void success(FlickrService.UserByNameResponse userByNameResponse, Response response) {
+                    public void success(FlickrApiData.UserByNameResponse userByNameResponse, Response response) {
                         if (BuildConfig.DEBUG) Log.d(TAG, "Looking for user");
 
 
@@ -428,12 +425,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         RestAdapter restAdapter = new RestAdapter.Builder()
                                 .setLogLevel(RestAdapter.LogLevel.FULL)
                                 .setServer("http://api.flickr.com/services/rest")
-                                .setRequestInterceptor(new RequestInterceptor() {
-                                    @Override
-                                    public void intercept(RequestFacade request) {
-                                                request.addQueryParam("user_id", userId);
-                                    }
-                                })
                                 .setErrorHandler(new ErrorHandler() {
                                     @Override
                                     public Throwable handleError(RetrofitError retrofitError) {
@@ -443,12 +434,12 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 })
                                 .build();
 
-                        FlickrService service = restAdapter.create(FlickrService.class);
-                        service.getPopularPhotosByUser(0, new Callback<FlickrService.PhotosResponse>() {
+                        FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
+                        service.getPopularPhotosByUser(userId, 0, new Callback<FlickrApiData.PhotosResponse>() {
                             @Override
-                            public void success(FlickrService.PhotosResponse photosResponse, Response response) {
+                            public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
                                 if (photosResponse.photos.photo.size() > 0) {
-                                    User userDB = new User(SettingsActivity.this, userId, user,0, 0, photosResponse.photos.total);
+                                    User userDB = new User(SettingsActivity.this, userId, user,1, 0, photosResponse.photos.total);
                                     userDB.save();
                                     userInfoListener.onSuccess(userDB);
                                 } else {
