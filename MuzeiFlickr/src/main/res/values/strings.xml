@@ -48,4 +48,8 @@
     <string name="search_exists">Search already exists</string>
     <string name="user_exists">User already exists</string>
     <string name="undo">Undo</string>
+    <string name="share">Share</string>
+    <string name="restart">Restart</string>
+    <string name="pause">Pause</string>
+    <string name="no_artwork">No artwork to share</string>
 </resources>

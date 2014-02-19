@@ -24,12 +24,17 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
+import com.google.android.apps.muzei.api.UserCommand;
 import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.network.FlickrService;
@@ -52,6 +57,9 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     public static final String ACTION_CLEAR_SERVICE = "com.npi.muzeiflickr.ACTION_CLEAR_SERVICE";
     public static final String ACTION_REFRESH_FROM_WIDGET = "com.npi.muzeiflickr.NEXT_FROM_WIDGET";
     public static final int DEFAULT_REFRESH_TIME = 7200000;
+    private static final int COMMAND_ID_SHARE = 1;
+    private static final int COMMAND_ID_PAUSE = 2;
+    private static final int COMMAND_ID_RESTART = 3;
     private List<Photo> storedPhotos;
 
     public FlickrSource() {
@@ -74,6 +82,12 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     protected void onTryUpdate(int reason) throws RetryException {
         final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
 
+        //Avoid refresh if it's paused
+        if (settings.getBoolean(PreferenceKeys.PAUSED, false)) {
+            manageUserCommands(settings);
+            return;
+        }
+
         // Check if we cancel the update due to WIFI connection
         if (settings.getBoolean(PreferenceKeys.WIFI_ONLY, false) && !Utils.isWifiConnected(this)) {
             if (BuildConfig.DEBUG) Log.d(TAG, "Refresh avoided: no wifi");
@@ -84,7 +98,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         //The memory photo cache is empty let's populate it
         if (storedPhotos == null) {
-                storedPhotos = Photo.listAll(Photo.class);
+            storedPhotos = Photo.listAll(Photo.class);
         }
 
         //No photo in the cache, let load some from flickr
@@ -102,6 +116,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         String name = photo.userName.substring(0, 1).toUpperCase() + photo.userName.substring(1);
 
+
         //Publick the photo to Muzei
         publishArtwork(new Artwork.Builder()
                 .title(photo.title)
@@ -111,6 +126,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 .viewIntent(new Intent(Intent.ACTION_VIEW,
                         Uri.parse(photo.url)))
                 .build());
+
 
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(PreferenceKeys.CURRENT_TITLE, photo.title);
@@ -125,11 +141,74 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         storedPhotos.get(0).delete();
         storedPhotos.remove(0);
 
-        scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, 7200000));
+        scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, DEFAULT_REFRESH_TIME));
         //No photo left, let's load some more
         if (storedPhotos.size() == 0) {
             requestPhotos();
         }
+        manageUserCommands(settings);
+    }
+
+    private void manageUserCommands(SharedPreferences settings) {
+        List<UserCommand> commands = new ArrayList<UserCommand>();
+        commands.add(new UserCommand(COMMAND_ID_SHARE, getString(R.string.share)));
+        commands.add(new UserCommand(BUILTIN_COMMAND_ID_NEXT_ARTWORK,""));
+        if (settings.getBoolean(PreferenceKeys.PAUSED, false)) {
+            commands.add(new UserCommand(COMMAND_ID_RESTART, getString(R.string.restart)));
+        } else {
+            commands.add(new UserCommand(COMMAND_ID_PAUSE, getString(R.string.pause)));
+        }
+        setUserCommands(commands);
+    }
+
+    @Override
+    protected void onCustomCommand(int id) {
+        super.onCustomCommand(id);
+        final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        switch (id) {
+            case COMMAND_ID_PAUSE:
+                editor.putBoolean(PreferenceKeys.PAUSED, true);
+                editor.commit();
+                break;
+            case COMMAND_ID_RESTART:
+                editor.putBoolean(PreferenceKeys.PAUSED, false);
+                editor.commit();
+                scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, DEFAULT_REFRESH_TIME));
+                break;
+            case COMMAND_ID_SHARE:
+                Artwork currentArtwork = getCurrentArtwork();
+                if (currentArtwork == null) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(FlickrSource.this,
+                                    getString(R.string.no_artwork),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
+
+                String detailUrl = (currentArtwork.getViewIntent().getDataString());
+                String artist = currentArtwork.getByline()
+                        .replaceFirst("\\.\\s*($|\\n).*", "").trim();
+
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, "My Android wallpaper is '"
+                        + currentArtwork.getTitle().trim()
+                        + "' by " + artist
+                        + ". \nShared with Flickr for Muzei\n\n"
+                        + detailUrl);
+                shareIntent = Intent.createChooser(shareIntent, "Share Flickr photo");
+                shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(shareIntent);
+                break;
+
+        }
+        manageUserCommands(settings);
+
     }
 
     private void updateWidgets() {
@@ -227,11 +306,10 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             return;
         }
 
-        if (BuildConfig.DEBUG) Log.d(TAG, "Stored page: " + page+"/"+response.photos.pages);
+        if (BuildConfig.DEBUG) Log.d(TAG, "Stored page: " + page + "/" + response.photos.pages);
         if (page >= response.photos.pages) {
-            page =0;
+            page = 0;
         }
-
 
 
         SharedPreferences.Editor editor = settings.edit();
@@ -310,7 +388,6 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     }
 
 
-
     @Override
     protected void onHandleIntent(Intent intent) {
 
@@ -341,6 +418,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         editor.commit();
 
         updateWidgets();
+        manageUserCommands(settings);
 
         super.onDisabled();
     }
