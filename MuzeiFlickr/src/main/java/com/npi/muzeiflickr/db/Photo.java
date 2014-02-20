@@ -13,6 +13,7 @@ public class Photo extends SugarRecord<Photo> {
 
     public String title;
     public String userName;
+    public String owner;
     public String url;
     public String source;
     public int sourceType;

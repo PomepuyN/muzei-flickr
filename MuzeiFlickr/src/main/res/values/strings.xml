@@ -58,4 +58,7 @@
     <string name="pause">Pause</string>
     <string name="no_artwork">No artwork to share</string>
     <string name="choose_group">Choose a group</string>
+    <string name="add_artist">Add artist</string>
+    <string name="unable_add_user">Unable to add user</string>
+    <string name="user_added">User has been added</string>
 </resources>

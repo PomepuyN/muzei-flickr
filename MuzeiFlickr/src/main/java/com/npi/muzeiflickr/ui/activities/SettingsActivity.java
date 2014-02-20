@@ -598,7 +598,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
 
 
-    private interface UserInfoListener<T> {
+    public interface UserInfoListener<T> {
         void onSuccess(T user);
 
         void onError(String reason);

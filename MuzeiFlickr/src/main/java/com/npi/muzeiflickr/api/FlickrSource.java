@@ -63,6 +63,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     private static final int COMMAND_ID_SHARE = 1;
     private static final int COMMAND_ID_PAUSE = 2;
     private static final int COMMAND_ID_RESTART = 3;
+    private static final int COMMAND_ID_ADD_ARTIST = 4;
     private List<Photo> storedPhotos;
 
     public FlickrSource() {
@@ -165,6 +166,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         List<UserCommand> commands = new ArrayList<UserCommand>();
         commands.add(new UserCommand(COMMAND_ID_SHARE, getString(R.string.share)));
         commands.add(new UserCommand(BUILTIN_COMMAND_ID_NEXT_ARTWORK, ""));
+        commands.add(new UserCommand(COMMAND_ID_ADD_ARTIST, getString(R.string.add_artist)));
         if (settings.getBoolean(PreferenceKeys.PAUSED, false)) {
             commands.add(new UserCommand(COMMAND_ID_RESTART, getString(R.string.restart)));
         } else {
@@ -187,6 +189,9 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 editor.putBoolean(PreferenceKeys.PAUSED, false);
                 editor.commit();
                 scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, DEFAULT_REFRESH_TIME));
+                break;
+            case COMMAND_ID_ADD_ARTIST:
+                getUserId(settings.getString(PreferenceKeys.CURRENT_AUTHOR, ""));
                 break;
             case COMMAND_ID_SHARE:
                 Artwork currentArtwork = getCurrentArtwork();
@@ -400,6 +405,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                                 photoEntity.source = finalLargestSize.source;
                                 photoEntity.title = photo.title;
                                 photoEntity.photoId = photo.id;
+                                photoEntity.owner = photo.owner;
                                 photoEntity.sourceType = requestData.getSourceType();
                                 photoEntity.sourceId = requestData.getSourceId();
 
@@ -420,6 +426,72 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         }
 
     }
+
+    /**
+     * Determine if a user exists
+     *
+     * @param user the user to search
+     */
+    private void getUserId(final String user) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                FlickrService.getInstance().getUserByName(user, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse>() {
+                    @Override
+                    public void onFailure() {
+                        Toast.makeText(FlickrSource.this, getString(R.string.unable_add_user), Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onSuccess(FlickrApiData.UserByNameResponse userByNameResponse) {
+                        if (BuildConfig.DEBUG) Log.d(TAG, "Looking for user");
+
+
+                        //The user has not been found
+                        if (userByNameResponse == null || userByNameResponse.user == null || userByNameResponse.user.nsid == null) {
+                            if (BuildConfig.DEBUG) Log.d(TAG, "User not found");
+                            Toast.makeText(FlickrSource.this, getString(R.string.unable_add_user), Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+
+                        //The user has been found, we store it
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "User found: " + userByNameResponse.user.nsid + " for " + user);
+                        }
+                        final String userId = userByNameResponse.user.nsid;
+
+
+                        //User has been found, let's see if he has photos
+
+                        FlickrService.getInstance().getPopularPhotosByUser(userId, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                            @Override
+                            public void onFailure() {
+                            }
+
+                            @Override
+                            public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
+                                if (photosResponse.photos.photo.size() > 0) {
+                                    User userDB = new User(FlickrSource.this, userId, user, 1, 0, photosResponse.photos.total);
+                                    userDB.save();
+                                    Toast.makeText(FlickrSource.this, getString(R.string.user_added), Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(FlickrSource.this, getString(R.string.unable_add_user), Toast.LENGTH_LONG).show();
+
+                                }
+                            }
+                        });
+                    }
+                });
+
+
+            }
+        }).run();
+
+    }
+
+
 
 
     @Override
