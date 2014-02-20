@@ -28,6 +28,7 @@ import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
 import com.npi.muzeiflickr.db.User;
 import com.npi.muzeiflickr.network.FlickrApiData;
+import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.network.FlickrServiceInterface;
 import com.npi.muzeiflickr.ui.adapters.RequestAdapter;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
@@ -37,11 +38,6 @@ import com.npi.muzeiflickr.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.Callback;
-import retrofit.ErrorHandler;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -316,25 +312,16 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     }
 
     private void getSearch(final String search, final SearchInfoListener userInfoListener) {
-        RestAdapter restAdapter = new RestAdapter.Builder()
-//                        .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setServer("http://api.flickr.com/services/rest")
-                .setErrorHandler(new ErrorHandler() {
-                    @Override
-                    public Throwable handleError(RetrofitError retrofitError) {
-                        userInfoListener.onError(getString(R.string.network_error));
-                        return retrofitError;
-                    }
-                })
-                .build();
-
-        final FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
 
 
-
-        service.getPopularPhotos(search, 0, new Callback<FlickrApiData.PhotosResponse>() {
+        FlickrService.getInstance().getPopularPhotos(search,0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
             @Override
-            public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
+            public void onFailure() {
+                userInfoListener.onError(getString(R.string.network_error));
+            }
+
+            @Override
+            public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
                 if (photosResponse.photos.photo.size() > 0) {
                     Search searchDB = new Search(SettingsActivity.this, search,0, 0, photosResponse.photos.total);
                     searchDB.save();
@@ -344,12 +331,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                 }
             }
-
-            @Override
-            public void failure(RetrofitError retrofitError) {
-                userInfoListener.onError(getString(R.string.network_error));
-            }
         });
+
+
     }
 
 
@@ -384,23 +368,15 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             @Override
             public void run() {
 
-
-                RestAdapter restAdapter = new RestAdapter.Builder()
-//                        .setLogLevel(RestAdapter.LogLevel.FULL)
-                        .setServer("http://api.flickr.com/services/rest")
-                        .setErrorHandler(new ErrorHandler() {
-                            @Override
-                            public Throwable handleError(RetrofitError retrofitError) {
-                                userInfoListener.onError(getString(R.string.network_error));
-                                return retrofitError;
-                            }
-                        })
-                        .build();
-
-                final FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
-                service.getUserByName(user, new Callback<FlickrApiData.UserByNameResponse>() {
+                FlickrService.getInstance().getUserByName(user, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse>() {
                     @Override
-                    public void success(FlickrApiData.UserByNameResponse userByNameResponse, Response response) {
+                    public void onFailure() {
+                        userInfoListener.onError(getString(R.string.network_error));
+
+                    }
+
+                    @Override
+                    public void onSuccess(FlickrApiData.UserByNameResponse userByNameResponse) {
                         if (BuildConfig.DEBUG) Log.d(TAG, "Looking for user");
 
 
@@ -422,22 +398,14 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                         //User has been found, let's see if he has photos
 
-                        RestAdapter restAdapter = new RestAdapter.Builder()
-                                .setLogLevel(RestAdapter.LogLevel.FULL)
-                                .setServer("http://api.flickr.com/services/rest")
-                                .setErrorHandler(new ErrorHandler() {
-                                    @Override
-                                    public Throwable handleError(RetrofitError retrofitError) {
-                                        userInfoListener.onError(getString(R.string.user_no_photo));
-                                        return retrofitError;
-                                    }
-                                })
-                                .build();
-
-                        FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
-                        service.getPopularPhotosByUser(userId, 0, new Callback<FlickrApiData.PhotosResponse>() {
+                        FlickrService.getInstance().getPopularPhotosByUser(userId,0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                             @Override
-                            public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
+                            public void onFailure() {
+                                userInfoListener.onError(getString(R.string.user_no_photo));
+                            }
+
+                            @Override
+                            public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
                                 if (photosResponse.photos.photo.size() > 0) {
                                     User userDB = new User(SettingsActivity.this, userId, user,1, 0, photosResponse.photos.total);
                                     userDB.save();
@@ -447,20 +415,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                                 }
                             }
-
-                            @Override
-                            public void failure(RetrofitError retrofitError) {
-                                userInfoListener.onError(getString(R.string.user_no_photo));
-                            }
                         });
-
-                    }
-
-                    @Override
-                    public void failure(RetrofitError retrofitError) {
-
                     }
                 });
+
 
             }
         }).run();

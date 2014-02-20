@@ -12,23 +12,30 @@ public class FlickrService {
 
 
     private static FlickrService INSTANCE;
+    private RestAdapter mRestAdapter;
 
     public static FlickrService getInstance() {
         if (INSTANCE == null) INSTANCE = new FlickrService();
         return INSTANCE;
     }
 
+    private FlickrServiceInterface getService() {
+        if (mRestAdapter == null) {
 
-    public static void getPopularPhotos(String text, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
-        RestAdapter restAdapter = new RestAdapter.Builder()
+            mRestAdapter = new RestAdapter.Builder()
 //                .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setServer("http://api.flickr.com/services/rest")
-                .build();
+                    .setServer("http://api.flickr.com/services/rest")
+                    .build();
+        }
+
+        return mRestAdapter.create(FlickrServiceInterface.class);
+    }
 
 
-        final FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
+    public void getPopularPhotos(String text, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
 
-        service.getPopularPhotos(text, page, new Callback<FlickrApiData.PhotosResponse>() {
+
+        getService().getPopularPhotos(text, page, new Callback<FlickrApiData.PhotosResponse>() {
             @Override
             public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
                 listener.onSuccess(photosResponse);
@@ -41,16 +48,8 @@ public class FlickrService {
         });
     }
 
-    public static void getPopularPhotosByUser(String text, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
-        RestAdapter restAdapter = new RestAdapter.Builder()
-//                .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setServer("http://api.flickr.com/services/rest")
-                .build();
-
-
-        final FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
-
-        service.getPopularPhotosByUser(text, page, new Callback<FlickrApiData.PhotosResponse>() {
+    public void getPopularPhotosByUser(String text, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
+        getService().getPopularPhotosByUser(text, page, new Callback<FlickrApiData.PhotosResponse>() {
             @Override
             public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
                 listener.onSuccess(photosResponse);
@@ -63,16 +62,8 @@ public class FlickrService {
         });
     }
 
-    public static void getUser(String id, final FlickrServiceInterface.IRequestListener<FlickrApiData.UserResponse> listener) {
-        RestAdapter restAdapter = new RestAdapter.Builder()
-//                .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setServer("http://api.flickr.com/services/rest")
-                .build();
-
-
-        final FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
-
-        service.getUser(id, new Callback<FlickrApiData.UserResponse>() {
+    public void getUser(String id, final FlickrServiceInterface.IRequestListener<FlickrApiData.UserResponse> listener) {
+        getService().getUser(id, new Callback<FlickrApiData.UserResponse>() {
             @Override
             public void success(FlickrApiData.UserResponse userResponse, Response response) {
                 listener.onSuccess(userResponse);
@@ -85,16 +76,8 @@ public class FlickrService {
         });
     }
 
-    public static void getSize(String photo, final FlickrServiceInterface.IRequestListener<FlickrApiData.SizeResponse> listener) {
-        RestAdapter restAdapter = new RestAdapter.Builder()
-//                .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setServer("http://api.flickr.com/services/rest")
-                .build();
-
-
-        final FlickrServiceInterface service = restAdapter.create(FlickrServiceInterface.class);
-
-        service.getSize(photo, new Callback<FlickrApiData.SizeResponse>() {
+    public void getSize(String photo, final FlickrServiceInterface.IRequestListener<FlickrApiData.SizeResponse> listener) {
+        getService().getSize(photo, new Callback<FlickrApiData.SizeResponse>() {
             @Override
             public void success(FlickrApiData.SizeResponse sizeResponse, Response response) {
                 listener.onSuccess(sizeResponse);
@@ -107,6 +90,20 @@ public class FlickrService {
         });
     }
 
+
+    public void getUserByName(String user, final FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse> listener) {
+        getService().getUserByName(user, new Callback<FlickrApiData.UserByNameResponse>() {
+            @Override
+            public void success(FlickrApiData.UserByNameResponse sizeResponse, Response response) {
+                listener.onSuccess(sizeResponse);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
 
 
 }
