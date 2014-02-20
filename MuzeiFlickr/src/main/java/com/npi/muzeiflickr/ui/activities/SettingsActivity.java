@@ -26,6 +26,7 @@ import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
+import com.npi.muzeiflickr.db.Tag;
 import com.npi.muzeiflickr.db.User;
 import com.npi.muzeiflickr.network.FlickrApiData;
 import com.npi.muzeiflickr.network.FlickrService;
@@ -83,6 +84,8 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         ((User)item).delete();
                     } else if (item instanceof Search) {
                         ((Search)item).delete();
+                    } else if (item instanceof Tag) {
+                        ((Tag)item).delete();
                     }
                     mLastDeletedItem = item;
                     mRequestAdapter.notifyDataSetChanged();
@@ -120,6 +123,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         List<RequestData> items = new ArrayList<RequestData>();
         items.addAll(Search.listAll(Search.class));
         items.addAll(User.listAll(User.class));
+        items.addAll(Tag.listAll(Tag.class));
 
 
         mRequestAdapter = new RequestAdapter(this, items);
@@ -248,7 +252,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         footerSearchButton.setVisibility(View.GONE);
                         footerProgress.setVisibility(View.VISIBLE);
 
-                        getSearch(searchString, new SearchInfoListener() {
+                        getSearch(searchString, new UserInfoListener<Search>() {
                             @Override
                             public void onSuccess(Search search) {
                                 mRequestAdapter.add(search);
@@ -285,10 +289,46 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         footerSearchButton.setVisibility(View.GONE);
                         footerProgress.setVisibility(View.VISIBLE);
 
-                        getUserId(searchString, new UserInfoListener() {
+                        getUserId(searchString, new UserInfoListener<User>() {
                             @Override
                             public void onSuccess(User user) {
                                 mRequestAdapter.add(user);
+                                mRequestAdapter.notifyDataSetChanged();
+                                footerSearchButton.setVisibility(View.VISIBLE);
+                                footerProgress.setVisibility(View.GONE);
+                                footerTerm.setText("");
+                                footerModeChooser.setSelection(0);
+                                addItemContainer.animate().alpha(0F);
+                                footerButton.animate().alpha(1F);
+                            }
+
+                            @Override
+                            public void onError(String reason) {
+                                Toast.makeText(SettingsActivity.this, reason, Toast.LENGTH_LONG).show();
+                                footerSearchButton.setVisibility(View.VISIBLE);
+                                footerProgress.setVisibility(View.GONE);
+                            }
+                        });
+                        break;
+                    case 2:
+                        //It's a tag
+
+                        //Looking for a same existing search
+                        List<Tag> tags = Tag.listAll(Tag.class);
+                        for (Tag tag:tags) {
+                            if (tag.getTitle().equals(searchString)) {
+                                Toast.makeText(SettingsActivity.this, getString(R.string.user_exists), Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                        }
+
+                        footerSearchButton.setVisibility(View.GONE);
+                        footerProgress.setVisibility(View.VISIBLE);
+
+                        getTag(searchString, new UserInfoListener<Tag>() {
+                            @Override
+                            public void onSuccess(Tag tag) {
+                                mRequestAdapter.add(tag);
                                 mRequestAdapter.notifyDataSetChanged();
                                 footerSearchButton.setVisibility(View.VISIBLE);
                                 footerProgress.setVisibility(View.GONE);
@@ -311,7 +351,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         });
     }
 
-    private void getSearch(final String search, final SearchInfoListener userInfoListener) {
+    private void getSearch(final String search, final UserInfoListener<Search> userInfoListener) {
 
 
         FlickrService.getInstance().getPopularPhotos(search,0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
@@ -323,11 +363,36 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             @Override
             public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
                 if (photosResponse.photos.photo.size() > 0) {
-                    Search searchDB = new Search(SettingsActivity.this, search,0, 0, photosResponse.photos.total);
+                    Search searchDB = new Search(SettingsActivity.this, search,1, 0, photosResponse.photos.total);
                     searchDB.save();
                     userInfoListener.onSuccess(searchDB);
                 } else {
                     userInfoListener.onError(getString(R.string.user_no_photo));
+
+                }
+            }
+        });
+
+
+    }
+
+    private void getTag(final String search, final UserInfoListener<Tag> userInfoListener) {
+
+
+        FlickrService.getInstance().getPopularPhotosByTag(search,0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            @Override
+            public void onFailure() {
+                userInfoListener.onError(getString(R.string.network_error));
+            }
+
+            @Override
+            public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
+                if (photosResponse.photos.photo.size() > 0) {
+                    Tag tagDB = new Tag(SettingsActivity.this, search,1, 0, photosResponse.photos.total);
+                    tagDB.save();
+                    userInfoListener.onSuccess(tagDB);
+                } else {
+                    userInfoListener.onError(getString(R.string.tag_no_photo));
 
                 }
             }
@@ -427,15 +492,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
 
 
-    private interface UserInfoListener {
-        void onSuccess(User user);
+    private interface UserInfoListener<T> {
+        void onSuccess(T user);
         void onError(String reason);
     }
 
-    private interface SearchInfoListener {
-
-        void onSuccess(Search search);
-        void onError(String reason);
-
-    }
 }

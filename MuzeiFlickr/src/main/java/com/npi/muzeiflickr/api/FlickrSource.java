@@ -39,6 +39,7 @@ import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
+import com.npi.muzeiflickr.db.Tag;
 import com.npi.muzeiflickr.db.User;
 import com.npi.muzeiflickr.network.FlickrApiData;
 import com.npi.muzeiflickr.network.FlickrService;
@@ -120,7 +121,11 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         String name = photo.userName.substring(0, 1).toUpperCase() + photo.userName.substring(1);
 
         //Increment the photo counter
-        photo.getSource().incrementCurrent();
+        try {
+            if (photo.getSource() != null) photo.getSource().incrementCurrent();
+        } catch (IllegalStateException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
 
 
         //Publick the photo to Muzei
@@ -238,6 +243,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         List<User> users = User.listAll(User.class);
         List<Search> searches = Search.listAll(Search.class);
+        List<Tag> tags = Tag.listAll(Tag.class);
 
         for (final User user : users) {
 
@@ -268,6 +274,23 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 @Override
                 public void onSuccess(FlickrApiData.PhotosResponse response) {
                     managePhotoResponse(search, response);
+                }
+            });
+
+
+        }
+
+        for (final Tag tag : tags) {
+
+            FlickrService.getInstance().getPopularPhotosByTag(tag.term, tag.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                @Override
+                public void onFailure() {
+
+                }
+
+                @Override
+                public void onSuccess(FlickrApiData.PhotosResponse response) {
+                    managePhotoResponse(tag, response);
                 }
             });
 

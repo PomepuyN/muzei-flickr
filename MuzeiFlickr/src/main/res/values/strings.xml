@@ -43,10 +43,12 @@
     <string name="no_photo">No photo found for this search. Reverting to default search.</string>
     <string name="add_item">Add item</string>
     <string name="user_no_photo">User has no photo</string>
+    <string name="tag_no_photo">Tag has no photo</string>
     <string name="user_not_found">User not found</string>
     <string name="network_error">Network error</string>
     <string name="search_exists">Search already exists</string>
     <string name="user_exists">User already exists</string>
+    <string name="tag_exists">Tag already exists</string>
     <string name="undo">Undo</string>
     <string name="share">Share</string>
     <string name="restart">Restart</string>

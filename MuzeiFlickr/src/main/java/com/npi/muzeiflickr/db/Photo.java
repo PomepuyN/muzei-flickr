@@ -29,6 +29,9 @@ public class Photo extends SugarRecord<Photo> {
         if (sourceType == SourceTypeEnum.USER.ordinal()) {
             return User.findById(User.class, sourceId);
         }
+        if (sourceType == SourceTypeEnum.TAG.ordinal()) {
+            return Tag.findById(Tag.class, sourceId);
+        }
 
         throw new IllegalStateException("Photo has no valid sourceType");
     }

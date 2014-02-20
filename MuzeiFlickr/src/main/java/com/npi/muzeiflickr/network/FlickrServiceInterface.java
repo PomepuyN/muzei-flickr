@@ -36,6 +36,9 @@ public interface FlickrServiceInterface {
     @GET("/?&method=flickr.photos.search&per_page=5&safe_search=1&sort=interestingness-desc&format=json&license=1,2,3,4,5,6,7&privacy_filter=1&api_key="+ Config.CONSUMER_KEY+"&nojsoncallback=1")
     void getPopularPhotos(@Query("text") String text,@Query("page") int page, Callback<FlickrApiData.PhotosResponse> callback);
 
+    @GET("/?&method=flickr.photos.search&per_page=5&safe_search=1&sort=interestingness-desc&format=json&license=1,2,3,4,5,6,7&privacy_filter=1&api_key="+ Config.CONSUMER_KEY+"&nojsoncallback=1")
+    void getPopularPhotosByTag(@Query("tags") String text,@Query("page") int page, Callback<FlickrApiData.PhotosResponse> callback);
+
 
     @GET("/?&method=flickr.photos.getSizes&format=json&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
     void getSize(@Query("photo_id") String photo, Callback<FlickrApiData.SizeResponse> callback);

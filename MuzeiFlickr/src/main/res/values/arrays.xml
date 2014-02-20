@@ -3,6 +3,7 @@
     <string-array name="modes">
         <item >Search</item>
         <item >User</item>
+        <item >Tag</item>
         <!--<item >Location</item>-->
     </string-array>
 </resources>

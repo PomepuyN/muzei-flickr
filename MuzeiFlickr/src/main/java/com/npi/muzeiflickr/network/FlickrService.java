@@ -106,4 +106,17 @@ public class FlickrService {
     }
 
 
+    public void getPopularPhotosByTag(String text, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
+        getService().getPopularPhotosByTag(text, page, new Callback<FlickrApiData.PhotosResponse>() {
+            @Override
+            public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
+                listener.onSuccess(photosResponse);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
 }
