@@ -240,7 +240,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
 
             if (BuildConfig.DEBUG) Log.d(TAG, "User" + user.getTitle() + " - page " + user.page);
-            FlickrService.getPopularPhotosByUser(user.userId, user.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            FlickrService.getInstance().getPopularPhotosByUser(user.userId, user.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
 
@@ -256,7 +256,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         }
         for (final Search search : searches) {
 
-            FlickrService.getPopularPhotos(search.term, search.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            FlickrService.getInstance().getPopularPhotos(search.term, search.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
 
@@ -354,6 +354,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                                 photoEntity.url = "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id;
                                 photoEntity.source = finalLargestSize.source;
                                 photoEntity.title = photo.title;
+                                photoEntity.photoId = photo.id;
                                 photoEntity.photoId = photo.id;
 
                                 if (storedPhotos == null) {
