@@ -24,6 +24,7 @@ import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
 import com.npi.muzeiflickr.db.Tag;
@@ -76,9 +77,11 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 @Override
                 public void remove(int which) {
 
+
                     if (BuildConfig.DEBUG) Log.d(TAG, "Removing item");
 
                     RequestData item = mRequestAdapter.getItem(which);
+                    managePhotoFromSourceDeletion();
                     mRequestAdapter.remove(item);
                     if (item instanceof User) {
                         ((User)item).delete();
@@ -93,6 +96,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     mUndoContainer.setVisibility(View.VISIBLE);
                 }
             };
+
+    private void managePhotoFromSourceDeletion() {
+        if (mLastDeletedItem != null) {
+            //Find all photos of the source
+            Photo.deleteAll(Photo.class, "source_id = ? and source_type = ?", String.valueOf(mLastDeletedItem.getSourceId()), String.valueOf(mLastDeletedItem.getSourceType()));
+        }
+    }
 
     //Needed for Calligraphy
     @Override
@@ -193,6 +203,12 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             }
         });
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        managePhotoFromSourceDeletion();
     }
 
     private void populateFooter(View footerView) {
