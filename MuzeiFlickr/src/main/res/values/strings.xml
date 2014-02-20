@@ -43,15 +43,19 @@
     <string name="no_photo">No photo found for this search. Reverting to default search.</string>
     <string name="add_item">Add item</string>
     <string name="user_no_photo">User has no photo</string>
+    <string name="group_no_photo">Group has no photo</string>
+    <string name="no_group_found">No group found</string>
     <string name="tag_no_photo">Tag has no photo</string>
     <string name="user_not_found">User not found</string>
     <string name="network_error">Network error</string>
     <string name="search_exists">Search already exists</string>
     <string name="user_exists">User already exists</string>
+    <string name="group_exists">Groups already exists</string>
     <string name="tag_exists">Tag already exists</string>
     <string name="undo">Undo</string>
     <string name="share">Share</string>
     <string name="restart">Restart</string>
     <string name="pause">Pause</string>
     <string name="no_artwork">No artwork to share</string>
+    <string name="choose_group">Choose a group</string>
 </resources>

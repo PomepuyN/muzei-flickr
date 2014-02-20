@@ -4,6 +4,7 @@
         <item >Search</item>
         <item >User</item>
         <item >Tag</item>
+        <item >Group</item>
         <!--<item >Location</item>-->
     </string-array>
 </resources>

@@ -1,5 +1,6 @@
 package com.npi.muzeiflickr.network;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -21,6 +22,11 @@ public class FlickrApiData {
 
     public static class PhotosResponse {
         public Response photos;
+    }
+
+
+    public static class GroupsResponse {
+        public Groups groups;
     }
 
     public static class Sizes {
@@ -55,5 +61,14 @@ public class FlickrApiData {
 
     public static class UserResult {
         public String nsid;
+    }
+
+    public static class Groups {
+        public List<Group> group;
+    }
+
+    public static class Group implements Serializable {
+        public String nsid;
+        public  String name;
     }
 }

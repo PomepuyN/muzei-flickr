@@ -23,7 +23,7 @@ public class FlickrService {
         if (mRestAdapter == null) {
 
             mRestAdapter = new RestAdapter.Builder()
-//                .setLogLevel(RestAdapter.LogLevel.FULL)
+                    .setLogLevel(RestAdapter.LogLevel.FULL)
                     .setServer("http://api.flickr.com/services/rest")
                     .build();
         }
@@ -108,6 +108,34 @@ public class FlickrService {
 
     public void getPopularPhotosByTag(String text, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
         getService().getPopularPhotosByTag(text, page, new Callback<FlickrApiData.PhotosResponse>() {
+            @Override
+            public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
+                listener.onSuccess(photosResponse);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
+
+    public void getGroups(String text, final FlickrServiceInterface.IRequestListener<FlickrApiData.GroupsResponse> listener) {
+        getService().getGroups(text, new Callback<FlickrApiData.GroupsResponse>() {
+            @Override
+            public void success(FlickrApiData.GroupsResponse photosResponse, Response response) {
+                listener.onSuccess(photosResponse);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
+
+    public void getGroupPhotos(String groupId, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
+        getService().getGroupPhotos(groupId, page, new Callback<FlickrApiData.PhotosResponse>() {
             @Override
             public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
                 listener.onSuccess(photosResponse);

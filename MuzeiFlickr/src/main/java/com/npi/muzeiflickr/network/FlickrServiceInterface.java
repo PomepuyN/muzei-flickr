@@ -27,27 +27,34 @@ import retrofit.http.Query;
 
 public interface FlickrServiceInterface {
 
-    @GET("/?&method=flickr.people.getPhotos&per_page=5&format=json&privacy_filter=1&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
+    @GET("/?&method=flickr.people.getPhotos&per_page=5&format=json&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getPopularPhotosByUser(@Query("user_id") String userId, @Query("page") int page, Callback<FlickrApiData.PhotosResponse> callback);
 
-    @GET("/?&method=flickr.people.getInfo&format=json&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
+    @GET("/?&method=flickr.people.getInfo&format=json&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getUser(@Query("user_id") String owner, Callback<FlickrApiData.UserResponse> callback);
 
-    @GET("/?&method=flickr.photos.search&per_page=5&safe_search=1&sort=interestingness-desc&format=json&license=1,2,3,4,5,6,7&privacy_filter=1&api_key="+ Config.CONSUMER_KEY+"&nojsoncallback=1")
-    void getPopularPhotos(@Query("text") String text,@Query("page") int page, Callback<FlickrApiData.PhotosResponse> callback);
+    @GET("/?&method=flickr.photos.search&per_page=5&safe_search=1&sort=interestingness-desc&format=json&license=1,2,3,4,5,6,7&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getPopularPhotos(@Query("text") String text, @Query("page") int page, Callback<FlickrApiData.PhotosResponse> callback);
 
-    @GET("/?&method=flickr.photos.search&per_page=5&safe_search=1&sort=interestingness-desc&format=json&license=1,2,3,4,5,6,7&privacy_filter=1&api_key="+ Config.CONSUMER_KEY+"&nojsoncallback=1")
-    void getPopularPhotosByTag(@Query("tags") String text,@Query("page") int page, Callback<FlickrApiData.PhotosResponse> callback);
+    @GET("/?&method=flickr.photos.search&per_page=5&safe_search=1&sort=interestingness-desc&format=json&license=1,2,3,4,5,6,7&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getPopularPhotosByTag(@Query("tags") String text, @Query("page") int page, Callback<FlickrApiData.PhotosResponse> callback);
+
+    @GET("/?&method=flickr.groups.search&format=json&per_page=50&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getGroups(@Query("text") String text, Callback<FlickrApiData.GroupsResponse> callback);
+
+    @GET("/?&method=flickr.groups.pools.getPhotos&format=json&per_page=5&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getGroupPhotos(@Query("group_id") String groupId, @Query("page") int page, Callback<FlickrApiData.PhotosResponse> callback);
 
 
-    @GET("/?&method=flickr.photos.getSizes&format=json&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
+    @GET("/?&method=flickr.photos.getSizes&format=json&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getSize(@Query("photo_id") String photo, Callback<FlickrApiData.SizeResponse> callback);
 
-    @GET("/?&method=flickr.people.findByUsername&format=json&api_key="+Config.CONSUMER_KEY+"&nojsoncallback=1")
+    @GET("/?&method=flickr.people.findByUsername&format=json&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getUserByName(@Query("username") String user, Callback<FlickrApiData.UserByNameResponse> callback);
 
     public interface IRequestListener<T> {
         void onFailure();
+
         void onSuccess(T response);
     }
 }

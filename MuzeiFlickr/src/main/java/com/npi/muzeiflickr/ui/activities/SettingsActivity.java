@@ -24,6 +24,7 @@ import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.db.FGroup;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
@@ -33,6 +34,7 @@ import com.npi.muzeiflickr.network.FlickrApiData;
 import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.network.FlickrServiceInterface;
 import com.npi.muzeiflickr.ui.adapters.RequestAdapter;
+import com.npi.muzeiflickr.ui.dialogs.GroupChooserDialog;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerDialogFragment;
 import com.npi.muzeiflickr.utils.Utils;
@@ -61,9 +63,10 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  * Created by nicolas on 14/02/14.
  * Main settings activity
  */
-public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler {
+public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler, GroupChooserDialog.ChooseGroupDialogListener {
     public static final String PREFS_NAME = "main_prefs";
     private static final String TAG = SettingsActivity.class.getSimpleName();
+    public static final int GROUP_CHOSEN = 1;
     private TextView mRefreshRate;
 
     private DragSortListView mRequestList;
@@ -84,11 +87,11 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     managePhotoFromSourceDeletion();
                     mRequestAdapter.remove(item);
                     if (item instanceof User) {
-                        ((User)item).delete();
+                        ((User) item).delete();
                     } else if (item instanceof Search) {
-                        ((Search)item).delete();
+                        ((Search) item).delete();
                     } else if (item instanceof Tag) {
-                        ((Tag)item).delete();
+                        ((Tag) item).delete();
                     }
                     mLastDeletedItem = item;
                     mRequestAdapter.notifyDataSetChanged();
@@ -96,6 +99,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     mUndoContainer.setVisibility(View.VISIBLE);
                 }
             };
+    private UserInfoListener<FGroup> mCurrentGroupListener;
 
     private void managePhotoFromSourceDeletion() {
         if (mLastDeletedItem != null) {
@@ -134,6 +138,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         items.addAll(Search.listAll(Search.class));
         items.addAll(User.listAll(User.class));
         items.addAll(Tag.listAll(Tag.class));
+        items.addAll(FGroup.listAll(FGroup.class));
 
 
         mRequestAdapter = new RequestAdapter(this, items);
@@ -193,7 +198,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     user.setId(null);
                     user.save();
                 } else if (mLastDeletedItem instanceof Search) {
-                    Search search = ((Search)mLastDeletedItem);
+                    Search search = ((Search) mLastDeletedItem);
                     search.setId(null);
                     search.save();
                 }
@@ -213,7 +218,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
     private void populateFooter(View footerView) {
         final View footerButton = footerView.findViewById(R.id.list_footer_button);
-        final Spinner footerModeChooser = (Spinner)footerView.findViewById(R.id.mode_chooser);
+        final Spinner footerModeChooser = (Spinner) footerView.findViewById(R.id.mode_chooser);
         final RelativeLayout addItemContainer = (RelativeLayout) footerView.findViewById(R.id.new_item_container);
         final ImageButton footerSearchButton = (ImageButton) footerView.findViewById(R.id.footer_search_button);
         final ProgressBar footerProgress = (ProgressBar) footerView.findViewById(R.id.footer_progress);
@@ -258,7 +263,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                         //Looking for a same existing search
                         List<Search> searchs = Search.listAll(Search.class);
-                        for (Search search:searchs) {
+                        for (Search search : searchs) {
                             if (search.getTitle().equals(searchString)) {
                                 Toast.makeText(SettingsActivity.this, getString(R.string.search_exists), Toast.LENGTH_LONG).show();
                                 return;
@@ -295,7 +300,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                         //Looking for a same existing search
                         List<User> users = User.listAll(User.class);
-                        for (User user:users) {
+                        for (User user : users) {
                             if (user.getTitle().equals(searchString)) {
                                 Toast.makeText(SettingsActivity.this, getString(R.string.user_exists), Toast.LENGTH_LONG).show();
                                 return;
@@ -331,7 +336,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                         //Looking for a same existing search
                         List<Tag> tags = Tag.listAll(Tag.class);
-                        for (Tag tag:tags) {
+                        for (Tag tag : tags) {
                             if (tag.getTitle().equals(searchString)) {
                                 Toast.makeText(SettingsActivity.this, getString(R.string.user_exists), Toast.LENGTH_LONG).show();
                                 return;
@@ -362,15 +367,100 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             }
                         });
                         break;
+
+                    case 3:
+                        //It's an user
+
+                        //Looking for a same existing search
+                        List<FGroup> groups = FGroup.listAll(FGroup.class);
+                        for (FGroup group : groups) {
+                            if (group.getTitle().equals(searchString)) {
+                                Toast.makeText(SettingsActivity.this, getString(R.string.group_exists), Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                        }
+
+                        footerSearchButton.setVisibility(View.GONE);
+                        footerProgress.setVisibility(View.VISIBLE);
+
+                        getGroupId(searchString, new UserInfoListener<FGroup>() {
+                            @Override
+                            public void onSuccess(FGroup group) {
+                                mRequestAdapter.add(group);
+                                mRequestAdapter.notifyDataSetChanged();
+                                footerSearchButton.setVisibility(View.VISIBLE);
+                                footerProgress.setVisibility(View.GONE);
+                                footerTerm.setText("");
+                                footerModeChooser.setSelection(0);
+                                addItemContainer.animate().alpha(0F);
+                                footerButton.animate().alpha(1F);
+                            }
+
+                            @Override
+                            public void onError(String reason) {
+                                Toast.makeText(SettingsActivity.this, reason, Toast.LENGTH_LONG).show();
+                                footerSearchButton.setVisibility(View.VISIBLE);
+                                footerProgress.setVisibility(View.GONE);
+                            }
+                        });
+                        break;
                 }
             }
         });
     }
 
+    private void getGroupId(final String search, final UserInfoListener<FGroup> userInfoListener) {
+        FlickrService.getInstance().getGroups(search, new FlickrServiceInterface.IRequestListener<FlickrApiData.GroupsResponse>() {
+            @Override
+            public void onFailure() {
+                userInfoListener.onError(getString(R.string.network_error));
+            }
+
+            @Override
+            public void onSuccess(FlickrApiData.GroupsResponse photosResponse) {
+                if (photosResponse.groups.group.size() > 0) {
+                     GroupChooserDialog.newInstance(new ArrayList<FlickrApiData.Group>(photosResponse.groups.group)).show(getFragmentManager(), "GroupChooserDialog");
+                    mCurrentGroupListener = userInfoListener;
+                } else {
+                    userInfoListener.onError(getString(R.string.no_group_found));
+
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onFinishChoosingDialog(final FlickrApiData.Group group) {
+
+        //Get the photos number of the group
+        FlickrService.getInstance().getGroupPhotos(group.nsid, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            @Override
+            public void onFailure() {
+                mCurrentGroupListener.onError(getString(R.string.group_no_photo));
+            }
+
+            @Override
+            public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
+                if (photosResponse.photos.photo.size() > 0) {
+                    FGroup groupDB = new FGroup(SettingsActivity.this, group.nsid, group.name, 1, 0, photosResponse.photos.total);
+                    groupDB.save();
+                    mCurrentGroupListener.onSuccess(groupDB);
+                } else {
+                    mCurrentGroupListener.onError(getString(R.string.group_no_photo));
+
+                }
+            }
+        });
+
+
+    }
+
+
+
     private void getSearch(final String search, final UserInfoListener<Search> userInfoListener) {
 
 
-        FlickrService.getInstance().getPopularPhotos(search,0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+        FlickrService.getInstance().getPopularPhotos(search, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
             @Override
             public void onFailure() {
                 userInfoListener.onError(getString(R.string.network_error));
@@ -379,7 +469,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             @Override
             public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
                 if (photosResponse.photos.photo.size() > 0) {
-                    Search searchDB = new Search(SettingsActivity.this, search,1, 0, photosResponse.photos.total);
+                    Search searchDB = new Search(SettingsActivity.this, search, 1, 0, photosResponse.photos.total);
                     searchDB.save();
                     userInfoListener.onSuccess(searchDB);
                 } else {
@@ -395,7 +485,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     private void getTag(final String search, final UserInfoListener<Tag> userInfoListener) {
 
 
-        FlickrService.getInstance().getPopularPhotosByTag(search,0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+        FlickrService.getInstance().getPopularPhotosByTag(search, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
             @Override
             public void onFailure() {
                 userInfoListener.onError(getString(R.string.network_error));
@@ -404,7 +494,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             @Override
             public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
                 if (photosResponse.photos.photo.size() > 0) {
-                    Tag tagDB = new Tag(SettingsActivity.this, search,1, 0, photosResponse.photos.total);
+                    Tag tagDB = new Tag(SettingsActivity.this, search, 1, 0, photosResponse.photos.total);
                     tagDB.save();
                     userInfoListener.onSuccess(tagDB);
                 } else {
@@ -416,7 +506,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
 
     }
-
 
 
     /**
@@ -463,7 +552,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                         //The user has not been found
                         if (userByNameResponse == null || userByNameResponse.user == null || userByNameResponse.user.nsid == null) {
-                            if (BuildConfig.DEBUG)  Log.d(TAG, "User not found");
+                            if (BuildConfig.DEBUG) Log.d(TAG, "User not found");
                             userInfoListener.onError(getString(R.string.user_not_found));
 
                             return;
@@ -479,7 +568,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                         //User has been found, let's see if he has photos
 
-                        FlickrService.getInstance().getPopularPhotosByUser(userId,0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                        FlickrService.getInstance().getPopularPhotosByUser(userId, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                             @Override
                             public void onFailure() {
                                 userInfoListener.onError(getString(R.string.user_no_photo));
@@ -488,7 +577,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             @Override
                             public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
                                 if (photosResponse.photos.photo.size() > 0) {
-                                    User userDB = new User(SettingsActivity.this, userId, user,1, 0, photosResponse.photos.total);
+                                    User userDB = new User(SettingsActivity.this, userId, user, 1, 0, photosResponse.photos.total);
                                     userDB.save();
                                     userInfoListener.onSuccess(userDB);
                                 } else {
@@ -508,9 +597,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
 
 
+
     private interface UserInfoListener<T> {
         void onSuccess(T user);
+
         void onError(String reason);
     }
+
+
 
 }

@@ -36,6 +36,7 @@ import com.google.android.apps.muzei.api.UserCommand;
 import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.db.FGroup;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
@@ -244,6 +245,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         List<User> users = User.listAll(User.class);
         List<Search> searches = Search.listAll(Search.class);
         List<Tag> tags = Tag.listAll(Tag.class);
+        List<FGroup> groups = FGroup.listAll(FGroup.class);
 
         for (final User user : users) {
 
@@ -291,6 +293,23 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 @Override
                 public void onSuccess(FlickrApiData.PhotosResponse response) {
                     managePhotoResponse(tag, response);
+                }
+            });
+
+
+        }
+
+        for (final FGroup group : groups) {
+
+            FlickrService.getInstance().getGroupPhotos(group.groupId, group.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                @Override
+                public void onFailure() {
+
+                }
+
+                @Override
+                public void onSuccess(FlickrApiData.PhotosResponse response) {
+                    managePhotoResponse(group, response);
                 }
             });
 
