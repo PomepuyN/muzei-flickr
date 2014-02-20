@@ -16,4 +16,10 @@ public interface RequestData {
     int getCurrentPage();
 
     void setPage(int i);
+
+    int getSourceType();
+
+    long getSourceId();
+
+    void incrementCurrent();
 }

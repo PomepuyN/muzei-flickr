@@ -119,6 +119,9 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         String name = photo.userName.substring(0, 1).toUpperCase() + photo.userName.substring(1);
 
+        //Increment the photo counter
+        photo.getSource().incrementCurrent();
+
 
         //Publick the photo to Muzei
         publishArtwork(new Artwork.Builder()
@@ -274,7 +277,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
     }
 
-    private void managePhotoResponse(RequestData requestData, FlickrApiData.PhotosResponse photosResponse) {
+    private void managePhotoResponse(final RequestData requestData, FlickrApiData.PhotosResponse photosResponse) {
 
         if (photosResponse == null || photosResponse.photos.photo == null || photosResponse.photos == null) {
             Log.w(TAG, "Unable to get the photo list");
@@ -355,7 +358,8 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                                 photoEntity.source = finalLargestSize.source;
                                 photoEntity.title = photo.title;
                                 photoEntity.photoId = photo.id;
-                                photoEntity.photoId = photo.id;
+                                photoEntity.sourceType = requestData.getSourceType();
+                                photoEntity.sourceId = requestData.getSourceId();
 
                                 if (storedPhotos == null) {
                                     storedPhotos = Photo.listAll(Photo.class);

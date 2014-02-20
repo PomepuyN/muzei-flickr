@@ -57,4 +57,20 @@ public class Search extends SugarRecord<Search> implements RequestData {
         page = i;
         save();
     }
+
+    @Override
+    public int getSourceType() {
+        return SourceTypeEnum.SEARCH.ordinal();
+    }
+
+    @Override
+    public long getSourceId() {
+        return id;
+    }
+
+    @Override
+    public void incrementCurrent() {
+        current++;
+        save();
+    }
 }

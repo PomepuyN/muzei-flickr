@@ -15,8 +15,21 @@ public class Photo extends SugarRecord<Photo> {
     public String userName;
     public String url;
     public String source;
+    public int sourceType;
+    public long sourceId;
 
     public Photo(Context context) {
         super(context);
+    }
+
+    public RequestData getSource() {
+        if (sourceType == SourceTypeEnum.SEARCH.ordinal()) {
+            return Search.findById(Search.class, sourceId);
+        }
+        if (sourceType == SourceTypeEnum.USER.ordinal()) {
+            return User.findById(User.class, sourceId);
+        }
+
+        throw new IllegalStateException("Photo has no valid sourceType");
     }
 }

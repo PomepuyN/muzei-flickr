@@ -59,4 +59,20 @@ public class User extends SugarRecord<User> implements RequestData {
         page = i;
         save();
     }
+
+    @Override
+    public int getSourceType() {
+        return SourceTypeEnum.USER.ordinal();
+    }
+
+    @Override
+    public long getSourceId() {
+        return id;
+    }
+
+    @Override
+    public void incrementCurrent() {
+        current++;
+        save();
+    }
 }
