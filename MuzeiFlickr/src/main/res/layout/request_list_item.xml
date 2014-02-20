@@ -30,10 +30,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="right"
+            android:gravity="center_vertical|right"
             android:textSize="12sp"
             android:id="@+id/photo_count"
             android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:drawableRight="@drawable/icon_image"
+            android:drawablePadding="5dp"/>
     </RelativeLayout>
 </FrameLayout>
