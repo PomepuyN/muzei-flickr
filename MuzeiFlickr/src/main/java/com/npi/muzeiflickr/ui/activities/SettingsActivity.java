@@ -94,7 +94,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         ((Search) item).delete();
                     } else if (item instanceof Tag) {
                         ((Tag) item).delete();
-                    }else if (item instanceof FGroup) {
+                    } else if (item instanceof FGroup) {
                         ((FGroup) item).delete();
                     }
                     mLastDeletedItem = item;
@@ -428,7 +428,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
             @Override
             public void onSuccess(FlickrApiData.GroupsResponse photosResponse) {
-                if (photosResponse.groups.group.size() > 0) {
+                if (photosResponse == null || photosResponse.groups == null || photosResponse.groups.group == null) {
+                    userInfoListener.onError(getString(R.string.network_error));
+                } else if (photosResponse.groups.group.size() > 0) {
                     GroupChooserDialog.newInstance(new ArrayList<FlickrApiData.Group>(photosResponse.groups.group)).show(getFragmentManager(), "GroupChooserDialog");
                     mCurrentGroupListener = userInfoListener;
                 } else {
