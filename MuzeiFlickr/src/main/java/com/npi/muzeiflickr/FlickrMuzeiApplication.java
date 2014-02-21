@@ -47,6 +47,8 @@ public class FlickrMuzeiApplication extends SugarApp {
                 migrateFrom1(settings);
             }
         }
+        editor.putInt(PreferenceKeys.CURRENT_VERSION, versionNum);
+        editor.commit();
     }
 
     private void migrateFrom1(final SharedPreferences settings) {
