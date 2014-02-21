@@ -81,4 +81,9 @@ public class Utils {
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return  mWifi.isConnected();
     }
+
+    public static int convertDPItoPixels(Context context, int dpi) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpi * scale + 0.5f);
+    }
 }

@@ -1,7 +1,7 @@
 <resources>
 
 
-    <style name="AppTheme" parent="@style/_AppTheme" />
+    <style name="AppTheme" parent="@style/_AppTheme"/>
 
     <style name="_AppTheme" parent="android:Theme.Holo.NoActionBar">
 
@@ -14,8 +14,20 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowShowWallpaper">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemStyleAppTheme</item>
 
 
+    </style>
+
+    <style name="SpinnerDropDownItemStyleAppTheme" parent="@android:style/Widget.DropDownItem.Spinner">
+        <item name="android:textColor">#fff</item>
+        <item name="android:checkMark">@null</item>
+        <!--<item name="android:background">#33ffffff</item>-->
+        <item name="android:shadowColor">#dd000000</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">2</item>
+        <item name="android:shadowRadius">2</item>
+        <!--<item name="android:popupBackground">#ffc0c0c0</item>-->
     </style>
 
     <style name="EditTextAppTheme" parent="android:Widget.EditText">
@@ -44,6 +56,19 @@
         <item name="android:shadowDx">2</item>
         <item name="android:shadowDy">2</item>
         <item name="android:shadowRadius">2</item>
+    </style>
+
+    <style name="MyCustomBetterPickerTheme">
+        <item name="bpDialogBackground">@drawable/dialog_background</item>
+        <!--<item name="bpTitleColor">@color/custom_keyboard_indicator_color</item>-->
+        <item name="bpTextColor">@color/grey_33</item>
+        <!--<item name="bpDeleteIcon">@drawable/ic_backspace_custom</item>-->
+        <!--<item name="bpCheckIcon">@drawable/ic_check_custom</item>-->
+        <item name="bpKeyBackground">@drawable/s_dialog_button</item>
+        <item name="bpButtonBackground">@drawable/s_dialog_button</item>
+        <!--<item name="bpTitleDividerColor">@color/custom_keyboard_indicator_color</item>-->
+        <!--<item name="bpDividerColor">@color/custom_divider_color</item>-->
+        <!--<item name="bpKeyboardIndicatorColor">@color/custom_keyboard_indicator_color</item>-->
     </style>
 
 </resources>

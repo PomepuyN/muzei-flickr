@@ -34,6 +34,7 @@ import com.npi.muzeiflickr.network.FlickrApiData;
 import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.network.FlickrServiceInterface;
 import com.npi.muzeiflickr.ui.adapters.RequestAdapter;
+import com.npi.muzeiflickr.ui.adapters.SourceSpinnerAdapter;
 import com.npi.muzeiflickr.ui.dialogs.GroupChooserDialog;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerDialogFragment;
@@ -162,11 +163,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             }
         });
 
-        //Mode spinner management
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.modes, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
 
         //Other settings population
         int refreshRate = settings.getInt(PreferenceKeys.REFRESH_TIME, FlickrSource.DEFAULT_REFRESH_TIME);
@@ -177,7 +173,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             public void onClick(View v) {
                 HHmsPickerBuilder hpb = new HHmsPickerBuilder()
                         .setFragmentManager(getSupportFragmentManager())
-                        .setStyleResId(R.style.BetterPickersDialogFragment);
+                        .setStyleResId(R.style.MyCustomBetterPickerTheme);
                 hpb.show();
             }
         });
@@ -247,9 +243,12 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             }
         });
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.modes, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        //Mode spinner management
+        ArrayAdapter<CharSequence> adapter = new SourceSpinnerAdapter(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.modes));
+
+
+
         footerModeChooser.setAdapter(adapter);
 
         footerSearchButton.setOnClickListener(new View.OnClickListener() {
