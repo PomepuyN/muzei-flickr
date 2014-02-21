@@ -94,6 +94,8 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         ((Search) item).delete();
                     } else if (item instanceof Tag) {
                         ((Tag) item).delete();
+                    }else if (item instanceof FGroup) {
+                        ((FGroup) item).delete();
                     }
                     mLastDeletedItem = item;
                     mRequestAdapter.notifyDataSetChanged();
@@ -212,6 +214,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     @Override
     protected void onPause() {
         super.onPause();
+        managePhotoFromSourceDeletion();
 
         //Launch an update if a source has been added
         if (mSourceAdded) {
@@ -219,7 +222,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             intent.setClass(this, FlickrSource.class);
             startService(intent);
         }
-        managePhotoFromSourceDeletion();
     }
 
     private void populateFooter(View footerView) {
