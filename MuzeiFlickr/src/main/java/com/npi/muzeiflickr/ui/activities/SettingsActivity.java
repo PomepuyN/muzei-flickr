@@ -143,10 +143,11 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
 
         mRequestAdapter = new RequestAdapter(this, items);
-        mRequestList.setAdapter(mRequestAdapter);
 
         final View footerView = getLayoutInflater().inflate(R.layout.list_footer, null);
         mRequestList.addFooterView(footerView);
+
+        mRequestList.setAdapter(mRequestAdapter);
 
         mRequestList.setRemoveListener(onRemove);
 
