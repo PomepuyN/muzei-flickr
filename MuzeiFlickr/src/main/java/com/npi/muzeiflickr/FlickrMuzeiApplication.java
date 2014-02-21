@@ -40,6 +40,10 @@ public class FlickrMuzeiApplication extends SugarApp {
 
 
         super.onCreate();
+        //New install => adding landscape
+        if (oldVersion < 0) {
+            initData();
+        }
         if (versionNum > oldVersion) {
             // DO YOUR MIGRATION STUFF
             if (oldVersion < 20000) {
@@ -51,6 +55,25 @@ public class FlickrMuzeiApplication extends SugarApp {
         editor.commit();
     }
 
+    private void initData() {
+        FlickrService.getInstance().getPopularPhotos("landscape", 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            @Override
+            public void onFailure() {
+                //Creating dummy data as a fallback
+                Search searchDB = new Search(FlickrMuzeiApplication.this, "landscape", 1, 0, 0);
+                searchDB.save();
+            }
+
+            @Override
+            public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
+                if (photosResponse.photos.photo.size() > 0) {
+                    Search searchDB = new Search(FlickrMuzeiApplication.this, "landscape", 1, 0, photosResponse.photos.total);
+                    searchDB.save();
+                }
+            }
+        });
+    }
+
     private void migrateFrom1(final SharedPreferences settings) {
         final int mode = settings.getInt(PreferenceKeys.MODE, 0);
         if (mode == 0) {
@@ -58,6 +81,9 @@ public class FlickrMuzeiApplication extends SugarApp {
             FlickrService.getInstance().getPopularPhotos(search, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
+                    //Creating dummy data as a fallback
+                    Search searchDB = new Search(FlickrMuzeiApplication.this, search, 1, 0, 0);
+                    searchDB.save();
                 }
 
                 @Override
@@ -76,6 +102,9 @@ public class FlickrMuzeiApplication extends SugarApp {
             FlickrService.getInstance().getPopularPhotosByUser(user, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
+                    //Creating dummy data as a fallback
+                    User userDB = new User(FlickrMuzeiApplication.this, user, settings.getString(PreferenceKeys.USER_NAME, ""), 1, 0, 0);
+                    userDB.save();
                 }
 
                 @Override
@@ -84,6 +113,9 @@ public class FlickrMuzeiApplication extends SugarApp {
                         User userDB = new User(FlickrMuzeiApplication.this, user, settings.getString(PreferenceKeys.USER_NAME, ""), 1, 0, photosResponse.photos.total);
                         userDB.save();
                     } else {
+                        //Creating dummy data as a fallback
+                        User userDB = new User(FlickrMuzeiApplication.this, user, settings.getString(PreferenceKeys.USER_NAME, ""), 1, 0, 0);
+                        userDB.save();
 
                     }
                 }
