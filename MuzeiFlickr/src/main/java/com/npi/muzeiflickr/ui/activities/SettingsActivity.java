@@ -1,6 +1,7 @@
 package com.npi.muzeiflickr.ui.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -101,6 +102,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 }
             };
     private UserInfoListener<FGroup> mCurrentGroupListener;
+    private boolean mSourceAdded = false;
 
     private void managePhotoFromSourceDeletion() {
         if (mLastDeletedItem != null) {
@@ -210,6 +212,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     @Override
     protected void onPause() {
         super.onPause();
+
+        //Launch an update if a source has been added
+        if (mSourceAdded) {
+            Intent intent = new Intent(FlickrSource.ACTION_RELOAD_SOME_PHOTOS);
+            intent.setClass(this, FlickrSource.class);
+            startService(intent);
+        }
         managePhotoFromSourceDeletion();
     }
 
@@ -443,6 +452,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 if (photosResponse.photos.photo.size() > 0) {
                     FGroup groupDB = new FGroup(SettingsActivity.this, group.nsid, group.name, 1, 0, photosResponse.photos.total);
                     groupDB.save();
+                    mSourceAdded = true;
                     mCurrentGroupListener.onSuccess(groupDB);
                 } else {
                     mCurrentGroupListener.onError(getString(R.string.group_no_photo));
@@ -469,6 +479,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 if (photosResponse.photos.photo.size() > 0) {
                     Search searchDB = new Search(SettingsActivity.this, search, 1, 0, photosResponse.photos.total);
                     searchDB.save();
+                    mSourceAdded = true;
                     userInfoListener.onSuccess(searchDB);
                 } else {
                     userInfoListener.onError(getString(R.string.user_no_photo));
@@ -494,6 +505,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 if (photosResponse.photos.photo.size() > 0) {
                     Tag tagDB = new Tag(SettingsActivity.this, search, 1, 0, photosResponse.photos.total);
                     tagDB.save();
+                    mSourceAdded = true;
                     userInfoListener.onSuccess(tagDB);
                 } else {
                     userInfoListener.onError(getString(R.string.tag_no_photo));
@@ -574,6 +586,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         if (photosResponse.photos.photo.size() > 0) {
                             User userDB = new User(SettingsActivity.this, userId, user, 1, 0, photosResponse.photos.total);
                             userDB.save();
+                            mSourceAdded = true;
                             userInfoListener.onSuccess(userDB);
                         } else {
                             userInfoListener.onError(getString(R.string.user_no_photo));

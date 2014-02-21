@@ -59,6 +59,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
     public static final String ACTION_CLEAR_SERVICE = "com.npi.muzeiflickr.ACTION_CLEAR_SERVICE";
     public static final String ACTION_REFRESH_FROM_WIDGET = "com.npi.muzeiflickr.NEXT_FROM_WIDGET";
+    public static final String ACTION_RELOAD_SOME_PHOTOS = "com.npi.muzeiflickr.ACTION_RELOAD_SOME_PHOTOS";
     public static final int DEFAULT_REFRESH_TIME = 7200000;
     private static final int COMMAND_ID_SHARE = 1;
     private static final int COMMAND_ID_PAUSE = 2;
@@ -507,6 +508,11 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         String action = intent.getAction();
         if (ACTION_CLEAR_SERVICE.equals(action) || ACTION_REFRESH_FROM_WIDGET.equals(action)) {
             scheduleUpdate(System.currentTimeMillis() + 1000);
+            return;
+
+        }
+        if (ACTION_RELOAD_SOME_PHOTOS.equals(action)) {
+            requestPhotos();
             return;
 
         }
