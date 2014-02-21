@@ -60,15 +60,9 @@
 
     <style name="MyCustomBetterPickerTheme">
         <item name="bpDialogBackground">@drawable/dialog_background</item>
-        <!--<item name="bpTitleColor">@color/custom_keyboard_indicator_color</item>-->
         <item name="bpTextColor">@color/grey_33</item>
-        <!--<item name="bpDeleteIcon">@drawable/ic_backspace_custom</item>-->
-        <!--<item name="bpCheckIcon">@drawable/ic_check_custom</item>-->
         <item name="bpKeyBackground">@drawable/s_dialog_button</item>
         <item name="bpButtonBackground">@drawable/s_dialog_button</item>
-        <!--<item name="bpTitleDividerColor">@color/custom_keyboard_indicator_color</item>-->
-        <!--<item name="bpDividerColor">@color/custom_divider_color</item>-->
-        <!--<item name="bpKeyboardIndicatorColor">@color/custom_keyboard_indicator_color</item>-->
     </style>
 
 </resources>

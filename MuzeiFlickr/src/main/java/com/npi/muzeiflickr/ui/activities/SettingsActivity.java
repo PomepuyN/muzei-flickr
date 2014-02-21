@@ -248,7 +248,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         ArrayAdapter<CharSequence> adapter = new SourceSpinnerAdapter(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.modes));
 
 
-
         footerModeChooser.setAdapter(adapter);
 
         footerSearchButton.setOnClickListener(new View.OnClickListener() {
@@ -418,7 +417,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             @Override
             public void onSuccess(FlickrApiData.GroupsResponse photosResponse) {
                 if (photosResponse.groups.group.size() > 0) {
-                     GroupChooserDialog.newInstance(new ArrayList<FlickrApiData.Group>(photosResponse.groups.group)).show(getFragmentManager(), "GroupChooserDialog");
+                    GroupChooserDialog.newInstance(new ArrayList<FlickrApiData.Group>(photosResponse.groups.group)).show(getFragmentManager(), "GroupChooserDialog");
                     mCurrentGroupListener = userInfoListener;
                 } else {
                     userInfoListener.onError(getString(R.string.no_group_found));
@@ -453,7 +452,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
 
     }
-
 
 
     private void getSearch(final String search, final UserInfoListener<Search> userInfoListener) {
@@ -533,68 +531,60 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
      * @param user the user to search
      */
     private void getUserId(final String user, final UserInfoListener userInfoListener) {
-        new Thread(new Runnable() {
+
+        FlickrService.getInstance().getUserByName(user, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse>() {
             @Override
-            public void run() {
-
-                FlickrService.getInstance().getUserByName(user, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse>() {
-                    @Override
-                    public void onFailure() {
-                        userInfoListener.onError(getString(R.string.network_error));
-
-                    }
-
-                    @Override
-                    public void onSuccess(FlickrApiData.UserByNameResponse userByNameResponse) {
-                        if (BuildConfig.DEBUG) Log.d(TAG, "Looking for user");
-
-
-                        //The user has not been found
-                        if (userByNameResponse == null || userByNameResponse.user == null || userByNameResponse.user.nsid == null) {
-                            if (BuildConfig.DEBUG) Log.d(TAG, "User not found");
-                            userInfoListener.onError(getString(R.string.user_not_found));
-
-                            return;
-                        }
-
-
-                        //The user has been found, we store it
-                        if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "User found: " + userByNameResponse.user.nsid + " for " + user);
-                        }
-                        final String userId = userByNameResponse.user.nsid;
-
-
-                        //User has been found, let's see if he has photos
-
-                        FlickrService.getInstance().getPopularPhotosByUser(userId, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
-                            @Override
-                            public void onFailure() {
-                                userInfoListener.onError(getString(R.string.user_no_photo));
-                            }
-
-                            @Override
-                            public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
-                                if (photosResponse.photos.photo.size() > 0) {
-                                    User userDB = new User(SettingsActivity.this, userId, user, 1, 0, photosResponse.photos.total);
-                                    userDB.save();
-                                    userInfoListener.onSuccess(userDB);
-                                } else {
-                                    userInfoListener.onError(getString(R.string.user_no_photo));
-
-                                }
-                            }
-                        });
-                    }
-                });
-
+            public void onFailure() {
+                userInfoListener.onError(getString(R.string.network_error));
 
             }
-        }).run();
+
+            @Override
+            public void onSuccess(FlickrApiData.UserByNameResponse userByNameResponse) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "Looking for user");
+
+
+                //The user has not been found
+                if (userByNameResponse == null || userByNameResponse.user == null || userByNameResponse.user.nsid == null) {
+                    if (BuildConfig.DEBUG) Log.d(TAG, "User not found");
+                    userInfoListener.onError(getString(R.string.user_not_found));
+
+                    return;
+                }
+
+
+                //The user has been found, we store it
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "User found: " + userByNameResponse.user.nsid + " for " + user);
+                }
+                final String userId = userByNameResponse.user.nsid;
+
+
+                //User has been found, let's see if he has photos
+
+                FlickrService.getInstance().getPopularPhotosByUser(userId, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                    @Override
+                    public void onFailure() {
+                        userInfoListener.onError(getString(R.string.user_no_photo));
+                    }
+
+                    @Override
+                    public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
+                        if (photosResponse.photos.photo.size() > 0) {
+                            User userDB = new User(SettingsActivity.this, userId, user, 1, 0, photosResponse.photos.total);
+                            userDB.save();
+                            userInfoListener.onSuccess(userDB);
+                        } else {
+                            userInfoListener.onError(getString(R.string.user_no_photo));
+
+                        }
+                    }
+                });
+            }
+        });
+
 
     }
-
-
 
 
     public interface UserInfoListener<T> {
@@ -602,7 +592,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
         void onError(String reason);
     }
-
 
 
 }

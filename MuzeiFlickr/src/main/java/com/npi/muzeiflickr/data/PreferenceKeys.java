@@ -19,15 +19,27 @@ package com.npi.muzeiflickr.data;
  * Used Preference keys constants
  */
 public class PreferenceKeys {
+
+    /**
+     * USED ONLY FOR MIGRATION. DON'T USE EVER AGAIN
+     */
+
+    public static final String SEARCH_TERM = "search";
+    public static final String USER_ID = "userId";
+    public static final String USER_NAME = "userName";
+    public static final String MODE = "mode";
+
+    /**
+     * END OF FORBIDDEN KEYS
+     */
     public static final String WIFI_ONLY = "wifi_only";
 
     public static final String REFRESH_TIME = "refresh";
-    public static final String CURRENT_PAGE = "page";
-    public static final String USER_NAME = "userName";
     public static final String CURRENT_TITLE = "currenTitle";
     public static final String CURRENT_AUTHOR = "currenAuthor";
     public static final String CURRENT_URL = "currentUrl";
     public static final String IS_SUSCRIBER_ENABLED = "isSuscriberEnabled";
     public static final String WIDGETS = "widgets";
     public static final String PAUSED = "paused";
+    public static final String CURRENT_VERSION = "current_version";
 }

@@ -31,7 +31,7 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:name="com.orm.SugarApp">
+        android:name=".FlickrMuzeiApplication">
 
         <!-- ORM -->
         <meta-data android:name="DATABASE" android:value="flikr_muzei.db" />
