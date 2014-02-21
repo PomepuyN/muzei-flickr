@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="desc_libs"><![CDATA[<b>Muzei</b> by <em>Roman Nurik</em> - https://github.com/romannurik/muzei <br/><br /><b>Retrofit</b> by <em>Square</em> - https://github.com/square/retrofit<br /><br /><b>Better Pickers</b> by <em>Derek Brameyer</em> - https://github.com/derekbrameyer/android-betterpickers<br/>Thanks to <em>Flavien Laurent</em> for the modified duration picker - https://github.com/flavienlaurent/muzeihash<br /><br /><b>Calligraphy</b> by <em>Christopher Jenkins</em> - https://github.com/chrisjenx/Calligraphy<br /><br /><b>Sugar ORM</b> by <em>Satya Narayan</em> - https://github.com/satyan/sugar<br /><br /><b>DragSortListView</b> by <em>Carl A. Bauer</em> - https://github.com/bauerca/drag-sort-listview]]></string>
+
+</resources>

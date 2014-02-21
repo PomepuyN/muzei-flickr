@@ -6,10 +6,12 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -45,6 +47,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 public class AboutActivity extends Activity {
 
 
+    private static final String TAG = AboutActivity.class.getSimpleName();
     private LinearLayout card2;
     private LinearLayout card1;
     private int number = 0;
@@ -100,20 +103,19 @@ public class AboutActivity extends Activity {
             }
         });
 
-        TextView muzei = (TextView) findViewById(R.id.muzei);
-        TextView retrofit = (TextView) findViewById(R.id.retrofit);
-        TextView calligraphy = (TextView) findViewById(R.id.calligraphy);
-        TextView betterpickers = (TextView) findViewById(R.id.betterpickers);
+        TextView version = (TextView) findViewById(R.id.about_version);
+        try {
+            version.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "NameNotFoundException: " + e.getMessage(), e);
+        }
 
-        muzei.setText(Html.fromHtml(getString(R.string.desc_muzei)));
-        retrofit.setText(Html.fromHtml(getString(R.string.desc_retrofit)));
-        calligraphy.setText(Html.fromHtml(getString(R.string.desc_calligraphy)));
-        betterpickers.setText(Html.fromHtml(getString(R.string.desc_betterpickers)));
 
-        Linkify.addLinks(muzei, Linkify.ALL);
-        Linkify.addLinks(retrofit, Linkify.ALL);
-        Linkify.addLinks(calligraphy, Linkify.ALL);
-        Linkify.addLinks(betterpickers, Linkify.ALL);
+        TextView libs = (TextView) findViewById(R.id.muzei);
+
+        libs.setText(Html.fromHtml(getString(R.string.desc_libs)));
+
+        Linkify.addLinks(libs, Linkify.ALL);
 
         card1.postDelayed(new Runnable() {
             @Override

@@ -33,10 +33,6 @@
     <string name="about">About</string>
     <string name="libraries">Libraries</string>
     <string name="app_description">Simple Muzei extension to display image from Flickr on your wallpaper.</string>
-    <string name="desc_muzei"><![CDATA[<b>Muzei</b> by <em>Roman Nurik</em> - https://github.com/romannurik/muzei]]></string>
-    <string name="desc_retrofit"><![CDATA[<b>Retrofit</b> by <em>Square</em> - https://github.com/square/retrofit]]></string>
-    <string name="desc_betterpickers"><![CDATA[<b>Better Pickers</b> by <em>Derek Brameyer</em> - https://github.com/derekbrameyer/android-betterpickers]]></string>
-    <string name="desc_calligraphy"><![CDATA[<b>Calligraphy</b> by <em>Christopher Jenkins</em> - https://github.com/chrisjenx/Calligraphy]]></string>
     <string name="developed_by"><![CDATA[Developed by <b>Nicolas POMEPUY</b>]]></string>
     <string name="widget_name">Flickr for Muzei</string>
     <string name="widget_disabled">Flickr for Muzei is disabled</string>
