@@ -132,6 +132,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         //Find views
 
         Switch wifiOnly = (Switch) findViewById(R.id.wifi_only);
+        Switch randomize = (Switch) findViewById(R.id.randomize);
         mRefreshRate = (TextView) findViewById(R.id.refresh_rate);
         ImageView aboutShortcut = (ImageView) findViewById(R.id.about);
         mRequestList = (DragSortListView) findViewById(R.id.content_list);
@@ -156,6 +157,17 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mRequestList.setRemoveListener(onRemove);
 
         populateFooter(footerView);
+
+        //Wifi status and setting
+        randomize.setChecked(settings.getBoolean(PreferenceKeys.RANDOMIZE, false));
+
+        wifiOnly.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                editor.putBoolean(PreferenceKeys.RANDOMIZE, isChecked);
+                editor.commit();
+            }
+        });
 
         //Wifi status and setting
         wifiOnly.setChecked(settings.getBoolean(PreferenceKeys.WIFI_ONLY, false));

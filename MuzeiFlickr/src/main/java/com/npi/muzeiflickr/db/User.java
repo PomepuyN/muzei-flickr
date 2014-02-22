@@ -10,7 +10,7 @@ import com.orm.SugarRecord;
  */
 public class User extends SugarRecord<User> implements RequestData {
 
-    int total;
+    public int total;
     int current;
     String userName;
     public String userId;

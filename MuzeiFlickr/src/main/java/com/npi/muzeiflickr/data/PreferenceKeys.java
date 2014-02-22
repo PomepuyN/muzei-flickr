@@ -42,4 +42,5 @@ public class PreferenceKeys {
     public static final String WIDGETS = "widgets";
     public static final String PAUSED = "paused";
     public static final String CURRENT_VERSION = "current_version";
+    public static final String RANDOMIZE = "randomize";
 }

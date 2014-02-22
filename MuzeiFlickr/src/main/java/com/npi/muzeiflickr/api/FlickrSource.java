@@ -52,6 +52,7 @@ import com.npi.muzeiflickr.utils.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class FlickrSource extends RemoteMuzeiArtSource {
     private static final String TAG = "FlickrSource";
@@ -255,9 +256,17 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         for (final User user : users) {
 
+            int page = user.page;
+            if (settings.getBoolean(PreferenceKeys.RANDOMIZE, false)) {
 
-            if (BuildConfig.DEBUG) Log.d(TAG, "User" + user.getTitle() + " - page " + user.page);
-            FlickrService.getInstance().getPopularPhotosByUser(user.userId, user.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                Random random = new Random();
+                if (BuildConfig.DEBUG) Log.d(TAG, "Randomize! Current page: "+page);
+                page = random.nextInt((user.total / 5)+1)+1;
+                if (BuildConfig.DEBUG) Log.d(TAG, "Randomize! Randomized page: "+page);
+            }
+
+            if (BuildConfig.DEBUG) Log.d(TAG, "User" + user.getTitle() + " - page " + page);
+            FlickrService.getInstance().getPopularPhotosByUser(user.userId, page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
 
@@ -332,14 +341,17 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             return;
         }
 
-        int currentPage = requestData.getCurrentPage();
-        if (photosResponse.photos.pages < currentPage) {
-            if (BuildConfig.DEBUG)
-                Log.d(TAG, "Last page: " + currentPage + "/" + photosResponse.photos.pages);
-            requestData.setPage(1);
-        } else {
-            if (BuildConfig.DEBUG) Log.d(TAG, "Set page to " + String.valueOf(currentPage + 1));
-            requestData.setPage(currentPage + 1);
+        final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
+        if (!settings.getBoolean(PreferenceKeys.RANDOMIZE, false)) {
+            int currentPage = requestData.getCurrentPage();
+            if (photosResponse.photos.pages < currentPage) {
+                if (BuildConfig.DEBUG)
+                    Log.d(TAG, "Last page: " + currentPage + "/" + photosResponse.photos.pages);
+                requestData.setPage(1);
+            } else {
+                if (BuildConfig.DEBUG) Log.d(TAG, "Set page to " + String.valueOf(currentPage + 1));
+                requestData.setPage(currentPage + 1);
+            }
         }
 
 
@@ -491,8 +503,6 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         }).run();
 
     }
-
-
 
 
     @Override
