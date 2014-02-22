@@ -1,7 +1,5 @@
 package com.npi.muzeiflickr.db;
 
-import android.content.Context;
-
 import com.orm.SugarRecord;
 
 /**
@@ -19,8 +17,8 @@ public class Photo extends SugarRecord<Photo> {
     public int sourceType;
     public long sourceId;
 
-    public Photo(Context context) {
-        super(context);
+    public Photo() {
+        super();
     }
 
     public RequestData getSource() {

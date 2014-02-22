@@ -39,7 +39,7 @@ dependencies {
     compile 'uk.co.chrisjenx.calligraphy:calligraphy:0.6.+'
     compile 'com.doomonafireball.betterpickers:library:1.5.2'
     compile 'com.mobeta.android.dslv:drag-sort-listview:0.6.1'
-    compile files('libs/sugar-1.2.jar')
+    compile files('libs/sugar-1.3_beta.jar')
 }
 
 android {

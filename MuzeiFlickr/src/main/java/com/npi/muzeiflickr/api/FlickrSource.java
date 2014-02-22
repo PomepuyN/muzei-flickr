@@ -400,7 +400,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
 
                                 //Add the photo
-                                Photo photoEntity = new Photo(FlickrSource.this);
+                                Photo photoEntity = new Photo();
                                 photoEntity.userName = name;
                                 photoEntity.url = "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id;
                                 photoEntity.source = finalLargestSize.source;

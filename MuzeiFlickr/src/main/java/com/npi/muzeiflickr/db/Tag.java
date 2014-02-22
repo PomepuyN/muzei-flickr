@@ -9,8 +9,8 @@ import com.orm.SugarRecord;
  * Created by nicolas on 17/02/14.
  */
 public class Tag extends SugarRecord<Tag> implements RequestData {
-    public Tag(Context context) {
-        super(context);
+    public Tag() {
+        super();
     }
 
     public String term;
@@ -19,7 +19,7 @@ public class Tag extends SugarRecord<Tag> implements RequestData {
     int current;
 
     public Tag(Context context, String term, int page, int current, int total) {
-        super(context);
+        super();
         this.term = term;
         this.page = page;
         this.current = current;

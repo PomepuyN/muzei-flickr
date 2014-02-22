@@ -16,12 +16,12 @@ public class User extends SugarRecord<User> implements RequestData {
     public String userId;
     public int page;
 
-    public User(Context context) {
-        super(context);
+    public User() {
+        super();
     }
 
     public User(Context context, String userId, String user,int page, int current, int total) {
-        super(context);
+        super();
         this.userName = user;
         this.userId = userId;
         this.current = current;

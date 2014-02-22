@@ -9,8 +9,8 @@ import com.orm.SugarRecord;
  * Created by nicolas on 17/02/14.
  */
 public class Search extends SugarRecord<Search> implements RequestData {
-    public Search(Context context) {
-        super(context);
+    public Search() {
+        super();
     }
 
     public String term;
@@ -19,7 +19,7 @@ public class Search extends SugarRecord<Search> implements RequestData {
     int current;
 
     public Search(Context context, String term, int page, int current, int total) {
-        super(context);
+        super();
         this.term = term;
         this.page = page;
         this.current = current;

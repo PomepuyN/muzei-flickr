@@ -16,12 +16,12 @@ public class FGroup extends SugarRecord<FGroup> implements RequestData {
     public String groupId;
     public int page;
 
-    public FGroup(Context context) {
-        super(context);
+    public FGroup() {
+        super();
     }
 
     public FGroup(Context context, String groupId, String name, int page, int current, int total) {
-        super(context);
+        super();
         this.name = name;
         this.groupId = groupId;
         this.current = current;
