@@ -453,7 +453,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
             @Override
             public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
-                if (photosResponse.photos.photo.size() > 0) {
+                if (photosResponse == null || photosResponse.photos == null || photosResponse.photos.photo == null) {
+                    mCurrentGroupListener.onError(getString(R.string.network_error));
+                } else if (photosResponse.photos.photo.size() > 0) {
                     FGroup groupDB = new FGroup(SettingsActivity.this, group.nsid, group.name, 1, 0, photosResponse.photos.total);
                     groupDB.save();
                     mSourceAdded = true;
@@ -480,7 +482,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
             @Override
             public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
-                if (photosResponse.photos.photo.size() > 0) {
+                if (photosResponse == null || photosResponse.photos == null || photosResponse.photos.photo == null) {
+                    userInfoListener.onError(getString(R.string.network_error));
+                } else if (photosResponse.photos.photo.size() > 0) {
                     Search searchDB = new Search(SettingsActivity.this, search, 1, 0, photosResponse.photos.total);
                     searchDB.save();
                     mSourceAdded = true;
@@ -506,7 +510,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
             @Override
             public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
-                if (photosResponse.photos.photo.size() > 0) {
+                if (photosResponse == null || photosResponse.photos == null || photosResponse.photos.photo == null) {
+                    userInfoListener.onError(getString(R.string.network_error));
+                } else if (photosResponse.photos.photo.size() > 0) {
                     Tag tagDB = new Tag(SettingsActivity.this, search, 1, 0, photosResponse.photos.total);
                     tagDB.save();
                     mSourceAdded = true;
