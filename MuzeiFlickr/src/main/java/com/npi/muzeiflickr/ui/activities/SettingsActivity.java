@@ -220,6 +220,33 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             }
         });
 
+        manageLoginClickListener(settings, editor);
+        String login = settings.getString(PreferenceKeys.LOGIN_USERNAME, "");
+        if (!TextUtils.isEmpty(login)) {
+            mLoginShortcut.setText(login);
+        }
+
+        mLastDeletedUndo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mLastDeletedItem instanceof User) {
+                    User user = ((User) mLastDeletedItem);
+                    user.setId(null);
+                    user.save();
+                } else if (mLastDeletedItem instanceof Search) {
+                    Search search = ((Search) mLastDeletedItem);
+                    search.setId(null);
+                    search.save();
+                }
+                mRequestAdapter.add(mLastDeletedItem);
+                mRequestAdapter.notifyDataSetChanged();
+                mUndoContainer.setVisibility(View.GONE);
+            }
+        });
+
+    }
+
+    private void manageLoginClickListener(final SharedPreferences settings, final SharedPreferences.Editor editor) {
         mLoginShortcut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -250,6 +277,15 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                     mLastDeletedItem = null;
                                     mUndoContainer.setVisibility(View.GONE);
                                     break;
+                                case R.id.menu_logout:
+                                    editor.putString(PreferenceKeys.LOGIN_USERNAME,"");
+                                    editor.putString(PreferenceKeys.LOGIN_SECRET,"");
+                                    editor.putString(PreferenceKeys.LOGIN_NSID,"");
+                                    editor.putString(PreferenceKeys.LOGIN_TOKEN, "");
+                                    editor.commit();
+                                    mLoginShortcut.setText(getString(R.string.login));
+                                    manageLoginClickListener(settings, editor);
+                                    break;
                             }
 
 
@@ -260,29 +296,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 }
             }
         });
-        String login = settings.getString(PreferenceKeys.LOGIN_USERNAME, "");
-        if (!TextUtils.isEmpty(login)) {
-            mLoginShortcut.setText(login);
-        }
-
-        mLastDeletedUndo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mLastDeletedItem instanceof User) {
-                    User user = ((User) mLastDeletedItem);
-                    user.setId(null);
-                    user.save();
-                } else if (mLastDeletedItem instanceof Search) {
-                    Search search = ((Search) mLastDeletedItem);
-                    search.setId(null);
-                    search.save();
-                }
-                mRequestAdapter.add(mLastDeletedItem);
-                mRequestAdapter.notifyDataSetChanged();
-                mUndoContainer.setVisibility(View.GONE);
-            }
-        });
-
     }
 
 
