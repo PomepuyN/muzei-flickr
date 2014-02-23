@@ -93,6 +93,11 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             return;
         }
 
+        //If no connection wait for network
+        if (!Utils.isNetworkAvailable(this)) {
+            setWantsNetworkAvailable(true);
+        }
+
         // Check if we cancel the update due to WIFI connection
         if (settings.getBoolean(PreferenceKeys.WIFI_ONLY, false) && !Utils.isWifiConnected(this)) {
             if (BuildConfig.DEBUG) Log.d(TAG, "Refresh avoided: no wifi");
@@ -226,6 +231,14 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         }
         manageUserCommands(settings);
+
+    }
+
+    @Override
+    protected void onNetworkAvailable() {
+        super.onNetworkAvailable();
+        scheduleUpdate(System.currentTimeMillis() + 1000);
+        setWantsNetworkAvailable(false);
 
     }
 
