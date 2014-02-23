@@ -34,12 +34,15 @@ import com.google.android.apps.muzei.api.Artwork;
 import com.google.android.apps.muzei.api.RemoteMuzeiArtSource;
 import com.google.android.apps.muzei.api.UserCommand;
 import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.FGroup;
+import com.npi.muzeiflickr.db.Favorite;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
+import com.npi.muzeiflickr.db.SourceTypeEnum;
 import com.npi.muzeiflickr.db.Tag;
 import com.npi.muzeiflickr.db.User;
 import com.npi.muzeiflickr.network.FlickrApiData;
@@ -66,6 +69,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     private static final int COMMAND_ID_PAUSE = 2;
     private static final int COMMAND_ID_RESTART = 3;
     private static final int COMMAND_ID_ADD_ARTIST = 4;
+    private static final int COMMAND_ID_ADD_FAVORITE = 5;
     private List<Photo> storedPhotos;
 
     public FlickrSource() {
@@ -152,6 +156,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         editor.putString(PreferenceKeys.CURRENT_TITLE, photo.title);
         editor.putString(PreferenceKeys.CURRENT_AUTHOR, name);
         editor.putString(PreferenceKeys.CURRENT_URL, photo.url);
+        editor.putString(PreferenceKeys.CURRENT_PHOTO_ID, photo.photoId);
         editor.commit();
 
         //Update widgets
@@ -174,6 +179,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         commands.add(new UserCommand(COMMAND_ID_SHARE, getString(R.string.share)));
         commands.add(new UserCommand(BUILTIN_COMMAND_ID_NEXT_ARTWORK, ""));
         commands.add(new UserCommand(COMMAND_ID_ADD_ARTIST, getString(R.string.add_artist)));
+        commands.add(new UserCommand(COMMAND_ID_ADD_FAVORITE, getString(R.string.add_favorites)));
         if (settings.getBoolean(PreferenceKeys.PAUSED, false)) {
             commands.add(new UserCommand(COMMAND_ID_RESTART, getString(R.string.restart)));
         } else {
@@ -229,6 +235,38 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(shareIntent);
                 break;
+            case COMMAND_ID_ADD_FAVORITE:
+                Favorite fav = new Favorite();
+                String photoId = FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.CURRENT_PHOTO_ID, "");
+                if (Favorite.find(Favorite.class, "photo_id = ?", photoId).size() > 0) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(FlickrSource.this, getString(R.string.already_in_favorites), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    return;
+                }
+                if (!TextUtils.isEmpty(photoId)) {
+                    fav.photoId = photoId;
+                    fav.save();
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(FlickrSource.this, getString(R.string.added_to_favorites), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(FlickrSource.this, getString(R.string.unable_add_favorite), Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                }
+
+                break;
 
         }
         manageUserCommands(settings);
@@ -266,6 +304,113 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         List<Search> searches = Search.listAll(Search.class);
         List<Tag> tags = Tag.listAll(Tag.class);
         List<FGroup> groups = FGroup.listAll(FGroup.class);
+
+        if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_FAVORITES, false)) {
+            List<Favorite> favs = Favorite.listAll(Favorite.class);
+
+            List<Favorite> favsToLoad = new ArrayList<Favorite>();
+            Random random = new Random();
+
+            for (int i=0; i< 1; i++) {
+                if (favs.size() == 0) {
+                    break;
+                }
+                int position = random.nextInt(favs.size());
+                favsToLoad.add(favs.get(position));
+                favs.remove(position);
+            }
+            for (final Favorite favorite : favsToLoad) {
+                FlickrService.getInstance(this).getPhotoInfo(favorite.photoId, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotoResponse>() {
+                    @Override
+                    public void onFailure() {
+
+                    }
+
+                    @Override
+                    public void onSuccess(final FlickrApiData.PhotoResponse photo) {
+                        FlickrService.getInstance(FlickrSource.this).getSize(photo.photo.id, new FlickrServiceInterface.IRequestListener<FlickrApiData.SizeResponse>() {
+                            @Override
+                            public void onFailure() {
+
+                            }
+
+                            @Override
+                            public void onSuccess(FlickrApiData.SizeResponse responseSize) {
+                                if (responseSize == null || responseSize.sizes == null) {
+                                    Log.w(TAG, "Unable to get the infos for photo");
+                                    return;
+                                }
+
+                                //Get the largest size limited to screen height to avoid too much loading
+                                int currentSizeHeight = 0;
+                                FlickrApiData.Size largestSize = null;
+                                for (FlickrApiData.Size size : responseSize.sizes.size) {
+                                    if (size.height > currentSizeHeight && size.height < Utils.getScreenHeight(FlickrSource.this)) {
+                                        currentSizeHeight = size.height;
+                                        largestSize = size;
+                                    }
+                                }
+
+                                if (largestSize != null) {
+
+                                    FlickrApiData.UserResponse responseUser = null;
+                                    //Request user info (for the title)
+                                    final FlickrApiData.Size finalLargestSize = largestSize;
+
+                                    FlickrService.getInstance(FlickrSource.this).getUser(photo.photo.owner.nsid, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserResponse>() {
+                                        @Override
+                                        public void onFailure() {
+
+                                        }
+
+                                        @Override
+                                        public void onSuccess(FlickrApiData.UserResponse responseUser) {
+                                            if (responseUser == null || responseUser.person == null) {
+                                                Log.w(TAG, "Unable to get the infos for user");
+                                                return;
+                                            }
+
+                                            String name = "";
+                                            if (responseUser.person.realname != null) {
+                                                name = responseUser.person.realname._content;
+                                            }
+                                            if (TextUtils.isEmpty(name) && responseUser.person.username != null) {
+                                                name = responseUser.person.username._content;
+                                            }
+
+
+                                            //Add the photo
+                                            Photo photoEntity = new Photo();
+                                            photoEntity.userName = name;
+                                            photoEntity.url = "http://www.flickr.com/photos/" + photo.photo.owner + "/" + photo.photo.id;
+                                            photoEntity.source = finalLargestSize.source;
+                                            photoEntity.title = photo.photo.title._content;
+                                            photoEntity.photoId = photo.photo.id;
+                                            photoEntity.owner = photo.photo.owner.username;
+                                            photoEntity.sourceType = SourceTypeEnum.FAVORITES.ordinal();
+                                            photoEntity.sourceId = favorite.getId();
+
+                                            if (storedPhotos == null) {
+                                                storedPhotos = Photo.listAll(Photo.class);
+                                            }
+                                            if (storedPhotos == null) {
+                                                storedPhotos = new ArrayList<Photo>();
+                                            }
+                                            storedPhotos.add(photoEntity);
+                                            photoEntity.save();
+                                        }
+                                    });
+
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+        }
+
+
 
         for (final User user : users) {
 

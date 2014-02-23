@@ -5,6 +5,6 @@
         <item >User</item>
         <item >Tag</item>
         <item >Group</item>
-        <!--<item >Location</item>-->
+        <item >Favorites</item>
     </string-array>
 </resources>

@@ -67,4 +67,9 @@
     <string name="all">Select all / Deselect all</string>
     <string name="import_result">Import finished.\nSuccess: %1$s\nFailed: %2$s</string>
     <string name="nothing_to_import">Nothing to import</string>
+    <string name="favorites">Favorites</string>
+    <string name="add_favorites">Add to favorites</string>
+    <string name="added_to_favorites">Photo added to favorites</string>
+    <string name="unable_add_favorite">Unable to favorite photo</string>
+    <string name="already_in_favorites">This photo were already in your favorites</string>
 </resources>

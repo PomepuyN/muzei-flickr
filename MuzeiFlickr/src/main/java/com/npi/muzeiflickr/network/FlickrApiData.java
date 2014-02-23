@@ -105,4 +105,21 @@ public class FlickrApiData {
             return username;
         }
     }
+
+    public static class PhotoResponse {
+        public PhotoInfo photo;
+    }
+
+    public static class PhotoInfo {
+        public String id;
+        public Title title;
+        public Owner owner;
+    }
+    public static class Title {
+        public String _content;
+    }
+    public static class Owner {
+        public String nsid;
+        public String username;
+    }
 }

@@ -61,6 +61,9 @@ public interface FlickrServiceInterface {
     @GET("/?&method=flickr.people.getGroups&format=json&oauth_consumer_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getGroupsByUser(@Query("user_id") String nsid, Callback<FlickrApiData.GroupsResponse> callback);
 
+    @GET("/?&method=flickr.photos.getInfo&format=json&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getPhotoInfo(@Query("photo_id") String photoId, Callback<FlickrApiData.PhotoResponse> callback);
+
     public interface IRequestListener<T> {
         void onFailure();
 

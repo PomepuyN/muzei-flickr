@@ -220,6 +220,20 @@ public class FlickrService {
         });
     }
 
+    public void getPhotoInfo(String photoId, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotoResponse> listener) {
+        getService().getPhotoInfo(photoId, new Callback<FlickrApiData.PhotoResponse>() {
+            @Override
+            public void success(FlickrApiData.PhotoResponse photo, Response response) {
+                listener.onSuccess(photo);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
+
     public void invalidateAdapter() {
         mRestAdapter = null;
     }

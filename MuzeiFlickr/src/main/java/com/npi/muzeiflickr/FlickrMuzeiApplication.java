@@ -21,13 +21,16 @@ public class FlickrMuzeiApplication extends SugarApp {
 
     private static final String TAG = FlickrMuzeiApplication.class.getSimpleName();
 
+    private static SharedPreferences mSettings;
+    private static SharedPreferences.Editor mEditor;
+
     @Override
     public void onCreate() {
 
-        final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
-        final SharedPreferences.Editor editor = settings.edit();
+        mSettings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
+        mEditor = mSettings.edit();
 
-        int oldVersion = settings.getInt(PreferenceKeys.CURRENT_VERSION, 0);
+        int oldVersion = mSettings.getInt(PreferenceKeys.CURRENT_VERSION, 0);
 
         int versionNum = 0;
         try {
@@ -48,11 +51,11 @@ public class FlickrMuzeiApplication extends SugarApp {
             // DO YOUR MIGRATION STUFF
             if (oldVersion < 20000) {
                 Log.w(TAG, "Migration needed from 1.x.x version");
-                migrateFrom1(settings);
+                migrateFrom1(mSettings);
             }
         }
-        editor.putInt(PreferenceKeys.CURRENT_VERSION, versionNum);
-        editor.commit();
+        mEditor.putInt(PreferenceKeys.CURRENT_VERSION, versionNum);
+        mEditor.commit();
     }
 
     private void initData() {
@@ -123,5 +126,13 @@ public class FlickrMuzeiApplication extends SugarApp {
         }
 
 
+    }
+
+    public static SharedPreferences getSettings() {
+        return mSettings;
+    }
+
+    public static SharedPreferences.Editor getEditor() {
+        return mEditor;
     }
 }

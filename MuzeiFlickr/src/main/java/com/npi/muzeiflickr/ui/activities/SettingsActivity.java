@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -29,11 +30,13 @@ import android.widget.Toast;
 
 import com.mobeta.android.dslv.DragSortListView;
 import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.api.FlickrApi;
 import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.FGroup;
+import com.npi.muzeiflickr.db.FavoriteSource;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
@@ -406,7 +409,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     }
 
     private void populateFooter(View footerView) {
-        final View footerButton = footerView.findViewById(R.id.list_footer_button);
+        final View footerButton =  footerView.findViewById(R.id.list_footer_button);
         final Spinner footerModeChooser = (Spinner) footerView.findViewById(R.id.mode_chooser);
         final RelativeLayout addItemContainer = (RelativeLayout) footerView.findViewById(R.id.new_item_container);
         final ImageButton footerSearchButton = (ImageButton) footerView.findViewById(R.id.footer_search_button);
@@ -442,6 +445,23 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
 
         footerModeChooser.setAdapter(adapter);
+        footerModeChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 4) {
+                    footerTerm.setVisibility(View.GONE);
+                    footerSearchButton.setImageDrawable(getResources().getDrawable(R.drawable.icon_add));
+                } else {
+                    footerTerm.setVisibility(View.VISIBLE);
+                    footerSearchButton.setImageDrawable(getResources().getDrawable(R.drawable.icon_search));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         footerSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -594,6 +614,18 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 footerProgress.setVisibility(View.GONE);
                             }
                         });
+                        break;
+                    case 4:
+                        FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, true);
+                        FlickrMuzeiApplication.getEditor().commit();
+                        mRequestAdapter.add(new FavoriteSource(SettingsActivity.this));
+                        mRequestAdapter.notifyDataSetChanged();
+                        footerSearchButton.setVisibility(View.VISIBLE);
+                        footerProgress.setVisibility(View.GONE);
+                        footerTerm.setText("");
+                        footerModeChooser.setSelection(0);
+                        addItemContainer.animate().alpha(0F);
+                        footerButton.animate().alpha(1F);
                         break;
                 }
             }
@@ -803,6 +835,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         items.addAll(User.listAll(User.class));
         items.addAll(Tag.listAll(Tag.class));
         items.addAll(FGroup.listAll(FGroup.class));
+        if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_FAVORITES, false)) {
+            items.add(new FavoriteSource(this));
+        }
         return items;
     }
 
