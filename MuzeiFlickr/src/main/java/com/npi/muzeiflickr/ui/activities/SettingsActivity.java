@@ -36,6 +36,7 @@ import com.npi.muzeiflickr.api.FlickrApi;
 import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.FGroup;
+import com.npi.muzeiflickr.db.Favorite;
 import com.npi.muzeiflickr.db.FavoriteSource;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
@@ -281,6 +282,42 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                     break;
                                 case R.id.menu_groups:
                                     GroupImportDialog.newInstance().show(getFragmentManager(), "GroupImportDialog");
+
+                                    break;
+                                case R.id.menu_favorites:
+                                    FlickrService.getInstance(SettingsActivity.this).getFavorites(new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                                        @Override
+                                        public void onFailure() {
+                                        }
+
+                                        @Override
+                                        public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
+                                            if (photosResponse == null || photosResponse.photos == null || photosResponse.photos.photo == null) {
+
+                                            } else {
+                                                List<Favorite> currentFavorites = Favorite.listAll(Favorite.class);
+                                                int count = 0;
+                                                for (FlickrApiData.Photo photo: photosResponse.photos.photo) {
+
+                                                    boolean found = false;
+                                                    for (Favorite favorite:currentFavorites) {
+                                                        if (photo.id.equals(favorite.photoId)) {
+                                                            found = true;
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (!found) {
+                                                        Favorite fav = new Favorite();
+                                                        fav.photoId = photo.id;
+                                                        fav.save();
+                                                        count++;
+                                                    }
+                                                }
+                                                Toast.makeText(SettingsActivity.this, count+" favorites have been added", Toast.LENGTH_LONG).show();
+
+                                            }
+                                        }
+                                    });
 
                                     break;
                                 case R.id.menu_logout:
