@@ -86,4 +86,11 @@ public class Utils {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpi * scale + 0.5f);
     }
+
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 }
