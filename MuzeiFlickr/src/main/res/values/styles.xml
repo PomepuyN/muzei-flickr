@@ -16,9 +16,19 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemStyleAppTheme</item>
         <item name="android:popupMenuStyle">@style/MyPopupMenu</item>
+        <item name="android:textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceSmall</item>
 
 
 
+    </style>
+
+    <style name="myPopupMenuTextAppearanceSmall">
+        <item name="android:textColor">#fff</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:shadowColor">#dd000000</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">2</item>
+        <item name="android:shadowRadius">2</item>
     </style>
 
     <style name="MyPopupMenu" parent="android:style/Widget.Holo.Light.ListPopupWindow">

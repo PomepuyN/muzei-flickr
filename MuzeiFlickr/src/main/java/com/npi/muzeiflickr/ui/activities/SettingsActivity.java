@@ -256,7 +256,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             return false;
                         }
                     });
-                    mRequestList.animate().alpha(0.15F).start();
+                    mRequestList.animate().alpha(0.1F).start();
                 }
             }
         });

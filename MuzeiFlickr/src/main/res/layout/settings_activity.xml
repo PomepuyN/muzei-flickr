@@ -8,40 +8,14 @@
                 android:background="#22000000">
 
 
-    <TextView
-        android:id="@+id/login"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="5dp"
-        android:gravity="center_vertical"
-        android:drawablePadding="5dp"
-        android:text="@string/login"
-        android:drawableLeft="@drawable/icon_user"/>
-
-    <TextView
-        android:id="@+id/about"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="5dp"
-        android:gravity="center_vertical"
-        android:drawablePadding="5dp"
-        android:text="@string/about"
-        android:drawableRight="@drawable/stat_sys_certificate_info"/>
-
     <RelativeLayout
         android:id="@+id/title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp">
 
         <TextView
@@ -49,22 +23,48 @@
             style="@style/Settings.Shadow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:text="@string/settings_title"
             android:textSize="32sp"
             android:textColor="@android:color/white"
             android:fontFamily="fonts/alegreya-black-italic.ttf"/>
 
-        <!--<TextView-->
-            <!--style="@style/Settings.Shadow"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="@string/settings_title_bottom"-->
-            <!--android:textSize="18sp"-->
-            <!--android:layout_toRightOf="@+id/title_flickr"-->
-            <!--android:layout_alignBaseline="@+id/title_flickr"-->
-            <!--android:layout_marginLeft="5dp"-->
-            <!--android:textColor="@android:color/white"-->
-            <!--android:fontFamily="fonts/alegreya-black-italic.ttf"/>-->
+        <TextView
+            android:id="@+id/login"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="5dp"
+            android:gravity="center_vertical"
+            android:layout_centerVertical="true"
+            android:background="@drawable/s_widget_right"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:drawablePadding="5dp"
+            style="@style/Settings.Shadow"
+            android:textColor="@color/apptheme_color"
+            android:text="@string/login"
+            android:drawableLeft="@drawable/icon_user"/>
+
+        <TextView
+            android:id="@+id/about"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="5dp"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"
+            android:background="@drawable/s_widget_left"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:drawablePadding="5dp"
+            style="@style/Settings.Shadow"
+            android:textColor="@color/apptheme_color"
+            android:text="@string/about"
+            android:drawableRight="@drawable/stat_sys_certificate_info"/>
+
 
     </RelativeLayout>
 
