@@ -206,6 +206,20 @@ public class FlickrService {
         });
     }
 
+    public void getGroupsByUser(String nsid, final FlickrServiceInterface.IRequestListener<FlickrApiData.GroupsResponse> listener) {
+        getService().getGroupsByUser(nsid, new Callback<FlickrApiData.GroupsResponse>() {
+            @Override
+            public void success(FlickrApiData.GroupsResponse groupsResponse, Response response) {
+                listener.onSuccess(groupsResponse);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
+
     public void invalidateAdapter() {
         mRestAdapter = null;
     }

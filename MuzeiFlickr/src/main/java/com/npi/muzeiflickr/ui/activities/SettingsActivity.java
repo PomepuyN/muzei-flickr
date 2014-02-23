@@ -45,6 +45,7 @@ import com.npi.muzeiflickr.network.FlickrServiceInterface;
 import com.npi.muzeiflickr.ui.adapters.RequestAdapter;
 import com.npi.muzeiflickr.ui.adapters.SourceSpinnerAdapter;
 import com.npi.muzeiflickr.ui.dialogs.GroupChooserDialog;
+import com.npi.muzeiflickr.ui.dialogs.GroupImportDialog;
 import com.npi.muzeiflickr.ui.dialogs.UserImportDialog;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerDialogFragment;
@@ -274,8 +275,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             switch (item.getItemId()) {
                                 case R.id.menu_contacts:
                                     UserImportDialog.newInstance().show(getFragmentManager(), "UserImportDialog");
-                                    mLastDeletedItem = null;
-                                    mUndoContainer.setVisibility(View.GONE);
+                                    break;
+                                case R.id.menu_groups:
+                                    GroupImportDialog.newInstance().show(getFragmentManager(), "GroupImportDialog");
+
                                     break;
                                 case R.id.menu_logout:
                                     editor.putString(PreferenceKeys.LOGIN_USERNAME,"");
@@ -287,6 +290,8 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                     manageLoginClickListener(settings, editor);
                                     break;
                             }
+                            mLastDeletedItem = null;
+                            mUndoContainer.setVisibility(View.GONE);
 
 
                             return false;
@@ -363,9 +368,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                             if (userLoginResponse == null || userLoginResponse.user == null || userLoginResponse.user.username == null) {
                                                 Log.e(TAG, "Can't get username");
                                             } else {
-                                                if (BuildConfig.DEBUG) Log.d(TAG, "User not found");
+                                                if (BuildConfig.DEBUG) Log.d(TAG, "User found: "+userLoginResponse.user.id);
                                                 editor.putString(PreferenceKeys.LOGIN_USERNAME, userLoginResponse.user.username._content);
-                                                editor.putString(PreferenceKeys.LOGIN_NSID, userLoginResponse.id);
+                                                editor.putString(PreferenceKeys.LOGIN_NSID, userLoginResponse.user.id);
                                                 editor.commit();
                                                 mLoginShortcut.setText(userLoginResponse.user.username._content);
                                             }

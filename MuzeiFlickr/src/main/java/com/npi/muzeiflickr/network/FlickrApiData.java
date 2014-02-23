@@ -16,7 +16,6 @@ public class FlickrApiData {
 
     public static class UserLoginResponse {
         public UserLoginResult user;
-        public String id;
     }
 
     public static class UserByNameResponse {
@@ -72,15 +71,21 @@ public class FlickrApiData {
 
     public static class UserLoginResult {
         public Username username;
+        public String id;
     }
 
     public static class Groups {
         public List<Group> group;
     }
 
-    public static class Group implements Serializable {
+    public static class Group implements Serializable, ImportableData {
         public String nsid;
         public  String name;
+
+        @Override
+        public String getName() {
+            return name;
+        }
     }
 
     public static class ContactResponse {
