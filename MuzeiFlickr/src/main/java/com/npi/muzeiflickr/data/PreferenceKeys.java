@@ -43,4 +43,8 @@ public class PreferenceKeys {
     public static final String PAUSED = "paused";
     public static final String CURRENT_VERSION = "current_version";
     public static final String RANDOMIZE = "randomize";
+    public static final String LOGIN_SECRET = "login_secret";
+    public static final String LOGIN_TOKEN = "login_token";
+    public static final String LOGIN_USERNAME = "login_username";
+    public static final String LOGIN_NSID = "login_nsid";
 }

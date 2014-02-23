@@ -56,7 +56,7 @@ public class FlickrMuzeiApplication extends SugarApp {
     }
 
     private void initData() {
-        FlickrService.getInstance().getPopularPhotos("landscape", 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+        FlickrService.getInstance(this).getPopularPhotos("landscape", 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
             @Override
             public void onFailure() {
                 //Creating dummy data as a fallback
@@ -78,7 +78,7 @@ public class FlickrMuzeiApplication extends SugarApp {
         final int mode = settings.getInt(PreferenceKeys.MODE, 0);
         if (mode == 0) {
             final String search = settings.getString(PreferenceKeys.SEARCH_TERM, "landscape");
-            FlickrService.getInstance().getPopularPhotos(search, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            FlickrService.getInstance(this).getPopularPhotos(search, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
                     //Creating dummy data as a fallback
@@ -99,7 +99,7 @@ public class FlickrMuzeiApplication extends SugarApp {
 
             final String user = settings.getString(PreferenceKeys.USER_ID, "");
             if (TextUtils.isEmpty(user)) return;
-            FlickrService.getInstance().getPopularPhotosByUser(user, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            FlickrService.getInstance(this).getPopularPhotosByUser(user, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
                     //Creating dummy data as a fallback

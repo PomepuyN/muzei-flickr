@@ -266,7 +266,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             }
 
             if (BuildConfig.DEBUG) Log.d(TAG, "User" + user.getTitle() + " - page " + page);
-            FlickrService.getInstance().getPopularPhotosByUser(user.userId, page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            FlickrService.getInstance(this).getPopularPhotosByUser(user.userId, page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
 
@@ -282,7 +282,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         }
         for (final Search search : searches) {
 
-            FlickrService.getInstance().getPopularPhotos(search.term, search.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            FlickrService.getInstance(this).getPopularPhotos(search.term, search.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
 
@@ -299,7 +299,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         for (final Tag tag : tags) {
 
-            FlickrService.getInstance().getPopularPhotosByTag(tag.term, tag.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            FlickrService.getInstance(this).getPopularPhotosByTag(tag.term, tag.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
 
@@ -316,7 +316,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         for (final FGroup group : groups) {
 
-            FlickrService.getInstance().getGroupPhotos(group.groupId, group.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+            FlickrService.getInstance(this).getGroupPhotos(group.groupId, group.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
                 public void onFailure() {
 
@@ -360,7 +360,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             if (BuildConfig.DEBUG) Log.d(TAG, "Getting infos for photo: " + photo.id);
 
 
-            FlickrService.getInstance().getSize(photo.id, new FlickrServiceInterface.IRequestListener<FlickrApiData.SizeResponse>() {
+            FlickrService.getInstance(this).getSize(photo.id, new FlickrServiceInterface.IRequestListener<FlickrApiData.SizeResponse>() {
                 @Override
                 public void onFailure() {
 
@@ -389,7 +389,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                         //Request user info (for the title)
                         final FlickrApiData.Size finalLargestSize = largestSize;
 
-                        FlickrService.getInstance().getUser(photo.owner, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserResponse>() {
+                        FlickrService.getInstance(FlickrSource.this).getUser(photo.owner, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserResponse>() {
                             @Override
                             public void onFailure() {
 
@@ -450,7 +450,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             @Override
             public void run() {
 
-                FlickrService.getInstance().getUserByName(user, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse>() {
+                FlickrService.getInstance(FlickrSource.this).getUserByName(user, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse>() {
                     @Override
                     public void onFailure() {
                         Toast.makeText(FlickrSource.this, getString(R.string.unable_add_user), Toast.LENGTH_LONG).show();
@@ -478,7 +478,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
                         //User has been found, let's see if he has photos
 
-                        FlickrService.getInstance().getPopularPhotosByUser(userId, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                        FlickrService.getInstance(FlickrSource.this).getPopularPhotosByUser(userId, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                             @Override
                             public void onFailure() {
                             }

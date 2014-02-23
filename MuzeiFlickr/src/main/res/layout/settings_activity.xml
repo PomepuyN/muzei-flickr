@@ -8,16 +8,31 @@
                 android:background="#22000000">
 
 
-    <ImageView
+    <TextView
+        android:id="@+id/login"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
+        android:gravity="center_vertical"
+        android:drawablePadding="5dp"
+        android:text="@string/login"
+        android:drawableLeft="@drawable/icon_user"/>
+
+    <TextView
         android:id="@+id/about"
-        android:layout_width="48dp"
+        android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/stat_sys_certificate_info"/>
+        android:gravity="center_vertical"
+        android:drawablePadding="5dp"
+        android:text="@string/about"
+        android:drawableRight="@drawable/stat_sys_certificate_info"/>
 
     <RelativeLayout
         android:id="@+id/title"
@@ -39,17 +54,17 @@
             android:textColor="@android:color/white"
             android:fontFamily="fonts/alegreya-black-italic.ttf"/>
 
-        <TextView
-            style="@style/Settings.Shadow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_title_bottom"
-            android:textSize="18sp"
-            android:layout_toRightOf="@+id/title_flickr"
-            android:layout_alignBaseline="@+id/title_flickr"
-            android:layout_marginLeft="5dp"
-            android:textColor="@android:color/white"
-            android:fontFamily="fonts/alegreya-black-italic.ttf"/>
+        <!--<TextView-->
+            <!--style="@style/Settings.Shadow"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="@string/settings_title_bottom"-->
+            <!--android:textSize="18sp"-->
+            <!--android:layout_toRightOf="@+id/title_flickr"-->
+            <!--android:layout_alignBaseline="@+id/title_flickr"-->
+            <!--android:layout_marginLeft="5dp"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:fontFamily="fonts/alegreya-black-italic.ttf"/>-->
 
     </RelativeLayout>
 
@@ -228,5 +243,10 @@
             android:layout_centerVertical="true"/>
     </RelativeLayout>
 
+    <WebView
+        android:id="@+id/oauth_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 
 </RelativeLayout>

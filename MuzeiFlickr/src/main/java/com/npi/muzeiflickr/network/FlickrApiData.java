@@ -12,6 +12,11 @@ public class FlickrApiData {
         public Sizes sizes;
     }
 
+    public static class UserLoginResponse {
+        public UserLoginResult user;
+        public String id;
+    }
+
     public static class UserByNameResponse {
         public UserResult user;
     }
@@ -63,6 +68,10 @@ public class FlickrApiData {
         public String nsid;
     }
 
+    public static class UserLoginResult {
+        public Username username;
+    }
+
     public static class Groups {
         public List<Group> group;
     }
@@ -70,5 +79,18 @@ public class FlickrApiData {
     public static class Group implements Serializable {
         public String nsid;
         public  String name;
+    }
+
+    public static class ContactResponse {
+        public Contacts contacts;
+    }
+
+    public static class Contacts {
+        public List<Contact> contact;
+    }
+
+    public static class Contact {
+        public String nsid;
+        public String username;
     }
 }

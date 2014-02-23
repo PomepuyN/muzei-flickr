@@ -52,6 +52,12 @@ public interface FlickrServiceInterface {
     @GET("/?&method=flickr.people.findByUsername&format=json&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getUserByName(@Query("username") String user, Callback<FlickrApiData.UserByNameResponse> callback);
 
+    @GET("/?&method=flickr.test.login&format=json&oauth_consumer_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getLogin(Callback<FlickrApiData.UserLoginResponse> callback);
+
+    @GET("/?&method=flickr.contacts.getList&format=json&oauth_consumer_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getContacts(Callback<FlickrApiData.ContactResponse> callback);
+
     public interface IRequestListener<T> {
         void onFailure();
 

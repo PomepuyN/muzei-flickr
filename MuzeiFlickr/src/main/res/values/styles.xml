@@ -15,19 +15,23 @@
         <item name="android:windowShowWallpaper">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemStyleAppTheme</item>
+        <item name="android:popupMenuStyle">@style/MyPopupMenu</item>
 
 
+
+    </style>
+
+    <style name="MyPopupMenu" parent="android:style/Widget.Holo.Light.ListPopupWindow">
+        <item name="android:popupBackground">#33ffffff</item>
     </style>
 
     <style name="SpinnerDropDownItemStyleAppTheme" parent="@android:style/Widget.DropDownItem.Spinner">
         <item name="android:textColor">#fff</item>
         <item name="android:checkMark">@null</item>
-        <!--<item name="android:background">#33ffffff</item>-->
         <item name="android:shadowColor">#dd000000</item>
         <item name="android:shadowDx">2</item>
         <item name="android:shadowDy">2</item>
         <item name="android:shadowRadius">2</item>
-        <!--<item name="android:popupBackground">#ffc0c0c0</item>-->
     </style>
 
     <style name="EditTextAppTheme" parent="android:Widget.EditText">

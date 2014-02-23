@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent">
+
+    <item
+        android:id="@+id/menu_contacts"
+        android:title="@string/import_contacts"/>
+
+    <item
+        android:id="@+id/menu_groups"
+        android:title="@string/import_groups"/>
+
+    <item
+        android:id="@+id/menu_favorites"
+        android:title="@string/import_favorites"/>
+
+
+    <item
+        android:id="@+id/menu_logout"
+        android:title="@string/logout"/>
+</menu>

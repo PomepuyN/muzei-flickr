@@ -3,16 +3,23 @@ package com.npi.muzeiflickr.ui.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -23,6 +30,7 @@ import android.widget.Toast;
 import com.mobeta.android.dslv.DragSortListView;
 import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
+import com.npi.muzeiflickr.api.FlickrApi;
 import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.FGroup;
@@ -39,10 +47,17 @@ import com.npi.muzeiflickr.ui.adapters.SourceSpinnerAdapter;
 import com.npi.muzeiflickr.ui.dialogs.GroupChooserDialog;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerDialogFragment;
+import com.npi.muzeiflickr.utils.Config;
 import com.npi.muzeiflickr.utils.Utils;
+
+import org.scribe.builder.ServiceBuilder;
+import org.scribe.model.Token;
+import org.scribe.model.Verifier;
+import org.scribe.oauth.OAuthService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -68,7 +83,6 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler, GroupChooserDialog.ChooseGroupDialogListener {
     public static final String PREFS_NAME = "main_prefs";
     private static final String TAG = SettingsActivity.class.getSimpleName();
-    public static final int GROUP_CHOSEN = 1;
     private TextView mRefreshRate;
 
     private DragSortListView mRequestList;
@@ -105,6 +119,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             };
     private UserInfoListener<FGroup> mCurrentGroupListener;
     private boolean mSourceAdded = false;
+    private WebView oauthWebView;
+    private Token mRequestToken;
+    private TextView mLoginShortcut;
 
     private void managePhotoFromSourceDeletion() {
         if (mLastDeletedItem != null) {
@@ -134,11 +151,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         Switch wifiOnly = (Switch) findViewById(R.id.wifi_only);
         Switch randomize = (Switch) findViewById(R.id.randomize);
         mRefreshRate = (TextView) findViewById(R.id.refresh_rate);
-        ImageView aboutShortcut = (ImageView) findViewById(R.id.about);
+        TextView aboutShortcut = (TextView) findViewById(R.id.about);
+        mLoginShortcut = (TextView) findViewById(R.id.login);
         mRequestList = (DragSortListView) findViewById(R.id.content_list);
         mUndoContainer = (RelativeLayout) findViewById(R.id.undo_container);
         mLastDeletedItemText = (TextView) findViewById(R.id.last_deleted_item);
         TextView mLastDeletedUndo = (TextView) findViewById(R.id.last_deleted_undo);
+        oauthWebView = (WebView) findViewById(R.id.oauth_webview);
 
         List<RequestData> items = new ArrayList<RequestData>();
         items.addAll(Search.listAll(Search.class));
@@ -166,6 +185,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 editor.putBoolean(PreferenceKeys.RANDOMIZE, isChecked);
                 editor.commit();
+
             }
         });
 
@@ -203,6 +223,67 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             }
         });
 
+        mLoginShortcut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (TextUtils.isEmpty(settings.getString(PreferenceKeys.LOGIN_USERNAME, ""))) {
+                    final Handler mHandler = new Handler(Looper.getMainLooper());
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            oAuth(mHandler);
+                        }
+                    }).start();
+                } else {
+                    PopupMenu popupmenu = new PopupMenu(SettingsActivity.this, mLoginShortcut);
+                    popupmenu.inflate(R.menu.logged_menu);
+                    popupmenu.show();
+                    popupmenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                        @Override
+                        public void onDismiss(PopupMenu menu) {
+                            mRequestList.animate().alpha(1F).start();
+                        }
+                    });
+                    popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.menu_contacts:
+                                    FlickrService.getInstance(SettingsActivity.this).getContacts(new FlickrServiceInterface.IRequestListener<FlickrApiData.ContactResponse>() {
+                                        @Override
+                                        public void onFailure() {
+
+                                        }
+
+                                        @Override
+                                        public void onSuccess(FlickrApiData.ContactResponse response) {
+                                            if (response == null || response.contacts == null||response.contacts.contact == null|| response.contacts.contact.size() ==0 ) {
+                                                Toast.makeText(SettingsActivity.this, getString(R.string.no_contact), Toast.LENGTH_LONG).show();
+                                            } else {
+                                                if (BuildConfig.DEBUG) Log.d(TAG, "Contacts found");
+                                                for (FlickrApiData.Contact contact: response.contacts.contact) {
+                                                    Log.d(TAG, contact.username);
+                                                    //TODO Dialog + persist
+                                                }
+                                            }
+                                        }
+                                    });
+                                    break;
+                            }
+
+
+                            return false;
+                        }
+                    });
+                    mRequestList.animate().alpha(0.15F).start();
+                }
+            }
+        });
+        String login = settings.getString(PreferenceKeys.LOGIN_USERNAME, "");
+        if (!TextUtils.isEmpty(login)) {
+            mLoginShortcut.setText(login);
+        }
+
         mLastDeletedUndo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -218,6 +299,95 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 mRequestAdapter.add(mLastDeletedItem);
                 mRequestAdapter.notifyDataSetChanged();
                 mUndoContainer.setVisibility(View.GONE);
+            }
+        });
+
+    }
+
+
+    private void oAuth(Handler mHandler) {
+        // Replace these with your own api key and secret
+        final String apiKey = Config.CONSUMER_KEY;
+        final String apiSecret = Config.CONSUMER_SECRET;
+        final OAuthService service = new ServiceBuilder().provider(FlickrApi.class).apiKey(apiKey).apiSecret(apiSecret).callback("flickrmuzei://oauth").build();
+        Scanner in = new Scanner(System.in);
+
+        // Obtain the Request Token
+        mRequestToken = service.getRequestToken();
+        final String authorizationUrl = service.getAuthorizationUrl(mRequestToken);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                oauthWebView.getSettings().setJavaScriptEnabled(true);
+                oauthWebView.setWebViewClient(new WebViewClient());
+                oauthWebView.setVisibility(View.VISIBLE);
+                oauthWebView.loadUrl(authorizationUrl);
+                oauthWebView.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                        if (url.toLowerCase().startsWith("http") || url.toLowerCase().startsWith("https") || url.toLowerCase().startsWith("file")) {
+                            view.loadUrl(url);
+                        } else {
+
+                            Uri uri = Uri.parse(url);
+                            Log.d(TAG, "callback: " + uri.toString());
+
+
+                            String verifierS = uri.getQueryParameter("oauth_verifier");
+                            final Verifier verifier = new Verifier(verifierS);
+
+                            // Trade the Request Token and Verfier for the Access Token
+                            oauthWebView.setVisibility(View.GONE);
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Token accessToken = service.getAccessToken(mRequestToken, verifier);
+
+                                    final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                                    final SharedPreferences.Editor editor = settings.edit();
+                                    editor.putString(PreferenceKeys.LOGIN_TOKEN, accessToken.getToken());
+                                    editor.putString(PreferenceKeys.LOGIN_SECRET, accessToken.getSecret());
+                                    editor.commit();
+
+                                    FlickrService.getInstance(SettingsActivity.this).invalidateAdapter();
+
+                                    //Get the user information
+                                    FlickrService.getInstance(SettingsActivity.this).getLogin(new FlickrServiceInterface.IRequestListener<FlickrApiData.UserLoginResponse>() {
+                                        @Override
+                                        public void onFailure() {
+                                            Log.e(TAG, "Can't get username");
+
+                                        }
+
+                                        @Override
+                                        public void onSuccess(FlickrApiData.UserLoginResponse userLoginResponse) {
+                                            if (BuildConfig.DEBUG) Log.d(TAG, "Looking for user");
+
+
+                                            //The user has not been found
+                                            if (userLoginResponse == null || userLoginResponse.user == null || userLoginResponse.user.username == null) {
+                                                Log.e(TAG, "Can't get username");
+                                            } else {
+                                                if (BuildConfig.DEBUG) Log.d(TAG, "User not found");
+                                                editor.putString(PreferenceKeys.LOGIN_USERNAME, userLoginResponse.user.username._content);
+                                                editor.putString(PreferenceKeys.LOGIN_NSID, userLoginResponse.id);
+                                                editor.commit();
+                                                mLoginShortcut.setText(userLoginResponse.user.username._content);
+                                            }
+
+
+                                        }
+                                    });
+
+                                }
+                            }).start();
+
+                        }
+                        return true;
+
+                    }
+                });
             }
         });
 
@@ -432,7 +602,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     }
 
     private void getGroupId(final String search, final UserInfoListener<FGroup> userInfoListener) {
-        FlickrService.getInstance().getGroups(search, new FlickrServiceInterface.IRequestListener<FlickrApiData.GroupsResponse>() {
+        FlickrService.getInstance(this).getGroups(search, new FlickrServiceInterface.IRequestListener<FlickrApiData.GroupsResponse>() {
             @Override
             public void onFailure() {
                 userInfoListener.onError(getString(R.string.network_error));
@@ -457,7 +627,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     public void onFinishChoosingDialog(final FlickrApiData.Group group) {
 
         //Get the photos number of the group
-        FlickrService.getInstance().getGroupPhotos(group.nsid, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+        FlickrService.getInstance(this).getGroupPhotos(group.nsid, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
             @Override
             public void onFailure() {
                 mCurrentGroupListener.onError(getString(R.string.group_no_photo));
@@ -486,7 +656,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     private void getSearch(final String search, final UserInfoListener<Search> userInfoListener) {
 
 
-        FlickrService.getInstance().getPopularPhotos(search, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+        FlickrService.getInstance(this).getPopularPhotos(search, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
             @Override
             public void onFailure() {
                 userInfoListener.onError(getString(R.string.network_error));
@@ -514,7 +684,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     private void getTag(final String search, final UserInfoListener<Tag> userInfoListener) {
 
 
-        FlickrService.getInstance().getPopularPhotosByTag(search, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+        FlickrService.getInstance(this).getPopularPhotosByTag(search, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
             @Override
             public void onFailure() {
                 userInfoListener.onError(getString(R.string.network_error));
@@ -567,7 +737,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
      */
     private void getUserId(final String user, final UserInfoListener userInfoListener) {
 
-        FlickrService.getInstance().getUserByName(user, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse>() {
+        FlickrService.getInstance(this).getUserByName(user, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse>() {
             @Override
             public void onFailure() {
                 userInfoListener.onError(getString(R.string.network_error));
@@ -597,7 +767,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                 //User has been found, let's see if he has photos
 
-                FlickrService.getInstance().getPopularPhotosByUser(userId, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                FlickrService.getInstance(SettingsActivity.this).getPopularPhotosByUser(userId, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                     @Override
                     public void onFailure() {
                         userInfoListener.onError(getString(R.string.user_no_photo));
