@@ -1,5 +1,7 @@
 package com.npi.muzeiflickr.network;
 
+import com.npi.muzeiflickr.data.ImportableData;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -89,8 +91,13 @@ public class FlickrApiData {
         public List<Contact> contact;
     }
 
-    public static class Contact {
+    public static class Contact implements ImportableData {
         public String nsid;
         public String username;
+
+        @Override
+        public String getName() {
+            return username;
+        }
     }
 }

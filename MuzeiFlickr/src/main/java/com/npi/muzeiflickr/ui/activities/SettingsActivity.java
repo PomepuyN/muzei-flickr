@@ -45,6 +45,7 @@ import com.npi.muzeiflickr.network.FlickrServiceInterface;
 import com.npi.muzeiflickr.ui.adapters.RequestAdapter;
 import com.npi.muzeiflickr.ui.adapters.SourceSpinnerAdapter;
 import com.npi.muzeiflickr.ui.dialogs.GroupChooserDialog;
+import com.npi.muzeiflickr.ui.dialogs.UserImportDialog;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerDialogFragment;
 import com.npi.muzeiflickr.utils.Config;
@@ -80,7 +81,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  * Created by nicolas on 14/02/14.
  * Main settings activity
  */
-public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler, GroupChooserDialog.ChooseGroupDialogListener {
+public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler, GroupChooserDialog.ChooseGroupDialogListener, UserImportDialog.ImportDialogListener {
     public static final String PREFS_NAME = "main_prefs";
     private static final String TAG = SettingsActivity.class.getSimpleName();
     private TextView mRefreshRate;
@@ -159,11 +160,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         TextView mLastDeletedUndo = (TextView) findViewById(R.id.last_deleted_undo);
         oauthWebView = (WebView) findViewById(R.id.oauth_webview);
 
-        List<RequestData> items = new ArrayList<RequestData>();
-        items.addAll(Search.listAll(Search.class));
-        items.addAll(User.listAll(User.class));
-        items.addAll(Tag.listAll(Tag.class));
-        items.addAll(FGroup.listAll(FGroup.class));
+        List<RequestData> items = getRequestDatas();
 
 
         mRequestAdapter = new RequestAdapter(this, items);
@@ -249,25 +246,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
                                 case R.id.menu_contacts:
-                                    FlickrService.getInstance(SettingsActivity.this).getContacts(new FlickrServiceInterface.IRequestListener<FlickrApiData.ContactResponse>() {
-                                        @Override
-                                        public void onFailure() {
-
-                                        }
-
-                                        @Override
-                                        public void onSuccess(FlickrApiData.ContactResponse response) {
-                                            if (response == null || response.contacts == null||response.contacts.contact == null|| response.contacts.contact.size() ==0 ) {
-                                                Toast.makeText(SettingsActivity.this, getString(R.string.no_contact), Toast.LENGTH_LONG).show();
-                                            } else {
-                                                if (BuildConfig.DEBUG) Log.d(TAG, "Contacts found");
-                                                for (FlickrApiData.Contact contact: response.contacts.contact) {
-                                                    Log.d(TAG, contact.username);
-                                                    //TODO Dialog + persist
-                                                }
-                                            }
-                                        }
-                                    });
+                                    UserImportDialog.newInstance().show(getFragmentManager(), "UserImportDialog");
+                                    mLastDeletedItem = null;
+                                    mUndoContainer.setVisibility(View.GONE);
                                     break;
                             }
 
@@ -790,6 +771,21 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         });
 
 
+    }
+
+
+    @Override
+    public void onImportFinished() {
+        mRequestAdapter.setItems(getRequestDatas());
+    }
+
+    private List<RequestData> getRequestDatas() {
+        List<RequestData> items = new ArrayList<RequestData>();
+        items.addAll(Search.listAll(Search.class));
+        items.addAll(User.listAll(User.class));
+        items.addAll(Tag.listAll(Tag.class));
+        items.addAll(FGroup.listAll(FGroup.class));
+        return items;
     }
 
 

@@ -64,4 +64,7 @@
     <string name="logout">Logout</string>
     <string name="no_contact">No contact found</string>
     <string name="import_favorites">Import my favorites</string>
+    <string name="all">Select all / Deselect all</string>
+    <string name="import_result">Import finished.\nSuccess: %1$s\nFailed: %2$s</string>
+    <string name="nothing_to_import">Nothing to import</string>
 </resources>

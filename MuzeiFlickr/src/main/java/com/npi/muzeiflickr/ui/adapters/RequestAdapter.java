@@ -59,6 +59,12 @@ public class RequestAdapter extends ArrayAdapter<RequestData> {
         return convertView;
     }
 
+    public void setItems(List<RequestData> items) {
+        mRequests.clear();
+        mRequests.addAll(items);
+        notifyDataSetChanged();
+    }
+
     static class LocalHolder {
         public TextView title;
         public TextView photoCount;
