@@ -234,6 +234,20 @@ public class FlickrService {
         });
     }
 
+    public void getFavorites(final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
+        getService().getFavorites( new Callback<FlickrApiData.PhotosResponse>() {
+            @Override
+            public void success(FlickrApiData.PhotosResponse photo, Response response) {
+                listener.onSuccess(photo);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
+
     public void invalidateAdapter() {
         mRestAdapter = null;
     }

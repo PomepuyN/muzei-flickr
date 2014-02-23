@@ -64,6 +64,9 @@ public interface FlickrServiceInterface {
     @GET("/?&method=flickr.photos.getInfo&format=json&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getPhotoInfo(@Query("photo_id") String photoId, Callback<FlickrApiData.PhotoResponse> callback);
 
+    @GET("/?&method=flickr.favorites.getList&format=json&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getFavorites(Callback<FlickrApiData.PhotosResponse> callback);
+
     public interface IRequestListener<T> {
         void onFailure();
 
