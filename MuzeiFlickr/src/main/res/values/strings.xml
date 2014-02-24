@@ -72,4 +72,9 @@
     <string name="added_to_favorites">Photo added to favorites</string>
     <string name="unable_add_favorite">Unable to favorite photo</string>
     <string name="already_in_favorites">This photo were already in your favorites</string>
+    <string name="download">Download image</string>
+    <string name="downloading_image">Downloading your image</string>
+    <string name="being_downloaded">%s is being downloaded</string>
+    <string name="image_downloaded">Image downloaded</string>
+    <string name="download_error">Download has failed</string>
 </resources>
