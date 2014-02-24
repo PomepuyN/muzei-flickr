@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -20,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -131,6 +133,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     private WebView oauthWebView;
     private Token mRequestToken;
     private TextView mLoginShortcut;
+    private LinearLayout mBottomContainer;
+    private Spinner mFooterModeChooser;
+    private RelativeLayout mMainContainer;
 
     private void managePhotoFromSourceDeletion() {
         if (mLastDeletedItem != null) {
@@ -166,7 +171,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mUndoContainer = (RelativeLayout) findViewById(R.id.undo_container);
         mLastDeletedItemText = (TextView) findViewById(R.id.last_deleted_item);
         TextView mLastDeletedUndo = (TextView) findViewById(R.id.last_deleted_undo);
+        mBottomContainer = (LinearLayout) findViewById(R.id.bottom_container);
         oauthWebView = (WebView) findViewById(R.id.oauth_webview);
+        mMainContainer = (RelativeLayout) findViewById(R.id.main_container);
 
         List<RequestData> items = getRequestDatas();
 
@@ -280,7 +287,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     popupmenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
                         @Override
                         public void onDismiss(PopupMenu menu) {
-                            mRequestList.animate().alpha(1F).start();
+                            showContent();
                         }
                     });
                     popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -307,10 +314,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                             } else {
                                                 List<Favorite> currentFavorites = Favorite.listAll(Favorite.class);
                                                 int count = 0;
-                                                for (FlickrApiData.Photo photo: photosResponse.photos.photo) {
+                                                for (FlickrApiData.Photo photo : photosResponse.photos.photo) {
 
                                                     boolean found = false;
-                                                    for (Favorite favorite:currentFavorites) {
+                                                    for (Favorite favorite : currentFavorites) {
                                                         if (photo.id.equals(favorite.photoId)) {
                                                             found = true;
                                                             break;
@@ -323,7 +330,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                                         count++;
                                                     }
                                                 }
-                                                Toast.makeText(SettingsActivity.this, count+" favorites have been added", Toast.LENGTH_LONG).show();
+                                                Toast.makeText(SettingsActivity.this, count + " favorites have been added", Toast.LENGTH_LONG).show();
 
                                             }
                                         }
@@ -331,9 +338,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                                     break;
                                 case R.id.menu_logout:
-                                    editor.putString(PreferenceKeys.LOGIN_USERNAME,"");
-                                    editor.putString(PreferenceKeys.LOGIN_SECRET,"");
-                                    editor.putString(PreferenceKeys.LOGIN_NSID,"");
+                                    editor.putString(PreferenceKeys.LOGIN_USERNAME, "");
+                                    editor.putString(PreferenceKeys.LOGIN_SECRET, "");
+                                    editor.putString(PreferenceKeys.LOGIN_NSID, "");
                                     editor.putString(PreferenceKeys.LOGIN_TOKEN, "");
                                     editor.commit();
                                     mLoginShortcut.setText(getString(R.string.login));
@@ -347,7 +354,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             return false;
                         }
                     });
-                    mRequestList.animate().alpha(0.1F).start();
+                    hideContent();
                 }
             }
         });
@@ -457,7 +464,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
     private void populateFooter(View footerView) {
         final View footerButton =  footerView.findViewById(R.id.list_footer_button);
-        final Spinner footerModeChooser = (Spinner) footerView.findViewById(R.id.mode_chooser);
+        mFooterModeChooser = (Spinner) footerView.findViewById(R.id.mode_chooser);
         final RelativeLayout addItemContainer = (RelativeLayout) footerView.findViewById(R.id.new_item_container);
         final ImageButton footerSearchButton = (ImageButton) footerView.findViewById(R.id.footer_search_button);
         final ProgressBar footerProgress = (ProgressBar) footerView.findViewById(R.id.footer_progress);
@@ -491,22 +498,39 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         ArrayAdapter<CharSequence> adapter = new SourceSpinnerAdapter(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.modes));
 
 
-        footerModeChooser.setAdapter(adapter);
-        footerModeChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mFooterModeChooser.setAdapter(adapter);
+        mFooterModeChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 4) {
                     footerTerm.setVisibility(View.GONE);
                     footerSearchButton.setImageDrawable(getResources().getDrawable(R.drawable.icon_add));
+                    if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_FAVORITES, false)) {
+                        footerSearchButton.setEnabled(false);
+                    } else {
+                        footerSearchButton.setEnabled(true);
+                    }
                 } else {
                     footerTerm.setVisibility(View.VISIBLE);
                     footerSearchButton.setImageDrawable(getResources().getDrawable(R.drawable.icon_search));
                 }
+                showContent();
+
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+                showContent();
+            }
+        });
+        mFooterModeChooser.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    hideContent();
+                }
 
+                return false;
             }
         });
 
@@ -514,7 +538,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             @Override
             public void onClick(View v) {
                 String searchString = footerTerm.getText().toString();
-                switch (footerModeChooser.getSelectedItemPosition()) {
+                switch (mFooterModeChooser.getSelectedItemPosition()) {
                     case 0:
 
                         //It's a search
@@ -539,7 +563,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 footerSearchButton.setVisibility(View.VISIBLE);
                                 footerProgress.setVisibility(View.GONE);
                                 footerTerm.setText("");
-                                footerModeChooser.setSelection(0);
+                                mFooterModeChooser.setSelection(0);
                                 addItemContainer.animate().alpha(0F);
                                 footerButton.animate().alpha(1F);
                             }
@@ -576,7 +600,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 footerSearchButton.setVisibility(View.VISIBLE);
                                 footerProgress.setVisibility(View.GONE);
                                 footerTerm.setText("");
-                                footerModeChooser.setSelection(0);
+                                mFooterModeChooser.setSelection(0);
                                 addItemContainer.animate().alpha(0F);
                                 footerButton.animate().alpha(1F);
                             }
@@ -612,7 +636,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 footerSearchButton.setVisibility(View.VISIBLE);
                                 footerProgress.setVisibility(View.GONE);
                                 footerTerm.setText("");
-                                footerModeChooser.setSelection(0);
+                                mFooterModeChooser.setSelection(0);
                                 addItemContainer.animate().alpha(0F);
                                 footerButton.animate().alpha(1F);
                             }
@@ -649,7 +673,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 footerSearchButton.setVisibility(View.VISIBLE);
                                 footerProgress.setVisibility(View.GONE);
                                 footerTerm.setText("");
-                                footerModeChooser.setSelection(0);
+                                mFooterModeChooser.setSelection(0);
                                 addItemContainer.animate().alpha(0F);
                                 footerButton.animate().alpha(1F);
                             }
@@ -670,13 +694,31 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         footerSearchButton.setVisibility(View.VISIBLE);
                         footerProgress.setVisibility(View.GONE);
                         footerTerm.setText("");
-                        footerModeChooser.setSelection(0);
+                        mFooterModeChooser.setSelection(0);
                         addItemContainer.animate().alpha(0F);
                         footerButton.animate().alpha(1F);
                         break;
                 }
             }
         });
+    }
+
+    private void hideContent() {
+        mMainContainer.animate().alpha(0.1F).start();
+//        mBottomContainer.animate().alpha(0.1F).start();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            showContent();
+        }
+    }
+
+    private void showContent() {
+        mMainContainer.animate().alpha(1F).start();
+//        mBottomContainer.animate().alpha(1F).start();
     }
 
     private void getGroupId(final String search, final UserInfoListener<FGroup> userInfoListener) {
