@@ -206,48 +206,53 @@
                 android:layout_gravity="right"/>
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/undo_container"
-            android:layout_width="match_parent"
-            android:layout_height="38dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:background="@drawable/undo_background"
-            android:visibility="gone"
-            android:layout_marginBottom="15dp">
 
-            <TextView
-                android:id="@+id/last_deleted_item"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_alignParentLeft="true"
-                android:textSize="14sp"
-                android:layout_marginLeft="15dp"
-                android:layout_toLeftOf="@+id/undo_separator"/>
-
-            <View
-                android:id="@+id/undo_separator"
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#000000"
-                android:layout_toLeftOf="@+id/last_deleted_undo"/>
-
-            <TextView
-                android:text="@string/undo"
-                android:id="@+id/last_deleted_undo"
-                android:background="@drawable/s_undo_background"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:layout_alignParentRight="true"
-                android:paddingRight="15dp"
-                android:paddingLeft="10dp"
-                android:textAllCaps="true"
-                android:textSize="16sp"
-                android:layout_centerVertical="true"/>
-        </RelativeLayout>
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/undo_container"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@drawable/undo_background"
+        android:layout_alignParentBottom="true"
+        android:translationY="70dp"
+        android:layout_marginBottom="15dp">
+
+        <TextView
+            android:id="@+id/last_deleted_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:textSize="14sp"
+            android:layout_marginLeft="15dp"
+            android:layout_toLeftOf="@+id/undo_separator"/>
+
+        <View
+            android:id="@+id/undo_separator"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#000000"
+            android:layout_toLeftOf="@+id/last_deleted_undo"/>
+
+        <TextView
+            android:text="@string/undo"
+            android:id="@+id/last_deleted_undo"
+            android:background="@drawable/s_undo_background"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentRight="true"
+            android:drawableLeft="@drawable/ic_undo"
+            android:drawablePadding="5dp"
+            android:paddingRight="15dp"
+            android:paddingLeft="10dp"
+            android:textAllCaps="true"
+            android:textSize="12sp"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
 
     <WebView
         android:id="@+id/oauth_webview"

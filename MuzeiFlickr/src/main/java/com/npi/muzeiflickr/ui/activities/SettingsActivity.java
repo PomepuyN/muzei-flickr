@@ -14,6 +14,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -125,7 +126,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     mLastDeletedItem = item;
                     mRequestAdapter.notifyDataSetChanged();
                     mLastDeletedItemText.setText(item.getTitle());
-                    mUndoContainer.setVisibility(View.VISIBLE);
+                    mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 0)).setInterpolator(new OvershootInterpolator());
+                    mUndoContainer.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 70)).setInterpolator(new OvershootInterpolator());
+                        }
+                    },5000);
                 }
             };
     private UserInfoListener<FGroup> mCurrentGroupListener;
@@ -262,7 +269,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 }
                 mRequestAdapter.add(mLastDeletedItem);
                 mRequestAdapter.notifyDataSetChanged();
-                mUndoContainer.setVisibility(View.GONE);
+                mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 70)).setInterpolator(new OvershootInterpolator());
             }
         });
 
@@ -348,7 +355,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                     break;
                             }
                             mLastDeletedItem = null;
-                            mUndoContainer.setVisibility(View.GONE);
+                            mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 70)).setInterpolator(new OvershootInterpolator());
 
 
                             return false;
