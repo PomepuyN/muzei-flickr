@@ -116,6 +116,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         ((Tag) item).delete();
                     } else if (item instanceof FGroup) {
                         ((FGroup) item).delete();
+                    }else if (item instanceof FavoriteSource) {
+                        FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, false);
+                        FlickrMuzeiApplication.getEditor().commit();
                     }
                     mLastDeletedItem = item;
                     mRequestAdapter.notifyDataSetChanged();
@@ -242,6 +245,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     Search search = ((Search) mLastDeletedItem);
                     search.setId(null);
                     search.save();
+                }else if (mLastDeletedItem instanceof FGroup) {
+                    FGroup group = ((FGroup) mLastDeletedItem);
+                    group.setId(null);
+                    group.save();
+                }else if (mLastDeletedItem instanceof FavoriteSource) {
+                    FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, true);
+                    FlickrMuzeiApplication.getEditor().commit();
                 }
                 mRequestAdapter.add(mLastDeletedItem);
                 mRequestAdapter.notifyDataSetChanged();
