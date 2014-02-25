@@ -151,7 +151,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         //Increment the photo counter
         try {
-            if (photo.getSource() != null) photo.getSource().incrementCurrent();
+            if (photo.getSource(this) != null) photo.getSource(this).incrementCurrent();
         } catch (IllegalStateException e) {
             Log.e(TAG, e.getMessage(), e);
         }

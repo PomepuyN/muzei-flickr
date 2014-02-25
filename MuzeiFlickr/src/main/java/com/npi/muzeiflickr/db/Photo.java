@@ -1,5 +1,7 @@
 package com.npi.muzeiflickr.db;
 
+import android.content.Context;
+
 import com.orm.SugarRecord;
 
 /**
@@ -21,7 +23,7 @@ public class Photo extends SugarRecord<Photo> {
         super();
     }
 
-    public RequestData getSource() {
+    public RequestData getSource(Context context) {
         if (sourceType == SourceTypeEnum.SEARCH.ordinal()) {
             return Search.findById(Search.class, sourceId);
         }
@@ -33,6 +35,9 @@ public class Photo extends SugarRecord<Photo> {
         }
         if (sourceType == SourceTypeEnum.GROUP.ordinal()) {
             return FGroup.findById(FGroup.class, sourceId);
+        }
+        if (sourceType == SourceTypeEnum.FAVORITES.ordinal()) {
+            return new FavoriteSource(context);
         }
 
         throw new IllegalStateException("Photo has no valid sourceType");
