@@ -231,6 +231,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         .setFragmentManager(getSupportFragmentManager())
                         .setStyleResId(R.style.MyCustomBetterPickerTheme);
                 hpb.show();
+                hideContent();
             }
         });
 
@@ -847,6 +848,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
      */
     @Override
     public void onDialogHmsSet(int reference, int hours, int minutes, int seconds) {
+        showContent();
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
         int duration = hours * 3600000 + minutes * 60000 + seconds * 1000;
