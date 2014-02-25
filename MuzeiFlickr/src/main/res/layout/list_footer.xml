@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:popupBackground="#33ffffff"/>
+            android:popupBackground="@color/transp_white"/>
 
         <EditText
             android:layout_width="wrap_content"

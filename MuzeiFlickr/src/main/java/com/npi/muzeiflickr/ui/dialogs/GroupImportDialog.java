@@ -1,14 +1,10 @@
 package com.npi.muzeiflickr.ui.dialogs;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
@@ -16,6 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.ImportableData;
 import com.npi.muzeiflickr.data.PreferenceKeys;
@@ -23,37 +21,35 @@ import com.npi.muzeiflickr.db.FGroup;
 import com.npi.muzeiflickr.network.FlickrApiData;
 import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.network.FlickrServiceInterface;
-import com.npi.muzeiflickr.ui.activities.SettingsActivity;
 import com.npi.muzeiflickr.ui.adapters.ItemImportAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.inmite.android.lib.dialogs.BaseDialogFragment;
+
 /**
  * Created by nicolas on 23/02/14.
  */
-public class GroupImportDialog extends DialogFragment {
+public class GroupImportDialog extends BaseDialogFragment {
 
     private static final String TAG = GroupImportDialog.class.getSimpleName();
     private View mLayoutView;
     private ListView mList;
     private ItemImportAdapter mAdapter;
-    private AlertDialog mDialog;
     private List<ImportableData> mGroups;
     private ProgressBar mEmpty;
     private CheckBox mSelectAll;
     private RelativeLayout mSelectAllContainer;
     private TextView mImportResult;
-    private Button mNegativeButton;
-    private Button mPositiveButton;
 
-    public static final GroupImportDialog newInstance() {
-        return new GroupImportDialog();
+    public static void show(FragmentActivity activity) {
+        GroupImportDialog dialog = new GroupImportDialog();
+        dialog.show(activity.getSupportFragmentManager(), TAG);
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+    protected Builder build(Builder builder) {
         mLayoutView = View.inflate(getActivity(), R.layout.import_dialog, null);
 
         mList = (ListView) mLayoutView.findViewById(android.R.id.list);
@@ -72,86 +68,6 @@ public class GroupImportDialog extends DialogFragment {
             }
         });
 
-        mDialog = new AlertDialog.Builder(getActivity()).setView(mLayoutView)
-                .setTitle(getString(R.string.import_groups))
-                .setPositiveButton(getString(android.R.string.ok), null)
-                .setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
-                    }
-                })
-                .create();
-
-        final SharedPreferences settings = getActivity().getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
-
-
-        mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-
-            @Override
-            public void onShow(DialogInterface dialog) {
-                mNegativeButton = mDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-                mPositiveButton = mDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-
-                if (mPositiveButton != null) {
-                    mPositiveButton.setOnClickListener(new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View view) {
-                            dismiss();
-                        }
-                    });
-                }
-                FlickrService.getInstance(getActivity()).getGroupsByUser(settings.getString(PreferenceKeys.LOGIN_NSID, ""), new FlickrServiceInterface.IRequestListener<FlickrApiData.GroupsResponse>() {
-                    @Override
-                    public void onFailure() {
-
-                    }
-
-                    @Override
-                    public void onSuccess(FlickrApiData.GroupsResponse response) {
-
-                        //Removing already added groups
-                        List<FlickrApiData.Group> groupsToShow = new ArrayList<FlickrApiData.Group>();
-                        List<FGroup> groups = FGroup.listAll(FGroup.class);
-                        for (FlickrApiData.Group group : response.groups.group) {
-                            boolean found = false;
-                            for (FGroup fgroup : groups) {
-                                if (fgroup.groupId.equals(group.nsid)) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                groupsToShow.add(group);
-                            }
-                        }
-
-                        if (groupsToShow.size() > 0) {
-                            mAdapter.addAll(groupsToShow);
-                            mAdapter.notifyDataSetChanged();
-                            mEmpty.setVisibility(View.GONE);
-                            mList.setVisibility(View.VISIBLE);
-                            mSelectAllContainer.setVisibility(View.VISIBLE);
-                            mPositiveButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    positiveButtonAction();
-                                }
-                            });
-                        } else {
-                            mEmpty.setVisibility(View.GONE);
-                            mImportResult.setVisibility(View.VISIBLE);
-                            mImportResult.setText(getActivity().getString(R.string.nothing_to_import));
-                            mImportResult.setCompoundDrawablesWithIntrinsicBounds(getActivity().getResources().getDrawable(R.drawable.thumb_up), null, null, null);
-                            mNegativeButton.setVisibility(View.GONE);
-
-                        }
-                    }
-                });
-            }
-        });
-
 
         mSelectAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -160,9 +76,66 @@ public class GroupImportDialog extends DialogFragment {
             }
         });
 
+        builder.setTitle(getString(R.string.import_groups)).setView(mLayoutView)
+                .setPositiveButton(getString(android.R.string.ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dismiss();
+                    }
+                });
 
-        return mDialog;
+
+        FlickrService.getInstance(getActivity()).getGroupsByUser(FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.LOGIN_NSID, ""), new FlickrServiceInterface.IRequestListener<FlickrApiData.GroupsResponse>() {
+            @Override
+            public void onFailure() {
+
+            }
+
+            @Override
+            public void onSuccess(FlickrApiData.GroupsResponse response) {
+
+                //Removing already added groups
+                List<FlickrApiData.Group> groupsToShow = new ArrayList<FlickrApiData.Group>();
+                List<FGroup> groups = FGroup.listAll(FGroup.class);
+                for (FlickrApiData.Group group : response.groups.group) {
+                    boolean found = false;
+                    for (FGroup fgroup : groups) {
+                        if (fgroup.groupId.equals(group.nsid)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        groupsToShow.add(group);
+                    }
+                }
+
+                if (groupsToShow.size() > 0) {
+                    mAdapter.addAll(groupsToShow);
+                    mAdapter.notifyDataSetChanged();
+                    mEmpty.setVisibility(View.GONE);
+                    mList.setVisibility(View.VISIBLE);
+                    mSelectAllContainer.setVisibility(View.VISIBLE);
+                    getPositiveButton().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            positiveButtonAction();
+                        }
+                    });
+                } else {
+                    mEmpty.setVisibility(View.GONE);
+                    mImportResult.setVisibility(View.VISIBLE);
+                    mImportResult.setText(getActivity().getString(R.string.nothing_to_import));
+                    mImportResult.setCompoundDrawablesWithIntrinsicBounds(getActivity().getResources().getDrawable(R.drawable.thumb_up), null, null, null);
+//                            getNegativeButton().setVisibility(View.GONE);
+
+                }
+            }
+        });
+
+        return builder;
     }
+
 
     private void positiveButtonAction() {
         mEmpty.setVisibility(View.VISIBLE);
@@ -170,14 +143,23 @@ public class GroupImportDialog extends DialogFragment {
         mSelectAllContainer.setVisibility(View.GONE);
 
         //Hide cancel button
-        mNegativeButton.setVisibility(View.GONE);
+//        getNegativeButton().setVisibility(View.GONE);
 
-        mPositiveButton.setEnabled(false);
+        getPositiveButton().setEnabled(false);
 
         final List<ImportableData> importedGroupSuccess = new ArrayList<ImportableData>();
         final List<ImportableData> importedGroupFailed = new ArrayList<ImportableData>();
 
+
         final List<ImportableData> itemsToImport = mAdapter.getCheckedItems();
+
+        if (itemsToImport.size() == 0) {
+            dismiss();
+            return;
+        }
+
+        if (BuildConfig.DEBUG) Log.d(TAG, "Import size: " + itemsToImport.size());
+
         setCancelable(false);
         for (final ImportableData item : itemsToImport) {
             FlickrService.getInstance(getActivity()).getGroupPhotos(((FlickrApiData.Group) item).nsid, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
@@ -205,21 +187,23 @@ public class GroupImportDialog extends DialogFragment {
                         mImportResult.setText(getString(R.string.import_result, importedGroupSuccess.size(), importedGroupFailed.size()));
                         mImportResult.setVisibility(View.VISIBLE);
 
-                        mPositiveButton.setOnClickListener(new View.OnClickListener() {
+                        getPositiveButton().setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
 
-                                ((UserImportDialog.ImportDialogListener) getActivity()).onImportFinished();
                                 dismiss();
                             }
                         });
-                        mPositiveButton.setEnabled(true);
+                        getPositiveButton().setEnabled(true);
                     }
                 }
             });
         }
     }
 
-
-
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        ((UserImportDialog.ImportDialogListener) getActivity()).onImportFinished();
+        super.onDismiss(dialog);
+    }
 }

@@ -4,4 +4,6 @@
     <color name="grey_33">#333333</color>
     <color name="apptheme_color">#ffffff</color>
     <color name="grey_dd">#ddd</color>
+    <color name="transp_white">#33ffffff</color>
+    <color name="white">#ffffff</color>
 </resources>

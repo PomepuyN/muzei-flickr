@@ -1,10 +1,9 @@
 package com.npi.muzeiflickr.ui.dialogs;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,11 +17,15 @@ import com.npi.muzeiflickr.network.FlickrApiData;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.inmite.android.lib.dialogs.BaseDialogFragment;
+
 /**
  * Created by nicolas on 20/02/14.
  */
-public class GroupChooserDialog extends DialogFragment {
+public class GroupChooserDialog extends BaseDialogFragment {
 
+    private static final String ARG_GROUPS = "groups";
+    private static final String TAG = GroupChooserDialog.class.getSimpleName();
     private View mLayoutView;
     private ListView mList;
     private ArrayList<FlickrApiData.Group> mGroups;
@@ -33,27 +36,19 @@ public class GroupChooserDialog extends DialogFragment {
         super();
     }
 
-    public static final GroupChooserDialog newInstance(ArrayList<FlickrApiData.Group> groups) {
-        GroupChooserDialog f = new GroupChooserDialog();
-
+    public static void show(FragmentActivity activity, ArrayList<FlickrApiData.Group> groups) {
+        GroupChooserDialog dialog = new GroupChooserDialog();
         Bundle args = new Bundle();
-        args.putSerializable("groups", groups);
-        f.setArguments(args);
-
-        return f;
+        args.putSerializable(ARG_GROUPS, groups);
+        dialog.setArguments(args);
+        dialog.show(activity.getSupportFragmentManager(), TAG);
     }
 
+
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // setStyle(STYLE_NO_TITLE, 0);
+    public Builder build(Builder builder) {
         mGroups = (ArrayList<FlickrApiData.Group>) getArguments().getSerializable("groups");
-
-    }
-
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-
         mLayoutView = View.inflate(getActivity(), R.layout.group_chooser_dialog, null);
 
         mList = (ListView) mLayoutView.findViewById(android.R.id.list);
@@ -69,13 +64,11 @@ public class GroupChooserDialog extends DialogFragment {
             }
         });
 
-        mDialog = new AlertDialog.Builder(getActivity()).setView(mLayoutView)
-                .setTitle(getString(R.string.choose_group))
-                .create();
-
-
-        return mDialog;
+        builder.setView(mLayoutView).setTitle(getString(R.string.choose_group));
+        return builder;
     }
+
+
 
     private class GroupChooserAdapter extends ArrayAdapter<FlickrApiData.Group> {
 

@@ -1,13 +1,10 @@
 package com.npi.muzeiflickr.ui.dialogs;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
@@ -26,10 +23,12 @@ import com.npi.muzeiflickr.ui.adapters.ItemImportAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.inmite.android.lib.dialogs.BaseDialogFragment;
+
 /**
  * Created by nicolas on 23/02/14.
  */
-public class UserImportDialog extends DialogFragment {
+public class UserImportDialog extends BaseDialogFragment {
 
     private static final String TAG = UserImportDialog.class.getSimpleName();
     private View mLayoutView;
@@ -41,16 +40,14 @@ public class UserImportDialog extends DialogFragment {
     private CheckBox mSelectAll;
     private RelativeLayout mSelectAllContainer;
     private TextView mImportResult;
-    private Button mNegativeButton;
-    private Button mPositiveButton;
 
-    public static final UserImportDialog newInstance() {
-        return new UserImportDialog();
+    public static void show(FragmentActivity activity) {
+        UserImportDialog dialog = new UserImportDialog();
+        dialog.show(activity.getSupportFragmentManager(), TAG);
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+    protected BaseDialogFragment.Builder build(BaseDialogFragment.Builder builder) {
         mLayoutView = View.inflate(getActivity(), R.layout.import_dialog, null);
 
         mList = (ListView) mLayoutView.findViewById(android.R.id.list);
@@ -69,35 +66,14 @@ public class UserImportDialog extends DialogFragment {
             }
         });
 
-        mDialog = new AlertDialog.Builder(getActivity()).setView(mLayoutView)
-                .setTitle(getString(R.string.import_contacts))
-                .setPositiveButton(getString(android.R.string.ok), null)
-                .setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+        builder.setTitle(getString(R.string.import_contacts)).setView(mLayoutView)
+                .setPositiveButton(getString(android.R.string.ok), new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(View v) {
                         dismiss();
                     }
-                })
-                .create();
+                });
 
-
-
-        mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-
-            @Override
-            public void onShow(DialogInterface dialog) {
-                mNegativeButton = mDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-                mPositiveButton = mDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-
-                if (mPositiveButton != null) {
-                    mPositiveButton.setOnClickListener(new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View view) {
-                            dismiss();
-                        }
-                    });
-                }
                 FlickrService.getInstance(getActivity()).getContacts(new FlickrServiceInterface.IRequestListener<FlickrApiData.ContactResponse>() {
                     @Override
                     public void onFailure() {
@@ -129,7 +105,7 @@ public class UserImportDialog extends DialogFragment {
                             mEmpty.setVisibility(View.GONE);
                             mList.setVisibility(View.VISIBLE);
                             mSelectAllContainer.setVisibility(View.VISIBLE);
-                            mPositiveButton.setOnClickListener(new View.OnClickListener() {
+                            getPositiveButton().setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     positiveButtonAction();
@@ -140,13 +116,10 @@ public class UserImportDialog extends DialogFragment {
                             mImportResult.setVisibility(View.VISIBLE);
                             mImportResult.setText(getActivity().getString(R.string.nothing_to_import));
                             mImportResult.setCompoundDrawablesWithIntrinsicBounds(getActivity().getResources().getDrawable(R.drawable.thumb_up), null, null, null);
-                            mNegativeButton.setVisibility(View.GONE);
 
                         }
                     }
                 });
-            }
-        });
 
 
 
@@ -157,9 +130,9 @@ public class UserImportDialog extends DialogFragment {
             }
         });
 
-
-        return mDialog;
+        return builder;
     }
+
 
     private void positiveButtonAction() {
         mEmpty.setVisibility(View.VISIBLE);
@@ -167,14 +140,20 @@ public class UserImportDialog extends DialogFragment {
         mSelectAllContainer.setVisibility(View.GONE);
 
         //Hide cancel button
-        mNegativeButton.setVisibility(View.GONE);
 
-        mPositiveButton.setEnabled(false);
+        getPositiveButton().setEnabled(false);
 
         final List<ImportableData> importedContactSuccess = new ArrayList<ImportableData>();
         final List<ImportableData> importedContactFailed = new ArrayList<ImportableData>();
 
         final List<ImportableData> itemsToImport = mAdapter.getCheckedItems();
+
+        if (itemsToImport.size() == 0) {
+            dismiss();
+            return;
+        }
+
+        setCancelable(false);
         for (final ImportableData item : itemsToImport) {
             FlickrService.getInstance(getActivity()).getPopularPhotosByUser(((FlickrApiData.Contact) item).nsid, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
                 @Override
@@ -201,7 +180,7 @@ public class UserImportDialog extends DialogFragment {
                         mImportResult.setText(getString(R.string.import_result, importedContactSuccess.size(), importedContactFailed.size()));
                         mImportResult.setVisibility(View.VISIBLE);
 
-                        mPositiveButton.setOnClickListener(new View.OnClickListener() {
+                        getPositiveButton().setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
 
@@ -209,7 +188,7 @@ public class UserImportDialog extends DialogFragment {
                                 dismiss();
                             }
                         });
-                        mPositiveButton.setEnabled(true);
+                        getPositiveButton().setEnabled(true);
                     }
                 }
             });
@@ -218,6 +197,12 @@ public class UserImportDialog extends DialogFragment {
 
     public interface ImportDialogListener {
         void onImportFinished();
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        ((UserImportDialog.ImportDialogListener) getActivity()).onImportFinished();
+        super.onDismiss(dialog);
     }
 
 

@@ -1,6 +1,7 @@
 package com.npi.muzeiflickr.ui.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -8,6 +9,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.ImportableData;
 
@@ -16,9 +18,10 @@ import java.util.List;
 
 public class ItemImportAdapter extends ArrayAdapter<ImportableData> {
 
+    private static final String TAG = ItemImportAdapter.class.getSimpleName();
     private final List<ImportableData> mItems;
     private Context mContext;
-    private List<ImportableData> mCheckedItem = new ArrayList<ImportableData>();
+    private List<ImportableData> mCheckedItems = new ArrayList<ImportableData>();
 
     public ItemImportAdapter(Context context, int textViewResourceId, List<ImportableData> objects) {
         super(context, textViewResourceId, objects);
@@ -43,7 +46,7 @@ public class ItemImportAdapter extends ArrayAdapter<ImportableData> {
 
 
         final ImportableData currentItem = mItems.get(position);
-        holder.checkbox.setChecked(mCheckedItem.contains(currentItem));
+        holder.checkbox.setChecked(mCheckedItems.contains(currentItem));
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,7 +60,12 @@ public class ItemImportAdapter extends ArrayAdapter<ImportableData> {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    mCheckedItem.add(currentItem);
+                    if (!mCheckedItems.contains(currentItem)) {
+                        mCheckedItems.add(currentItem);
+                    }
+                } else {
+                    mCheckedItems.remove(currentItem);
+
                 }
             }
         });
@@ -74,16 +82,19 @@ public class ItemImportAdapter extends ArrayAdapter<ImportableData> {
 
 
     public void setAllChecked(boolean isChecked) {
+        if (BuildConfig.DEBUG) Log.d(TAG, "setAllChecked size: "+ mItems.size());
         if (isChecked) {
-            mCheckedItem.clear();
-            mCheckedItem.addAll(mItems);
+            mCheckedItems.clear();
+            mCheckedItems.addAll(mItems);
         } else {
-            mCheckedItem.clear();
+            mCheckedItems.clear();
         }
+        if (BuildConfig.DEBUG) Log.d(TAG, "setAllChecked mCheckedItems size: "+ mItems.size());
         notifyDataSetChanged();
     }
 
     public List<ImportableData> getCheckedItems() {
-        return mCheckedItem;
+        if (BuildConfig.DEBUG) Log.d(TAG, "getCheckedItems size: " + mCheckedItems.size());
+        return mCheckedItems;
     }
 }

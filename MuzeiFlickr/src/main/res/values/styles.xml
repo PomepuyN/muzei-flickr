@@ -17,10 +17,30 @@
         <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemStyleAppTheme</item>
         <item name="android:popupMenuStyle">@style/MyPopupMenu</item>
         <item name="android:textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceSmall</item>
+        <item name="sdlDialogStyle">@style/DialogStyleLight.Custom</item>
+        <item name="android:checkboxStyle">@style/CheckBoxAppTheme</item>
 
 
 
     </style>
+
+    <style name="DialogStyleLight.Custom">
+        <!-- anything can be left out: -->
+        <item name="titleTextColor">@color/white</item>
+        <item name="titleSeparatorColor">@color/white</item>
+        <!--<item name="messageTextColor">@color/dialog_message_text</item>-->
+        <item name="buttonTextColor">@color/white</item>
+        <item name="buttonSeparatorColor">@color/white</item>
+        <item name="buttonBackgroundColorNormal">@android:color/transparent</item>
+        <!--<item name="android:textStyle">@style/Settings.Shadow</item>-->
+        <item name="buttonBackgroundColorPressed">@color/transp_white</item>
+        <item name="buttonBackgroundColorFocused">@color/transp_white</item>
+        <item name="dialogBackground">@color/transp_white</item>
+    </style>
+    <style name="CheckBoxAppTheme" parent="android:Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/apptheme_btn_check_holo_dark</item>
+    </style>
+
 
     <style name="myPopupMenuTextAppearanceSmall">
         <item name="android:textColor">#fff</item>
@@ -32,7 +52,7 @@
     </style>
 
     <style name="MyPopupMenu" parent="android:style/Widget.Holo.Light.ListPopupWindow">
-        <item name="android:popupBackground">#33ffffff</item>
+        <item name="android:popupBackground">@color/transp_white</item>
     </style>
 
     <style name="SpinnerDropDownItemStyleAppTheme" parent="@android:style/Widget.DropDownItem.Spinner">

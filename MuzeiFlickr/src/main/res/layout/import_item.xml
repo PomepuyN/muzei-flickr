@@ -12,6 +12,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:layout_alignParentLeft="true"
+        style="@style/Settings.Shadow"
         android:layout_toLeftOf="@+id/item_checkbox">
 
     </TextView>

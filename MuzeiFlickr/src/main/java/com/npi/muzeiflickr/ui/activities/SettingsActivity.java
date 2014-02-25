@@ -143,6 +143,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     private LinearLayout mBottomContainer;
     private Spinner mFooterModeChooser;
     private RelativeLayout mMainContainer;
+    private boolean mADialogIsShowing;
 
     private void managePhotoFromSourceDeletion() {
         if (mLastDeletedItem != null) {
@@ -292,22 +293,19 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     PopupMenu popupmenu = new PopupMenu(SettingsActivity.this, mLoginShortcut);
                     popupmenu.inflate(R.menu.logged_menu);
                     popupmenu.show();
-                    popupmenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-                        @Override
-                        public void onDismiss(PopupMenu menu) {
-                            showContent();
-                        }
-                    });
                     popupmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
                                 case R.id.menu_contacts:
-                                    UserImportDialog.newInstance().show(getFragmentManager(), "UserImportDialog");
+                                    mADialogIsShowing = true;
+                                    hideContent();
+                                    UserImportDialog.show(SettingsActivity.this);
                                     break;
                                 case R.id.menu_groups:
-                                    GroupImportDialog.newInstance().show(getFragmentManager(), "GroupImportDialog");
-
+                                    mADialogIsShowing = true;
+                                    hideContent();
+                                    GroupImportDialog.show(SettingsActivity.this);
                                     break;
                                 case R.id.menu_favorites:
                                     FlickrService.getInstance(SettingsActivity.this).getFavorites(new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
@@ -712,21 +710,24 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     }
 
     private void hideContent() {
+        if (BuildConfig.DEBUG) Log.d(TAG, "hideContent");
         mMainContainer.animate().alpha(0.1F).start();
-//        mBottomContainer.animate().alpha(0.1F).start();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
+        if (hasFocus && !mADialogIsShowing) {
             showContent();
         }
     }
 
     private void showContent() {
+        if (BuildConfig.DEBUG) {
+            NullPointerException nullPointerException = new NullPointerException("");
+            Log.d(TAG, nullPointerException.getMessage(), nullPointerException);
+        }
         mMainContainer.animate().alpha(1F).start();
-//        mBottomContainer.animate().alpha(1F).start();
     }
 
     private void getGroupId(final String search, final UserInfoListener<FGroup> userInfoListener) {
@@ -741,8 +742,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 if (photosResponse == null || photosResponse.groups == null || photosResponse.groups.group == null) {
                     userInfoListener.onError(getString(R.string.network_error));
                 } else if (photosResponse.groups.group.size() > 0) {
-                    GroupChooserDialog.newInstance(new ArrayList<FlickrApiData.Group>(photosResponse.groups.group)).show(getFragmentManager(), "GroupChooserDialog");
+
+                    GroupChooserDialog.show(SettingsActivity.this, new ArrayList<FlickrApiData.Group>(photosResponse.groups.group));
                     mCurrentGroupListener = userInfoListener;
+                    hideContent();
                 } else {
                     userInfoListener.onError(getString(R.string.no_group_found));
 
@@ -924,6 +927,8 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
     @Override
     public void onImportFinished() {
+        mADialogIsShowing = false;
+        showContent();
         mRequestAdapter.setItems(getRequestDatas());
     }
 
