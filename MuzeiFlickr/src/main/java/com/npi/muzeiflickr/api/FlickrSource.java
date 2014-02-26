@@ -79,6 +79,9 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     public static final String ACTION_CLEAR_SERVICE = "com.npi.muzeiflickr.ACTION_CLEAR_SERVICE";
     public static final String ACTION_REFRESH_FROM_WIDGET = "com.npi.muzeiflickr.NEXT_FROM_WIDGET";
     public static final String ACTION_RELOAD_SOME_PHOTOS = "com.npi.muzeiflickr.ACTION_RELOAD_SOME_PHOTOS";
+    public static final String ACTION_PAUSE_FROM_WIDGET = "com.npi.muzeiflickr.ACTION_PAUSE_FROM_WIDGET";
+    public static final String ACTION_FAVORITE_FROM_WIDGET = "com.npi.muzeiflickr.ACTION_FAVORITE_FROM_WIDGET";
+    public static final String ACTION_DOWNLOAD_FROM_WIDGET = "com.npi.muzeiflickr.ACTION_DOWNLOAD_FROM_WIDGET";
     public static final int DEFAULT_REFRESH_TIME = 7200000;
     private static final int COMMAND_ID_SHARE = 1;
     private static final int COMMAND_ID_PAUSE = 2;
@@ -168,12 +171,11 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 .build());
 
 
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PreferenceKeys.CURRENT_TITLE, photo.title);
-        editor.putString(PreferenceKeys.CURRENT_AUTHOR, name);
-        editor.putString(PreferenceKeys.CURRENT_URL, photo.url);
-        editor.putString(PreferenceKeys.CURRENT_PHOTO_ID, photo.photoId);
-        editor.commit();
+        FlickrMuzeiApplication.getEditor().putString(PreferenceKeys.CURRENT_TITLE, photo.title);
+        FlickrMuzeiApplication.getEditor().putString(PreferenceKeys.CURRENT_AUTHOR, name);
+        FlickrMuzeiApplication.getEditor().putString(PreferenceKeys.CURRENT_URL, photo.url);
+        FlickrMuzeiApplication.getEditor().putString(PreferenceKeys.CURRENT_PHOTO_ID, photo.photoId);
+        FlickrMuzeiApplication.getEditor().commit();
 
         //Update widgets
         updateWidgets();
@@ -209,15 +211,14 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     protected void onCustomCommand(int id) {
         super.onCustomCommand(id);
         final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
         switch (id) {
             case COMMAND_ID_PAUSE:
-                editor.putBoolean(PreferenceKeys.PAUSED, true);
-                editor.commit();
+                FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.PAUSED, true);
+                FlickrMuzeiApplication.getEditor().commit();
                 break;
             case COMMAND_ID_RESTART:
-                editor.putBoolean(PreferenceKeys.PAUSED, false);
-                editor.commit();
+                FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.PAUSED, false);
+                FlickrMuzeiApplication.getEditor().commit();
                 scheduleUpdate(System.currentTimeMillis() + settings.getInt(PreferenceKeys.REFRESH_TIME, DEFAULT_REFRESH_TIME));
                 break;
             case COMMAND_ID_ADD_ARTIST:
@@ -258,41 +259,46 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 startActivity(shareIntent);
                 break;
             case COMMAND_ID_ADD_FAVORITE:
-                Favorite fav = new Favorite();
-                String photoId = FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.CURRENT_PHOTO_ID, "");
-                if (Favorite.find(Favorite.class, "photo_id = ?", photoId).size() > 0) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(FlickrSource.this, getString(R.string.already_in_favorites), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    return;
-                }
-                if (!TextUtils.isEmpty(photoId)) {
-                    fav.photoId = photoId;
-                    fav.save();
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(FlickrSource.this, getString(R.string.added_to_favorites), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                } else {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(FlickrSource.this, getString(R.string.unable_add_favorite), Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                }
+                favoriteCurrent();
 
                 break;
 
         }
         manageUserCommands(settings);
 
+    }
+
+    private void favoriteCurrent() {
+        Favorite fav = new Favorite();
+        String photoId = FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.CURRENT_PHOTO_ID, "");
+        if (Favorite.find(Favorite.class, "photo_id = ?", photoId).size() > 0) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(FlickrSource.this, getString(R.string.already_in_favorites), Toast.LENGTH_LONG).show();
+                }
+            });
+            return;
+        }
+        if (!TextUtils.isEmpty(photoId)) {
+            fav.photoId = photoId;
+            fav.save();
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(FlickrSource.this, getString(R.string.added_to_favorites), Toast.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(FlickrSource.this, getString(R.string.unable_add_favorite), Toast.LENGTH_LONG).show();
+                }
+            });
+
+        }
+        return;
     }
 
     private void downloadImage() {
@@ -808,6 +814,29 @@ public class FlickrSource extends RemoteMuzeiArtSource {
             return;
 
         }
+        if (ACTION_PAUSE_FROM_WIDGET.equals(action)) {
+            if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.PAUSED, false)) {
+                FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.PAUSED, false);
+                FlickrMuzeiApplication.getEditor().commit();
+
+            } else {
+                FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.PAUSED, true);
+                FlickrMuzeiApplication.getEditor().commit();
+            }
+            updateWidgets();
+            return;
+
+        }
+        if (ACTION_DOWNLOAD_FROM_WIDGET.equals(action)) {
+            downloadImage();
+            return;
+
+        }
+        if (ACTION_FAVORITE_FROM_WIDGET.equals(action)) {
+            favoriteCurrent();
+            return;
+
+        }
         if (ACTION_RELOAD_SOME_PHOTOS.equals(action)) {
             requestPhotos();
             return;
@@ -822,9 +851,8 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     protected void onDisabled() {
         if (BuildConfig.DEBUG) Log.d(TAG, "onDisabled");
         final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(PreferenceKeys.IS_SUSCRIBER_ENABLED, false);
-        editor.commit();
+        FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.IS_SUSCRIBER_ENABLED, false);
+        FlickrMuzeiApplication.getEditor().commit();
 
         updateWidgets();
         manageUserCommands(settings);
@@ -835,11 +863,9 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     @Override
     protected void onEnabled() {
         if (BuildConfig.DEBUG) Log.d(TAG, "onEnabled");
-        final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(PreferenceKeys.IS_SUSCRIBER_ENABLED, true);
+        FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.IS_SUSCRIBER_ENABLED, true);
 
-        editor.commit();
+        FlickrMuzeiApplication.getEditor().commit();
 
         updateWidgets();
 

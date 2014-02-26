@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/widget_background">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/widget_background">
 
     <TextView
         android:layout_width="match_parent"
@@ -21,27 +21,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_toLeftOf="@+id/widget_play_button">
+        android:layout_toLeftOf="@+id/right_container">
 
         <TextView
             android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"
             android:id="@+id/widget_title"
             android:textSize="20sp"
-            android:textColor="#000"
+            android:textColor="#fff"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:maxLines="1"
             android:ellipsize="end"
-            android:gravity="bottom"/>
+            android:gravity="bottom"
+            style="@style/Settings.Shadow"/>
 
         <TextView
             android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"
             android:id="@+id/widget_author"
             android:textSize="18sp"
-            android:textColor="#000"
+            android:textColor="#fff"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -49,15 +50,63 @@
             android:ellipsize="end"
             android:gravity="top"
             android:includeFontPadding="false"
-            android:fontFamily="sans-serif-light"/>
+            android:fontFamily="sans-serif-light"
+            style="@style/Settings.Shadow"/>
     </LinearLayout>
 
-    <ImageView
-        android:background="@drawable/s_widget_right"
-        android:id="@+id/widget_play_button"
-        android:layout_width="48dp"
+    <LinearLayout
+        android:id="@+id/right_container"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:scaleType="centerInside"
-        android:src="@drawable/ic_menu_play_clip"
-        android:layout_alignParentRight="true" />
+        android:orientation="vertical"
+        android:layout_alignParentRight="true">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:background="@drawable/s_widget_right"
+                android:id="@+id/widget_pause_button"
+                android:layout_width="42dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_pause"/>
+
+            <ImageView
+                android:background="@drawable/s_widget_right"
+                android:id="@+id/widget_play_button"
+                android:layout_width="42dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_next"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:background="@drawable/s_widget_right"
+                android:id="@+id/widget_download_button"
+                android:layout_width="42dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_download"/>
+
+            <ImageView
+                android:background="@drawable/s_widget_right"
+                android:id="@+id/widget_favorite_button"
+                android:layout_width="42dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/icon_favorite"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+
 </RelativeLayout>

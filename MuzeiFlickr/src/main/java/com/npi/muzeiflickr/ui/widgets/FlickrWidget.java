@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
@@ -125,9 +126,24 @@ public class FlickrWidget extends AppWidgetProvider {
                     Uri.parse(settings.getString(PreferenceKeys.CURRENT_URL, ""))), PendingIntent.FLAG_UPDATE_CURRENT);
 
             PendingIntent pendingIntent = PendingIntent.getService(context, 0, new Intent(FlickrSource.ACTION_REFRESH_FROM_WIDGET), PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntentPause = PendingIntent.getService(context, 0, new Intent(FlickrSource.ACTION_PAUSE_FROM_WIDGET), PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntentFavorite = PendingIntent.getService(context, 0, new Intent(FlickrSource.ACTION_FAVORITE_FROM_WIDGET), PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntentDownload = PendingIntent.getService(context, 0, new Intent(FlickrSource.ACTION_DOWNLOAD_FROM_WIDGET), PendingIntent.FLAG_UPDATE_CURRENT);
 
             rview.setOnClickPendingIntent(R.id.widget_play_button, pendingIntent);
+            rview.setOnClickPendingIntent(R.id.widget_pause_button, pendingIntentPause);
+            rview.setOnClickPendingIntent(R.id.widget_download_button, pendingIntentDownload);
             rview.setOnClickPendingIntent(R.id.widget_left_container, pendingIntentUrl);
+            rview.setOnClickPendingIntent(R.id.widget_favorite_button, pendingIntentFavorite);
+
+            if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.PAUSED, false)) {
+                rview.setImageViewResource(R.id.widget_pause_button, R.drawable.ic_play);
+
+
+            } else {
+                rview.setImageViewResource(R.id.widget_pause_button, R.drawable.ic_pause);
+
+            }
         }
 
 

@@ -70,6 +70,9 @@
             <intent-filter>
                 <action android:name="com.google.android.apps.muzei.api.MuzeiArtSource" />
                 <action android:name="com.npi.muzeiflickr.NEXT_FROM_WIDGET" />
+                <action android:name="com.npi.muzeiflickr.ACTION_PAUSE_FROM_WIDGET" />
+                <action android:name="com.npi.muzeiflickr.ACTION_FAVORITE_FROM_WIDGET" />
+                <action android:name="com.npi.muzeiflickr.ACTION_DOWNLOAD_FROM_WIDGET" />
             </intent-filter>
 
             <meta-data
