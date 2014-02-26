@@ -17,12 +17,14 @@ import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -31,7 +33,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mobeta.android.dslv.DragSortListView;
+import com.nhaarman.listviewanimations.itemmanipulation.OnDismissCallback;
+import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.SwipeDismissAdapter;
 import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
@@ -94,45 +97,50 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     private static final String TAG = SettingsActivity.class.getSimpleName();
     private TextView mRefreshRate;
 
-    private DragSortListView mRequestList;
+    private ListView mRequestList;
     private RequestAdapter mRequestAdapter;
 
     private RequestData mLastDeletedItem;
     private RelativeLayout mUndoContainer;
     private TextView mLastDeletedItemText;
-    private DragSortListView.RemoveListener onRemove =
-            new DragSortListView.RemoveListener() {
+    private OnDismissCallback onRemove =
+            new OnDismissCallback() {
                 @Override
-                public void remove(int which) {
-
+                public void onDismiss(AbsListView listView, int[] reverseSortedPositions) {
 
                     if (BuildConfig.DEBUG) Log.d(TAG, "Removing item");
 
-                    RequestData item = mRequestAdapter.getItem(which);
-                    managePhotoFromSourceDeletion();
-                    mRequestAdapter.remove(item);
-                    if (item instanceof User) {
-                        ((User) item).delete();
-                    } else if (item instanceof Search) {
-                        ((Search) item).delete();
-                    } else if (item instanceof Tag) {
-                        ((Tag) item).delete();
-                    } else if (item instanceof FGroup) {
-                        ((FGroup) item).delete();
-                    } else if (item instanceof FavoriteSource) {
-                        FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, false);
-                        FlickrMuzeiApplication.getEditor().commit();
-                    }
-                    mLastDeletedItem = item;
-                    mRequestAdapter.notifyDataSetChanged();
-                    mLastDeletedItemText.setText(item.getTitle());
-                    mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 0)).setInterpolator(new OvershootInterpolator());
-                    mUndoContainer.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 70)).setInterpolator(new OvershootInterpolator());
+                    for (int position: reverseSortedPositions) {
+                        RequestData item = mRequestAdapter.getItem(position);
+                        managePhotoFromSourceDeletion();
+                        mRequestAdapter.remove(item);
+                        if (item instanceof User) {
+                            ((User) item).delete();
+                        } else if (item instanceof Search) {
+                            ((Search) item).delete();
+                        } else if (item instanceof Tag) {
+                            ((Tag) item).delete();
+                        } else if (item instanceof FGroup) {
+                            ((FGroup) item).delete();
+                        } else if (item instanceof FavoriteSource) {
+                            FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, false);
+                            FlickrMuzeiApplication.getEditor().commit();
                         }
-                    }, 5000);
+                        mLastDeletedItem = item;
+//                        mRequestAdapter.notifyDataSetChanged();
+                        mLastDeletedItemText.setText(item.getTitle());
+                        mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 0)).setInterpolator(new OvershootInterpolator());
+                        mUndoContainer.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 70)).setInterpolator(new OvershootInterpolator());
+                            }
+                        }, 5000);
+                    }
+
+
+
+
                 }
             };
     private boolean mSourceAdded = false;
@@ -179,7 +187,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mRefreshRate = (TextView) findViewById(R.id.refresh_rate);
         TextView aboutShortcut = (TextView) findViewById(R.id.about);
         mLoginShortcut = (TextView) findViewById(R.id.login);
-        mRequestList = (DragSortListView) findViewById(R.id.content_list);
+        mRequestList = (ListView) findViewById(R.id.content_list);
         mUndoContainer = (RelativeLayout) findViewById(R.id.undo_container);
         mLastDeletedItemText = (TextView) findViewById(R.id.last_deleted_item);
         TextView mLastDeletedUndo = (TextView) findViewById(R.id.last_deleted_undo);
@@ -195,9 +203,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         final View footerView = getLayoutInflater().inflate(R.layout.list_footer, null);
         mRequestList.addFooterView(footerView);
 
-        mRequestList.setAdapter(mRequestAdapter);
+        SwipeDismissAdapter swipeDismissAdapter = new SwipeDismissAdapter(mRequestAdapter, onRemove);
+        swipeDismissAdapter.setAbsListView(mRequestList);
+        mRequestList.setAdapter(swipeDismissAdapter);
 
-        mRequestList.setRemoveListener(onRemove);
 
         populateFooter(footerView);
 

@@ -3,9 +3,9 @@ package com.npi.muzeiflickr.ui.adapters;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.db.RequestData;
 
@@ -20,7 +20,7 @@ public class RequestAdapter extends ArrayAdapter<RequestData> {
     private final Context mContext;
 
     public RequestAdapter(Context context, List<RequestData> requests) {
-        super(context, android.R.layout.simple_list_item_1, requests);
+        super(requests);
         mRequests = requests;
         mContext = context;
     }
