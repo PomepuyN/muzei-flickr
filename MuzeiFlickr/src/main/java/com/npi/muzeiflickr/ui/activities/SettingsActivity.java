@@ -24,7 +24,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -119,7 +118,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         ((Tag) item).delete();
                     } else if (item instanceof FGroup) {
                         ((FGroup) item).delete();
-                    }else if (item instanceof FavoriteSource) {
+                    } else if (item instanceof FavoriteSource) {
                         FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, false);
                         FlickrMuzeiApplication.getEditor().commit();
                     }
@@ -132,10 +131,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         public void run() {
                             mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 70)).setInterpolator(new OvershootInterpolator());
                         }
-                    },5000);
+                    }, 5000);
                 }
             };
-    private UserInfoListener<FGroup> mCurrentGroupListener;
     private boolean mSourceAdded = false;
     private WebView oauthWebView;
     private Token mRequestToken;
@@ -261,11 +259,11 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     Search search = ((Search) mLastDeletedItem);
                     search.setId(null);
                     search.save();
-                }else if (mLastDeletedItem instanceof FGroup) {
+                } else if (mLastDeletedItem instanceof FGroup) {
                     FGroup group = ((FGroup) mLastDeletedItem);
                     group.setId(null);
                     group.save();
-                }else if (mLastDeletedItem instanceof FavoriteSource) {
+                } else if (mLastDeletedItem instanceof FavoriteSource) {
                     FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, true);
                     FlickrMuzeiApplication.getEditor().commit();
                 }
@@ -431,7 +429,8 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                             if (userLoginResponse == null || userLoginResponse.user == null || userLoginResponse.user.username == null) {
                                                 Log.e(TAG, "Can't get username");
                                             } else {
-                                                if (BuildConfig.DEBUG) Log.d(TAG, "User found: "+userLoginResponse.user.id);
+                                                if (BuildConfig.DEBUG)
+                                                    Log.d(TAG, "User found: " + userLoginResponse.user.id);
                                                 editor.putString(PreferenceKeys.LOGIN_USERNAME, userLoginResponse.user.username._content);
                                                 editor.putString(PreferenceKeys.LOGIN_NSID, userLoginResponse.user.id);
                                                 editor.commit();
@@ -469,11 +468,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     }
 
     private void populateFooter(View footerView) {
-        final View footerButton =  footerView.findViewById(R.id.list_footer_button);
+        final View footerButton = footerView.findViewById(R.id.list_footer_button);
         mFooterModeChooser = (Spinner) footerView.findViewById(R.id.mode_chooser);
         final RelativeLayout addItemContainer = (RelativeLayout) footerView.findViewById(R.id.new_item_container);
         final ImageButton footerSearchButton = (ImageButton) footerView.findViewById(R.id.footer_search_button);
-        final ProgressBar footerProgress = (ProgressBar) footerView.findViewById(R.id.footer_progress);
         final EditText footerTerm = (EditText) footerView.findViewById(R.id.footer_term);
 
         footerButton.setOnLongClickListener(new View.OnLongClickListener() {
@@ -559,7 +557,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         }
 
                         footerSearchButton.setVisibility(View.GONE);
-                        footerProgress.setVisibility(View.VISIBLE);
 
                         getSearch(searchString, new UserInfoListener<Search>() {
                             @Override
@@ -567,7 +564,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 mRequestAdapter.add(search);
                                 mRequestAdapter.notifyDataSetChanged();
                                 footerSearchButton.setVisibility(View.VISIBLE);
-                                footerProgress.setVisibility(View.GONE);
                                 footerTerm.setText("");
                                 mFooterModeChooser.setSelection(0);
                                 addItemContainer.animate().alpha(0F);
@@ -578,7 +574,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             public void onError(String reason) {
                                 Toast.makeText(SettingsActivity.this, reason, Toast.LENGTH_LONG).show();
                                 footerSearchButton.setVisibility(View.VISIBLE);
-                                footerProgress.setVisibility(View.GONE);
                             }
                         });
 
@@ -596,7 +591,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         }
 
                         footerSearchButton.setVisibility(View.GONE);
-                        footerProgress.setVisibility(View.VISIBLE);
 
                         getUserId(searchString, new UserInfoListener<User>() {
                             @Override
@@ -604,7 +598,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 mRequestAdapter.add(user);
                                 mRequestAdapter.notifyDataSetChanged();
                                 footerSearchButton.setVisibility(View.VISIBLE);
-                                footerProgress.setVisibility(View.GONE);
                                 footerTerm.setText("");
                                 mFooterModeChooser.setSelection(0);
                                 addItemContainer.animate().alpha(0F);
@@ -615,7 +608,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             public void onError(String reason) {
                                 Toast.makeText(SettingsActivity.this, reason, Toast.LENGTH_LONG).show();
                                 footerSearchButton.setVisibility(View.VISIBLE);
-                                footerProgress.setVisibility(View.GONE);
                             }
                         });
                         break;
@@ -632,7 +624,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         }
 
                         footerSearchButton.setVisibility(View.GONE);
-                        footerProgress.setVisibility(View.VISIBLE);
 
                         getTag(searchString, new UserInfoListener<Tag>() {
                             @Override
@@ -640,7 +631,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 mRequestAdapter.add(tag);
                                 mRequestAdapter.notifyDataSetChanged();
                                 footerSearchButton.setVisibility(View.VISIBLE);
-                                footerProgress.setVisibility(View.GONE);
                                 footerTerm.setText("");
                                 mFooterModeChooser.setSelection(0);
                                 addItemContainer.animate().alpha(0F);
@@ -651,7 +641,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             public void onError(String reason) {
                                 Toast.makeText(SettingsActivity.this, reason, Toast.LENGTH_LONG).show();
                                 footerSearchButton.setVisibility(View.VISIBLE);
-                                footerProgress.setVisibility(View.GONE);
                             }
                         });
                         break;
@@ -668,8 +657,8 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             }
                         }
 
-                        footerSearchButton.setVisibility(View.GONE);
-                        footerProgress.setVisibility(View.VISIBLE);
+//                        footerSearchButton.setVisibility(View.GONE);
+//                        footerProgress.setVisibility(View.VISIBLE);
 
                         getGroupId(searchString, new UserInfoListener<FGroup>() {
                             @Override
@@ -677,7 +666,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                 mRequestAdapter.add(group);
                                 mRequestAdapter.notifyDataSetChanged();
                                 footerSearchButton.setVisibility(View.VISIBLE);
-                                footerProgress.setVisibility(View.GONE);
                                 footerTerm.setText("");
                                 mFooterModeChooser.setSelection(0);
                                 addItemContainer.animate().alpha(0F);
@@ -688,7 +676,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             public void onError(String reason) {
                                 Toast.makeText(SettingsActivity.this, reason, Toast.LENGTH_LONG).show();
                                 footerSearchButton.setVisibility(View.VISIBLE);
-                                footerProgress.setVisibility(View.GONE);
                             }
                         });
                         break;
@@ -698,7 +685,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         mRequestAdapter.add(new FavoriteSource(SettingsActivity.this));
                         mRequestAdapter.notifyDataSetChanged();
                         footerSearchButton.setVisibility(View.VISIBLE);
-                        footerProgress.setVisibility(View.GONE);
                         footerTerm.setText("");
                         mFooterModeChooser.setSelection(0);
                         addItemContainer.animate().alpha(0F);
@@ -723,58 +709,46 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     }
 
     private void showContent() {
-        if (BuildConfig.DEBUG) {
-            NullPointerException nullPointerException = new NullPointerException("");
-            Log.d(TAG, nullPointerException.getMessage(), nullPointerException);
-        }
         mMainContainer.animate().alpha(1F).start();
     }
 
     private void getGroupId(final String search, final UserInfoListener<FGroup> userInfoListener) {
-        FlickrService.getInstance(this).getGroups(search, new FlickrServiceInterface.IRequestListener<FlickrApiData.GroupsResponse>() {
-            @Override
-            public void onFailure() {
-                userInfoListener.onError(getString(R.string.network_error));
-            }
 
-            @Override
-            public void onSuccess(FlickrApiData.GroupsResponse photosResponse) {
-                if (photosResponse == null || photosResponse.groups == null || photosResponse.groups.group == null) {
-                    userInfoListener.onError(getString(R.string.network_error));
-                } else if (photosResponse.groups.group.size() > 0) {
 
-                    GroupChooserDialog.show(SettingsActivity.this, new ArrayList<FlickrApiData.Group>(photosResponse.groups.group));
-                    mCurrentGroupListener = userInfoListener;
-                    hideContent();
-                } else {
-                    userInfoListener.onError(getString(R.string.no_group_found));
+        GroupChooserDialog.show(SettingsActivity.this, search);
+        hideContent();
+        mADialogIsShowing = true;
 
-                }
-            }
-        });
     }
 
     @Override
     public void onFinishChoosingDialog(final FlickrApiData.Group group) {
 
+        showContent();
+        mADialogIsShowing = false;
+        if (group == null) {
+            return;
+        }
+
         //Get the photos number of the group
         FlickrService.getInstance(this).getGroupPhotos(group.nsid, 0, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
             @Override
             public void onFailure() {
-                mCurrentGroupListener.onError(getString(R.string.group_no_photo));
+                Toast.makeText(SettingsActivity.this, getString(R.string.group_no_photo), Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onSuccess(FlickrApiData.PhotosResponse photosResponse) {
                 if (photosResponse == null || photosResponse.photos == null || photosResponse.photos.photo == null) {
-                    mCurrentGroupListener.onError(getString(R.string.network_error));
+                    Toast.makeText(SettingsActivity.this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
                 } else if (photosResponse.photos.photo.size() > 0) {
                     FGroup groupDB = new FGroup(SettingsActivity.this, group.nsid, group.name, 1, 0, photosResponse.photos.total);
                     groupDB.save();
                     mSourceAdded = true;
-                    mCurrentGroupListener.onSuccess(groupDB);
+                    mRequestAdapter.add(groupDB);
+                    mRequestAdapter.notifyDataSetChanged();
                 } else {
-                    mCurrentGroupListener.onError(getString(R.string.group_no_photo));
+                    Toast.makeText(SettingsActivity.this, getString(R.string.group_no_photo), Toast.LENGTH_LONG).show();
 
                 }
             }

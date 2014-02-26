@@ -1,8 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@android:id/list"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="100dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-</ListView>
+    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@android:id/list"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+        android:visibility="gone">
+
+    </ListView>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:id="@+id/progress"
+        android:visibility="visible"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:id="@+id/error"
+        android:text="@string/no_group_found"
+        android:visibility="gone"/>
+
+</RelativeLayout>
