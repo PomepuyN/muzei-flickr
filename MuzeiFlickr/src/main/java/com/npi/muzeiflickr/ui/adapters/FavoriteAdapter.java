@@ -3,11 +3,13 @@ package com.npi.muzeiflickr.ui.adapters;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nhaarman.listviewanimations.itemmanipulation.ExpandableListItemAdapter;
 import com.npi.muzeiflickr.BuildConfig;
@@ -35,6 +37,24 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
     private final Context mContext;
     private final FavoriteAdapterListener mFavoriteAdapterListener;
     private final HashMap<String, Photo> mPhotos;
+
+    private final View.OnLongClickListener mLongClickListener =  new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+
+            int[] pos = new int[2];
+            v.getLocationInWindow(pos);
+
+            String contentDesc = v.getContentDescription().toString();
+            Toast t = Toast.makeText(mContext, contentDesc, Toast.LENGTH_SHORT);
+            t.show();
+            t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, pos[1] + (v.getHeight() / 2));
+
+            return true;
+        }
+
+
+    };
 
     public FavoriteAdapter(Context context, List<Favorite> items, FavoriteAdapterListener listener) {
         super(context, R.layout.favorite_list_item, R.id.title_view, R.id.expandable_content, items);
@@ -261,6 +281,8 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
                     }
                 }
             });
+
+            holder.upload.setOnLongClickListener(mLongClickListener);
         }
 
         holder.download.setOnClickListener(new View.OnClickListener() {
@@ -273,6 +295,8 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
                 }
             }
         });
+        holder.download.setOnLongClickListener(mLongClickListener);
+
         holder.picture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -284,6 +308,8 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
                 }
             }
         });
+        holder.picture.setOnLongClickListener(mLongClickListener);
+
         holder.remove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -294,11 +320,13 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
                 mFavoriteAdapterListener.onRemovePhoto(position);
             }
         });
+        holder.remove.setOnLongClickListener(mLongClickListener);
 
 
         return convertView;
 
     }
+
 
 
     static class LocalHolder {
@@ -314,6 +342,7 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
         public ImageButton upload;
         public ImageButton remove;
     }
+
 
     public interface FavoriteAdapterListener {
         void onDownloadPhoto(Photo photo);

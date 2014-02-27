@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
@@ -168,11 +169,23 @@ public class FavoritesActivity extends Activity {
         });
         mFavoriteList.setAdapter(mSwingRightInAnimationAdapter);
         mSwingRightInAnimationAdapter.setAbsListView(mFavoriteList);
+        mFavoriteList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
 
 
-        //Getting all the photos
 
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+
+        return true;
     }
 
     private void uploadFavorites(Photo photo) {

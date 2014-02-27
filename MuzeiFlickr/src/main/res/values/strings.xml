@@ -77,4 +77,8 @@
     <string name="being_downloaded">%s is being downloaded</string>
     <string name="image_downloaded">Image downloaded</string>
     <string name="download_error">Download has failed</string>
+    <string name="show_picture">Show picture</string>
+    <string name="download_picture">Download picture</string>
+    <string name="send_flickr">Send to flickr</string>
+    <string name="remove">Remove</string>
 </resources>

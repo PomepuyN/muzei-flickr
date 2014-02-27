@@ -77,7 +77,7 @@
         android:id="@+id/content_list"
         android:layout_below="@+id/title"
         android:divider="@color/apptheme_color"
-        android:listSelector="@android:color/transparent"
+        android:listSelector="@color/transp_white"
         android:layout_above="@+id/bottom_container"/>
 
 

@@ -214,6 +214,8 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 if (item instanceof FavoriteSource) {
                     FavoritesActivity.launchActivity(SettingsActivity.this);
                 }
+                mRequestList.clearChoices();
+                mRequestList.requestLayout();
             }
         });
 
