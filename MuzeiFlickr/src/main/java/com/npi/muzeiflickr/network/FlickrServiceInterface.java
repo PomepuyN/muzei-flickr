@@ -23,6 +23,7 @@ import com.npi.muzeiflickr.utils.Config;
 
 import retrofit.Callback;
 import retrofit.http.GET;
+import retrofit.http.POST;
 import retrofit.http.Query;
 
 public interface FlickrServiceInterface {
@@ -66,6 +67,9 @@ public interface FlickrServiceInterface {
 
     @GET("/?&method=flickr.favorites.getList&format=json&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getFavorites(Callback<FlickrApiData.PhotosResponse> callback);
+
+    @POST("/?&method=flickr.favorites.add&format=json&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void addFavorite(@Query("photo_id") String photoId, Callback<FlickrApiData.AddFavoriteResponse> callback);
 
     public interface IRequestListener<T> {
         void onFailure();

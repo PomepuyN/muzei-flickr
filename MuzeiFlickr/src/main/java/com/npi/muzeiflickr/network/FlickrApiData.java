@@ -122,4 +122,8 @@ public class FlickrApiData {
         public String nsid;
         public String username;
     }
+
+    public static class AddFavoriteResponse {
+        public String stat;
+    }
 }

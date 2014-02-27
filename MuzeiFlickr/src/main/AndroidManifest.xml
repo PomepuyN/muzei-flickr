@@ -62,6 +62,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.activities.FavoritesActivity"
+            android:theme="@style/TransparentActionBarTheme"
+            android:label="@string/favorites">
+            <intent-filter>
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".api.FlickrSource"
             android:label="@string/source_name"

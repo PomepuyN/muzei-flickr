@@ -16,13 +16,38 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemStyleAppTheme</item>
         <item name="android:popupMenuStyle">@style/MyPopupMenu</item>
-        <item name="android:textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceSmall</item>
+        <item name="android:textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceSmall
+        </item>
         <item name="sdlDialogStyle">@style/DialogStyleLight.Custom</item>
         <item name="android:checkboxStyle">@style/CheckBoxAppTheme</item>
 
 
+    </style>
+
+    <style name="TransparentActionBarTheme" parent="@android:Theme.Holo">
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:actionBarStyle">@style/TransparentActionBar</item>
+        <item name="android:actionBarDivider">@null</item>
+        <item name="android:windowShowWallpaper">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:buttonStyle">@style/ButtonAppTheme</item>
+
+        <item name="android:imageButtonStyle">@style/ImageButtonTrasparent</item>
+    </style>
+
+    <style name="TransparentActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/transp_white</item>
+        <item name="android:titleTextStyle">@style/TransparentActionBar.ActionBar.TitleTextStyle</item>
 
     </style>
+    <style name="TransparentActionBar.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:shadowColor">#dd000000</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">2</item>
+        <item name="android:shadowRadius">2</item>
+    </style>
+
 
     <style name="DialogStyleLight.Custom">
         <!-- anything can be left out: -->
@@ -37,6 +62,7 @@
         <item name="buttonBackgroundColorFocused">@color/transp_white</item>
         <item name="dialogBackground">@color/transp_white</item>
     </style>
+
     <style name="CheckBoxAppTheme" parent="android:Widget.CompoundButton.CheckBox">
         <item name="android:button">@drawable/apptheme_btn_check_holo_dark</item>
     </style>
@@ -81,6 +107,9 @@
 
     <style name="ImageButtonAppTheme" parent="android:Widget.ImageButton">
         <item name="android:background">@drawable/apptheme_btn_default_holo_light</item>
+    </style>
+    <style name="ImageButtonTrasparent" parent="android:Widget.ImageButton">
+        <item name="android:background">@drawable/apptheme_btn_transp_holo_light</item>
     </style>
 
     <style name="Settings"></style>

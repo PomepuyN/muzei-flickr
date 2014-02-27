@@ -19,23 +19,15 @@
 
 package com.npi.muzeiflickr.api;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.google.android.apps.muzei.api.Artwork;
@@ -60,13 +52,6 @@ import com.npi.muzeiflickr.ui.activities.SettingsActivity;
 import com.npi.muzeiflickr.ui.widgets.FlickrWidget;
 import com.npi.muzeiflickr.utils.Utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -226,7 +211,8 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                 break;
             case COMMAND_ID_DOWNLOAD:
 
-                downloadImage();
+                Utils.downloadImage(this, getCurrentArtwork().getImageUri().toString(), getCurrentArtwork().getTitle(), getCurrentArtwork().getByline()
+                        .replaceFirst("\\.\\s*($|\\n).*", "").trim());
 
                 break;
             case COMMAND_ID_SHARE:
@@ -301,113 +287,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         return;
     }
 
-    private void downloadImage() {
-        InputStream input = null;
-        OutputStream output = null;
-        HttpURLConnection connection = null;
-        Artwork currentArtwork = getCurrentArtwork();
-        String urlS = currentArtwork.getImageUri().toString();
 
-        String[] separated = urlS.split("\\.");
-        String imageName = currentArtwork.getTitle().replace("/", "");
-        imageName += "." + separated[separated.length - 1];
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(android.R.drawable.stat_sys_download).setProgress(0, 0, true)
-                .setContentTitle(this.getString(R.string.downloading_image))
-                .setContentText(this.getString(R.string.being_downloaded, imageName))
-                .setTicker(this.getString(R.string.downloading_image));
-        NotificationManager mNotificationManager = (NotificationManager) this
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, mBuilder.build());
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + imageName;
-        try {
-
-
-            URL url = new URL(urlS);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.connect();
-
-            // expect HTTP 200 OK, so we don't mistakenly save error report
-            // instead of the file
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                mBuilder.setContentText(this.getString(R.string.download_error)).setProgress(0,0,false);
-                mNotificationManager.notify(0, mBuilder.build());
-                return;
-            }
-
-
-            // download the file
-            input = connection.getInputStream();
-            if (BuildConfig.DEBUG)
-                Log.d(TAG, "Path:" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + imageName);
-            output = new FileOutputStream(path);
-
-            byte data[] = new byte[4096];
-            long total = 0;
-            int count;
-            while ((count = input.read(data)) != -1) {
-
-                output.write(data, 0, count);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
-            mBuilder.setContentText(this.getString(R.string.download_error)).setProgress(0,0,false);
-            mNotificationManager.notify(0, mBuilder.build());
-            return;
-        } finally {
-            try {
-                if (output != null)
-                    output.close();
-                if (input != null)
-                    input.close();
-            } catch (IOException e) {
-                Log.e(TAG, e.getMessage(), e);
-                mBuilder.setContentText(this.getString(R.string.download_error)).setProgress(0,0,false);
-                mNotificationManager.notify(0, mBuilder.build());
-                return;
-            }
-
-            if (connection != null)
-                connection.disconnect();
-        }
-
-        mBuilder.setProgress(0, 0, false).setContentTitle(this.getString(R.string.image_downloaded)).setSmallIcon(android.R.drawable.stat_sys_download_done);
-        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle();
-        bigPictureStyle.setBigContentTitle(getString(R.string.image_downloaded));
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
-        bigPictureStyle.bigPicture(bitmap);
-
-        mBuilder.setStyle(bigPictureStyle);
-
-        MimeTypeMap myMime = MimeTypeMap.getSingleton();
-
-        Intent newIntent = new Intent(android.content.Intent.ACTION_VIEW);
-
-//Intent newIntent = new Intent(Intent.ACTION_VIEW);
-        newIntent.setDataAndType(Uri.fromFile(new File(path)), "image/*");
-        PendingIntent pi = PendingIntent.getActivity(this, 0, newIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("image/*");
-        String artist = currentArtwork.getByline()
-                .replaceFirst("\\.\\s*($|\\n).*", "").trim();
-
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        share.putExtra(Intent.EXTRA_TEXT, "My Android wallpaper is '"
-                + currentArtwork.getTitle().trim()
-                + "' by " + artist
-                + ". \nShared with Flickr for Muzei\n\n");
-        share.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(path)));
-        PendingIntent pishare = PendingIntent.getActivity(this, 0, share, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        mBuilder.addAction(R.drawable.ic_picture, "Open", pi);
-        mBuilder.addAction(R.drawable.ic_share, "Share", pishare);
-        mBuilder.setContentIntent(pi);
-        mBuilder.setAutoCancel(true);
-        mNotificationManager.notify(0, mBuilder.build());
-    }
 
     @Override
     protected void onNetworkAvailable() {
@@ -828,7 +708,8 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
         }
         if (ACTION_DOWNLOAD_FROM_WIDGET.equals(action)) {
-            downloadImage();
+            Utils.downloadImage(this, getCurrentArtwork().getImageUri().toString(), getCurrentArtwork().getTitle(), getCurrentArtwork().getByline()
+                    .replaceFirst("\\.\\s*($|\\n).*", "").trim());
             return;
 
         }

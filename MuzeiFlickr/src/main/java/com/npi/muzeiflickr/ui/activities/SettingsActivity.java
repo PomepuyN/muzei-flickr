@@ -207,6 +207,16 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         swipeDismissAdapter.setAbsListView(mRequestList);
         mRequestList.setAdapter(swipeDismissAdapter);
 
+        mRequestList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                RequestData item = mRequestAdapter.get(position);
+                if (item instanceof FavoriteSource) {
+                    FavoritesActivity.launchActivity(SettingsActivity.this);
+                }
+            }
+        });
+
 
         populateFooter(footerView);
 

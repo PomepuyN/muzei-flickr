@@ -3,6 +3,7 @@ package com.npi.muzeiflickr.db;
 import android.content.Context;
 
 import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 
 /**
  * Created by nicolas on 17/02/14.
@@ -15,6 +16,10 @@ public class Photo extends SugarRecord<Photo> {
     public String userName;
     public String owner;
     public String url;
+    @Ignore
+    public String thumbnail;
+    @Ignore
+    public boolean isFavorite;
     public String source;
     public int sourceType;
     public long sourceId;
