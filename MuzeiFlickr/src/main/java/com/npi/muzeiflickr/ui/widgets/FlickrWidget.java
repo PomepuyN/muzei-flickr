@@ -107,10 +107,15 @@ public class FlickrWidget extends AppWidgetProvider {
             rview.setViewVisibility(R.id.widget_play_button, View.GONE);
             rview.setViewVisibility(R.id.widget_disabled, View.VISIBLE);
 
-            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage("net.nurik.roman.muzei");
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            try {
+                Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage("net.nurik.roman.muzei");
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            rview.setOnClickPendingIntent(R.id.widget_disabled, pendingIntent);
+                rview.setOnClickPendingIntent(R.id.widget_disabled, pendingIntent);
+
+            } catch (NullPointerException exception) {
+                Log.w(TAG, exception.getMessage(), exception);
+            }
 
         } else {
 
