@@ -1,5 +1,6 @@
 package com.npi.muzeiflickr.ui.activities;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -110,7 +111,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
                     if (BuildConfig.DEBUG) Log.d(TAG, "Removing item");
 
-                    for (int position: reverseSortedPositions) {
+                    for (int position : reverseSortedPositions) {
                         RequestData item = mRequestAdapter.getItem(position);
                         managePhotoFromSourceDeletion();
                         mRequestAdapter.remove(item);
@@ -137,8 +138,6 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             }
                         }, 5000);
                     }
-
-
 
 
                 }
@@ -521,7 +520,27 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             @Override
             public void onClick(View v) {
                 mAddItemContainer.animate().alpha(1F);
-                mFooterButton.animate().alpha(0F);
+                mFooterButton.animate().alpha(0F).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mFooterButton.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
             }
         });
 
@@ -713,7 +732,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     @Override
     public void onBackPressed() {
 
-        if (mAddItemContainer.getAlpha() >0) {
+        if (mAddItemContainer.getAlpha() > 0) {
             hideSearch();
         } else {
             super.onBackPressed();
@@ -725,7 +744,25 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mFooterTerm.setText("");
         mFooterModeChooser.setSelection(0);
         mAddItemContainer.animate().alpha(0F);
-        mFooterButton.animate().alpha(1F);
+        mFooterButton.animate().alpha(1F).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mFooterButton.setVisibility(View.VISIBLE);
+                mFooterButton.setAlpha(0F);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+            }
+        });
         mFooterProgress.setVisibility(View.GONE);
 
     }
