@@ -4,14 +4,16 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nhaarman.listviewanimations.itemmanipulation.ExpandableListItemAdapter;
+import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.db.Favorite;
@@ -26,19 +28,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+
 /**
  * Created by nicolas on 17/02/14.
  */
-public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
+public class FavoriteAdapter extends ArrayAdapter<Favorite> {
 
     private static final String TAG = FavoriteAdapter.class.getSimpleName();
     private final List<Favorite> mFavorites;
     private final List<String> mFlickrFavorites = new ArrayList<String>();
     private final Context mContext;
     private final FavoriteAdapterListener mFavoriteAdapterListener;
-    private final HashMap<String, Photo> mPhotos;
+    private boolean mIsLogged;
 
-    private final View.OnLongClickListener mLongClickListener =  new View.OnLongClickListener() {
+    private final HashMap<String, Photo> mPhotos;
+    private final View.OnLongClickListener mLongClickListener = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
 
@@ -57,7 +62,7 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
     };
 
     public FavoriteAdapter(Context context, List<Favorite> items, FavoriteAdapterListener listener) {
-        super(context, R.layout.favorite_list_item, R.id.title_view, R.id.expandable_content, items);
+        super(items);
         mFavorites = items;
         mPhotos = new HashMap<String, Photo>();
         mContext = context;
@@ -71,6 +76,11 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
 
             @Override
             public void onSuccess(FlickrApiData.PhotosResponse response) {
+                if (response == null || response.photos == null) {
+                    mIsLogged = false;
+                    return;
+                }
+                mIsLogged = true;
                 for (FlickrApiData.Photo photo : response.photos.photo) {
                     mFlickrFavorites.add(photo.id);
                     if (BuildConfig.DEBUG) Log.d(TAG, "Found fav: " + photo.id);
@@ -87,18 +97,7 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
     }
 
     @Override
-    public int getCount() {
-        return mFavorites.size();
-    }
-
-    @Override
-    public Favorite getItem(int position) {
-        return mFavorites.get(position);
-    }
-
-
-    @Override
-    public View getTitleView(final int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         final LocalHolder holder;
         if (convertView == null) {
             convertView = View.inflate(mContext, R.layout.favorite_list_item_title, null);
@@ -107,41 +106,38 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
             holder.author = (TextView) convertView.findViewById(R.id.author);
             holder.thumbnail = (ImageView) convertView.findViewById(R.id.thumbnail);
             holder.synched = (ImageView) convertView.findViewById(R.id.synched);
+            holder.download = (ImageButton) convertView.findViewById(R.id.action_download);
+            holder.picture = (ImageButton) convertView.findViewById(R.id.action_picture);
+            holder.upload = (ImageButton) convertView.findViewById(R.id.action_upload);
+            holder.progressBar = (SmoothProgressBar) convertView.findViewById(R.id.progress);
+            holder.container = (RelativeLayout) convertView.findViewById(R.id.item_container);
             convertView.setTag(holder);
         } else {
             holder = (LocalHolder) convertView.getTag();
         }
 
-        final Favorite item = getItem(position);
+        final Favorite favorite = getItem(position);
 
-        Photo photo = mPhotos.get(item.photoId);
+        holder.thumbnail.setTag(favorite.photoId);
+
+
+        Photo photo = mPhotos.get(favorite.photoId);
         if (photo != null) {
-            if (BuildConfig.DEBUG) Log.d(TAG, "Item Found");
-            holder.title.setText(photo.title);
-            holder.author.setText(photo.owner);
-
-            if (photo.isFavorite) {
-                holder.synched.setVisibility(View.VISIBLE);
-            } else {
-                holder.synched.setVisibility(View.GONE);
-
-            }
-            holder.thumbnail.setBackground(null);
-
-            Picasso.with(mContext).load(photo.thumbnail).into(holder.thumbnail);
+            populateViews(photo, holder, favorite, position);
 
         } else {
 
             holder.title.setText("");
             holder.author.setText("");
             holder.thumbnail.setImageDrawable(null);
-            holder.thumbnail.setBackground(mContext.getResources().getDrawable(R.drawable.widget_background));
+//            holder.thumbnail.setBackground(mContext.getResources().getDrawable(R.drawable.widget_background));
             holder.synched.setVisibility(View.GONE);
+            holder.progressBar.setVisibility(View.VISIBLE);
 
 
             if (BuildConfig.DEBUG) Log.d(TAG, "Item Loading");
             //Load content
-            FlickrService.getInstance(mContext).getPhotoInfo(item.photoId, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotoResponse>() {
+            FlickrService.getInstance(mContext).getPhotoInfo(favorite.photoId, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotoResponse>() {
                 @Override
                 public void onFailure() {
 
@@ -213,29 +209,23 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
                                         photoEntity.photoId = photo.photo.id;
                                         photoEntity.owner = photo.photo.owner.username;
                                         photoEntity.sourceType = SourceTypeEnum.FAVORITES.ordinal();
-                                        photoEntity.sourceId = item.getId();
+                                        photoEntity.sourceId = favorite.getId();
 
-                                        for (String photoId:mFlickrFavorites) {
+                                        for (String photoId : mFlickrFavorites) {
                                             if (photoId.equals(photoEntity.photoId)) {
                                                 photoEntity.isFavorite = true;
                                             }
                                         }
+                                        mPhotos.put(favorite.photoId, photoEntity);
 
-                                        holder.title.setText(photoEntity.title);
-                                        holder.author.setText(photoEntity.owner);
-                                        mPhotos.put(item.photoId, photoEntity);
-
-                                        if (photoEntity.isFavorite) {
-                                            holder.synched.setVisibility(View.VISIBLE);
+                                        if (!holder.thumbnail.getTag().equals(favorite.photoId)) {
+                                            if (BuildConfig.DEBUG)
+                                                Log.d(TAG, "POsition invalidated for " + photoEntity.title + " in position: " + position);
                                         } else {
-                                            holder.synched.setVisibility(View.GONE);
-
+                                            if (BuildConfig.DEBUG)
+                                                Log.d(TAG, "Loading: " + photoEntity.title + " in position: " + position);
+                                            populateViews(photoEntity, holder, favorite, position);
                                         }
-                                        holder.thumbnail.setBackground(mContext.getResources().getDrawable(R.drawable.widget_background));
-
-
-
-                                        Picasso.with(mContext).load(photoEntity.thumbnail).into(holder.thumbnail);
                                     }
                                 });
 
@@ -250,40 +240,34 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
         return convertView;
     }
 
-    @Override
-    public View getContentView(final int position, View convertView, ViewGroup parent) {
+    private void populateViews(Photo photoEntity, LocalHolder holder, final Favorite favorite, final int position) {
+        holder.title.setText(photoEntity.title);
+        holder.author.setText(photoEntity.owner);
 
-        final LocalContentHolder holder;
-        if (convertView == null) {
-            convertView = View.inflate(mContext, R.layout.favorite_list_item_content, null);
-            holder = new LocalContentHolder();
-            holder.download = (ImageButton) convertView.findViewById(R.id.action_download);
-            holder.picture = (ImageButton) convertView.findViewById(R.id.action_picture);
-            holder.remove = (ImageButton) convertView.findViewById(R.id.action_remove);
-            holder.upload = (ImageButton) convertView.findViewById(R.id.action_upload);
-            convertView.setTag(holder);
-        } else {
-            holder = (LocalContentHolder) convertView.getTag();
-        }
 
-        final Favorite favorite = getItem(position);
-
-        if (mPhotos.get(favorite.photoId) != null && mPhotos.get(favorite.photoId).isFavorite) {
+        if (!mIsLogged) {
+            holder.synched.setVisibility(View.GONE);
+            holder.upload.setVisibility(View.GONE);
+        } else if (photoEntity.isFavorite) {
+            holder.synched.setVisibility(View.VISIBLE);
             holder.upload.setVisibility(View.GONE);
         } else {
+            holder.synched.setVisibility(View.GONE);
             holder.upload.setVisibility(View.VISIBLE);
-            holder.upload.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Photo item = mPhotos.get(favorite.photoId);
-                    if (item != null) {
-                        mFavoriteAdapterListener.onUploadPhoto(item);
-                    }
-                }
-            });
 
-            holder.upload.setOnLongClickListener(mLongClickListener);
         }
+
+        holder.upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Photo item = mPhotos.get(favorite.photoId);
+                if (item != null) {
+                    mFavoriteAdapterListener.onUploadPhoto(item);
+                }
+            }
+        });
+
+        holder.upload.setOnLongClickListener(mLongClickListener);
 
         holder.download.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -310,23 +294,64 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
         });
         holder.picture.setOnLongClickListener(mLongClickListener);
 
-        holder.remove.setOnClickListener(new View.OnClickListener() {
+        holder.picture.setVisibility(View.VISIBLE);
+        holder.download.setVisibility(View.VISIBLE);
+        holder.progressBar.setVisibility(View.GONE);
+
+        holder.thumbnail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Favorite item = getItem(position);
-                mPhotos.remove(item.photoId);
-                item.delete();
-                mFavoriteAdapterListener.onRemovePhoto(position);
+                mFavoriteAdapterListener.onItemSelected(position, true);
             }
         });
-        holder.remove.setOnLongClickListener(mLongClickListener);
+        holder.thumbnail.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
+
+        holder.container.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                mFavoriteAdapterListener.onItemSelected(position, true);
+                return true;
+            }
+        });
+
+        holder.container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFavoriteAdapterListener.onItemSelected(position, false);
+            }
+        });
 
 
-        return convertView;
-
+        Picasso.with(mContext).load(photoEntity.thumbnail).into(holder.thumbnail);
     }
 
+
+    @Override
+    public int getCount() {
+        return mFavorites.size();
+    }
+
+    @Override
+    public Favorite getItem(int position) {
+        return mFavorites.get(position);
+    }
+
+    public void setFavorite(String photoId) {
+        mPhotos.get(photoId).isFavorite = true;
+    }
+
+    public Photo getPhoto(int position) {
+        return mPhotos.get(get(position).photoId);
+    }
+
+    public boolean isLogged() {
+        return mIsLogged;
+    }
 
 
     static class LocalHolder {
@@ -334,13 +359,11 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
         public TextView title;
         public TextView author;
         public ImageView synched;
-    }
-
-    static class LocalContentHolder {
-        public ImageButton picture;
         public ImageButton download;
+        public ImageButton picture;
         public ImageButton upload;
-        public ImageButton remove;
+        public SmoothProgressBar progressBar;
+        public RelativeLayout container;
     }
 
 
@@ -351,6 +374,7 @@ public class FavoriteAdapter extends ExpandableListItemAdapter<Favorite> {
 
         void onUploadPhoto(Photo photo);
 
-        void onRemovePhoto(int position);
+        void onItemSelected(int position, boolean force);
+
     }
 }

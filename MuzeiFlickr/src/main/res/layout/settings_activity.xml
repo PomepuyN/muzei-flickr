@@ -28,7 +28,6 @@
             android:layout_centerInParent="true"
             android:text="@string/settings_title"
             android:textSize="32sp"
-            android:textColor="@android:color/white"
             android:fontFamily="fonts/alegreya-black-italic.ttf"/>
 
         <TextView
@@ -45,7 +44,6 @@
             android:paddingRight="10dp"
             android:drawablePadding="5dp"
             style="@style/Settings.Shadow"
-            android:textColor="@color/apptheme_color"
             android:text="@string/login"
             android:drawableLeft="@drawable/icon_user"/>
 
@@ -63,7 +61,6 @@
             android:paddingRight="10dp"
             android:drawablePadding="5dp"
             style="@style/Settings.Shadow"
-            android:textColor="@color/apptheme_color"
             android:text="@string/about"
             android:drawableRight="@drawable/stat_sys_certificate_info"/>
 
@@ -106,7 +103,6 @@
                 android:text="@string/refresh_rate"
                 android:textSize="14sp"
                 android:layout_centerVertical="true"
-                android:textColor="@android:color/white"
                 android:fontFamily="fonts/roboto-slab-bold.ttf"
                 android:textAllCaps="true"/>
 
@@ -120,7 +116,6 @@
                 android:textStyle="bold"
                 android:drawableLeft="@drawable/ic_audio_alarm"
                 android:drawablePadding="5dp"
-                android:textColor="@android:color/white"
                 android:gravity="center_vertical"
                 android:layout_gravity="right"
                 style="@style/Settings.Shadow"/>
@@ -144,7 +139,6 @@
                 android:text="@string/randomize"
                 android:textSize="14sp"
                 android:layout_centerVertical="true"
-                android:textColor="@android:color/white"
                 android:fontFamily="fonts/roboto-slab-bold.ttf"
                 android:textAllCaps="true"/>
 
@@ -178,7 +172,6 @@
                 android:text="@string/refresh_3G"
                 android:textSize="14sp"
                 android:layout_centerVertical="true"
-                android:textColor="@android:color/white"
                 android:fontFamily="fonts/roboto-slab-bold.ttf"
                 android:textAllCaps="true"/>
 

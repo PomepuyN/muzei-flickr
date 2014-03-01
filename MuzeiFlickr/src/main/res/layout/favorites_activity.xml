@@ -9,8 +9,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@android:id/list"
-        android:background="#44000000"
-        android:listSelector="@color/transp_white"/>
+        android:background="#44000000"/>
+
+    <TextView
+        android:id="@+id/empty_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        style="@style/Settings.Shadow"
+        android:gravity="center"
+        android:text="@string/no_favorite"
+        android:visibility="gone"/>
 
     <ProgressBar
         android:id="@+id/progress"

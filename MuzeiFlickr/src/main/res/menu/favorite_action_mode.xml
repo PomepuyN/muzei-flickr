@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_send_flickr"
+        android:icon="@drawable/ic_action_upload"
+        android:showAsAction="always"
+        android:title="@string/send_flickr"/>
+    <item
+        android:id="@+id/menu_delete"
+        android:icon="@drawable/ic_action_remove"
+        android:showAsAction="always"
+        android:title="@string/remove"/>
+    <item
+        android:id="@+id/menu_select_all"
+        android:icon="@drawable/ic_action_select_all"
+        android:showAsAction="always"
+        android:title="@string/select_all"/>
+</menu>

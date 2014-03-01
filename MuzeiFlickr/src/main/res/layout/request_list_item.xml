@@ -21,7 +21,6 @@
             android:textSize="16sp"
             android:layout_centerVertical="true"
             style="@style/Settings.Shadow"
-            android:textColor="@android:color/white"
             android:id="@+id/title"
             android:layout_toLeftOf="@+id/photo_count"
             android:drawablePadding="5dp"

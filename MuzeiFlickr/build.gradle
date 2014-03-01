@@ -44,6 +44,7 @@ dependencies {
     compile 'eu.inmite.android.lib:android-styled-dialogs:1.1.2@aar'
     compile 'com.squareup.picasso:picasso:2.2.0'
     compile 'com.github.chrisbanes.photoview:library:1.2.2@jar'
+    compile 'com.github.castorflex.smoothprogressbar:library:0.3.3'
 }
 
 android {

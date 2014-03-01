@@ -5,5 +5,7 @@
     <color name="apptheme_color">#ffffff</color>
     <color name="grey_dd">#ddd</color>
     <color name="transp_white">#33ffffff</color>
+    <color name="low_transp_white">#11ffffff</color>
+    <color name="high_transp_white">#55ffffff</color>
     <color name="white">#ffffff</color>
 </resources>

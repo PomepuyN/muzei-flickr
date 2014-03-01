@@ -2,48 +2,104 @@
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#11ffffff"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:background="?android:activatedBackgroundIndicator"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_container">
 
-        <ImageView
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/thumbnail"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:minHeight="45dp"
+        android:minWidth="45dp"
+        android:layout_margin="5dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:layout_toLeftOf="@+id/actions"
+        android:layout_margin="5dp">
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/thumbnail"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:minHeight="45dp"
-            android:minWidth="45dp"
-            android:layout_margin="5dp"/>
+            android:id="@+id/author"
+            style="@style/Settings.Shadow"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_toRightOf="@+id/thumbnail"
-            android:layout_margin="5dp">
+            android:id="@+id/title"
+            style="@style/Settings.Shadow"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/author"
-                android:textColor="@color/white"
-                style="@style/Settings.Shadow"/>
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/title"
-                android:textColor="@color/white"
-                style="@style/Settings.Shadow"/>
+    <LinearLayout
+        android:id="@+id/actions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true">
 
-        </LinearLayout>
+        <ImageButton
+            android:id="@+id/action_upload"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_action_upload"
+            android:scaleType="centerInside"
+            android:contentDescription="@string/send_flickr"
+            android:visibility="gone"/>
+
+        <ImageButton
+            android:id="@+id/action_download"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_action_download"
+            android:scaleType="centerInside"
+            android:contentDescription="@string/download_picture"
+            android:visibility="gone"/>
+
+        <ImageButton
+            android:id="@+id/action_picture"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_action_picture"
+            android:scaleType="centerInside"
+            android:contentDescription="@string/show_picture"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
     <ImageView
         android:id="@+id/synched"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/icon_flickr"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
+
+    <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progress"
+        android:layout_alignParentBottom="true"
+        android:indeterminate="true"
+        app:spb_sections_count="5"
+        app:spb_color="@color/white"
+        app:spb_speed="1.0"
+        app:spb_stroke_width="2dp"
+        app:spb_stroke_separator_length="6dp"
+        android:layout_marginBottom="-5dp"
+        app:spb_reversed="false"
+        app:spb_mirror_mode="false"
+        android:visibility="gone"/>
+
+
 </RelativeLayout>
