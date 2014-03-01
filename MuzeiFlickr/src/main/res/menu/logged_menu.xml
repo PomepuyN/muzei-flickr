@@ -16,6 +16,10 @@
         android:id="@+id/menu_favorites"
         android:title="@string/import_favorites"/>
 
+    <item
+        android:id="@+id/menu_my_stream"
+        android:title="@string/add_my_stream"/>
+
 
     <item
         android:id="@+id/menu_logout"

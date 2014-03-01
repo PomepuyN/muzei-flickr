@@ -61,6 +61,7 @@
     <string name="login">Login</string>
     <string name="import_contacts">Import contacts</string>
     <string name="import_groups">Import groups</string>
+    <string name="add_my_stream">Add my stream</string>
     <string name="logout">Logout</string>
     <string name="no_contact">No contact found</string>
     <string name="import_favorites">Import my favorites</string>

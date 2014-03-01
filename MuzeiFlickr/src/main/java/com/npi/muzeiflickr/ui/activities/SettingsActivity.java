@@ -326,6 +326,21 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                     hideContent();
                                     UserImportDialog.show(SettingsActivity.this);
                                     break;
+                                case R.id.menu_my_stream:
+                                    getUserId(FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.LOGIN_USERNAME, ""),new UserInfoListener<User>() {
+                                        @Override
+                                        public void onSuccess(User user) {
+
+                                            mRequestAdapter.add(user);
+
+                                        }
+
+                                        @Override
+                                        public void onError(String reason) {
+
+                                        }
+                                    });
+                                    break;
                                 case R.id.menu_groups:
                                     mADialogIsShowing = true;
                                     hideContent();
@@ -914,7 +929,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
      *
      * @param user the user to search
      */
-    private void getUserId(final String user, final UserInfoListener userInfoListener) {
+    private void getUserId(final String user, final UserInfoListener<User> userInfoListener) {
 
         FlickrService.getInstance(this).getUserByName(user, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserByNameResponse>() {
             @Override
