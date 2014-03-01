@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -24,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -146,7 +148,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     private WebView oauthWebView;
     private Token mRequestToken;
     private TextView mLoginShortcut;
-    private LinearLayout mBottomContainer;
+    private LinearLayout mSettingsContainer;
     private Spinner mFooterModeChooser;
     private RelativeLayout mMainContainer;
     private boolean mADialogIsShowing;
@@ -190,9 +192,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mUndoContainer = (RelativeLayout) findViewById(R.id.undo_container);
         mLastDeletedItemText = (TextView) findViewById(R.id.last_deleted_item);
         TextView mLastDeletedUndo = (TextView) findViewById(R.id.last_deleted_undo);
-        mBottomContainer = (LinearLayout) findViewById(R.id.bottom_container);
+        mSettingsContainer = (LinearLayout) findViewById(R.id.settings_container);
         oauthWebView = (WebView) findViewById(R.id.oauth_webview);
         mMainContainer = (RelativeLayout) findViewById(R.id.main_container);
+        ImageView mSetting = (ImageView) findViewById(R.id.settings_button);
 
         List<RequestData> items = getRequestDatas();
 
@@ -296,6 +299,138 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 mRequestAdapter.add(mLastDeletedItem);
                 mRequestAdapter.notifyDataSetChanged();
                 mUndoContainer.animate().translationY(Utils.convertDPItoPixels(SettingsActivity.this, 70)).setInterpolator(new OvershootInterpolator());
+            }
+        });
+        mSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mSettingsContainer.getVisibility() == View.VISIBLE) {
+                    mSettingsContainer.animate().alpha(0.8F).scaleY(0.8F).scaleX(0.8F).setDuration(200).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mSettingsContainer.animate().alpha(0F).translationY(Utils.getScreenHeight(SettingsActivity.this)).setDuration(200).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    mSettingsContainer.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animation) {
+
+                                }
+                            });
+                            mRequestList.animate().alpha(1F).scaleY(1).scaleX(1).translationY(0).setDuration(250).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+                                    mRequestList.setVisibility(View.VISIBLE);
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animation) {
+
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    });
+
+
+                } else {
+                    mRequestList.animate().alpha(0.8F).scaleY(0.8F).scaleX(0.8F).setDuration(200).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mRequestList.animate().alpha(0F).translationY(Utils.getScreenHeight(SettingsActivity.this)).setDuration(200).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    mRequestList.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animation) {
+
+                                }
+                            });
+                            mSettingsContainer.animate().alpha(1F).scaleY(1).scaleX(1).translationY(0).setDuration(250).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+                                    mSettingsContainer.setVisibility(View.VISIBLE);
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animation) {
+
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    });
+                }
             }
         });
 

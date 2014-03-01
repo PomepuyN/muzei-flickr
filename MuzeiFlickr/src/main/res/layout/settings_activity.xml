@@ -3,11 +3,10 @@
 <RelativeLayout
     android:id="@+id/main_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#44000000">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#44000000">
 
 
     <RelativeLayout
@@ -47,22 +46,18 @@
             android:text="@string/login"
             android:drawableLeft="@drawable/icon_user"/>
 
-        <TextView
-            android:id="@+id/about"
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="48dp"
+            android:id="@+id/settings_button"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_source_settings"
+            android:background="@drawable/s_widget_left"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_marginLeft="5dp"
-            android:layout_centerVertical="true"
-            android:gravity="center_vertical"
-            android:background="@drawable/s_widget_left"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:drawablePadding="5dp"
-            style="@style/Settings.Shadow"
-            android:text="@string/about"
-            android:drawableRight="@drawable/stat_sys_certificate_info"/>
+            android:padding="10dp"/>
+
+
 
 
     </RelativeLayout>
@@ -75,15 +70,19 @@
         android:layout_below="@+id/title"
         android:divider="@color/apptheme_color"
         android:listSelector="@color/transp_white"
-        android:layout_above="@+id/bottom_container"/>
+        android:layout_above="@+id/about"/>
 
 
     <LinearLayout
-        android:id="@+id/bottom_container"
+        android:id="@+id/settings_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_below="@+id/title"
+        android:layout_above="@+id/about"
+        android:alpha="0"
+        android:scaleY="0"
+        android:visibility="gone">
 
         <RelativeLayout
             android:id="@+id/refresh_rate_container"
@@ -190,6 +189,22 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/about"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="5dp"
+        android:background="@drawable/s_widget_top"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:drawablePadding="5dp"
+        android:gravity="center_vertical"
+        style="@style/Settings.Shadow"
+        android:text="@string/about"
+        android:drawableRight="@drawable/stat_sys_certificate_info"/>
+
     <RelativeLayout
         android:id="@+id/undo_container"
         android:layout_width="match_parent"
@@ -234,6 +249,8 @@
             android:textSize="12sp"
             android:layout_centerVertical="true"/>
     </RelativeLayout>
+
+
 
     <WebView
         android:id="@+id/oauth_webview"

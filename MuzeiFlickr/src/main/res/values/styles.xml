@@ -32,7 +32,7 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:buttonStyle">@style/ButtonAppTheme</item>
 
-        <item name="android:imageButtonStyle">@style/ImageButtonTrasparent</item>
+        <item name="android:imageButtonStyle">@style/ImageButtonTransparent</item>
         <item name="android:activatedBackgroundIndicator">@drawable/s_item_list</item>
 
     </style>
@@ -110,7 +110,7 @@
     <style name="ImageButtonAppTheme" parent="android:Widget.ImageButton">
         <item name="android:background">@drawable/apptheme_btn_default_holo_light</item>
     </style>
-    <style name="ImageButtonTrasparent" parent="android:Widget.ImageButton">
+    <style name="ImageButtonTransparent" parent="android:Widget.ImageButton">
         <item name="android:background">@drawable/apptheme_btn_transp_holo_light</item>
     </style>
 
