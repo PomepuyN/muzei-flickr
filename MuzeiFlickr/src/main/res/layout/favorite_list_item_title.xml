@@ -23,6 +23,7 @@
         android:orientation="vertical"
         android:layout_toRightOf="@+id/thumbnail"
         android:layout_toLeftOf="@+id/actions"
+        android:layout_centerVertical="true"
         android:layout_margin="5dp">
 
         <TextView
