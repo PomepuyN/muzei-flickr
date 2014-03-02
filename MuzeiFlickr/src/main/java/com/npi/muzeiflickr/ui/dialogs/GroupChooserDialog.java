@@ -1,6 +1,5 @@
 package com.npi.muzeiflickr.ui.dialogs;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -32,7 +31,6 @@ public class GroupChooserDialog extends BaseDialogFragment {
     private View mLayoutView;
     private ListView mList;
     private GroupChooserAdapter mAdapter;
-    private AlertDialog mDialog;
     private FlickrApiData.Group mChosenGroup;
 
     public GroupChooserDialog() {

@@ -71,6 +71,9 @@ public interface FlickrServiceInterface {
     @POST("/?&method=flickr.favorites.add&format=json&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void addFavorite(@Query("photo_id") String photoId, Callback<FlickrApiData.AddFavoriteResponse> callback);
 
+    @POST("/?&method=flickr.urls.getGroup&format=json&privacy_filter=1&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getGroupUrl(@Query("group_id") String groupId, Callback<FlickrApiData.GroupUrlResponse> callback);
+
     public interface IRequestListener<T> {
         void onFailure();
 

@@ -1,9 +1,11 @@
 package com.npi.muzeiflickr.db;
 
+import java.io.Serializable;
+
 /**
  * Created by nicolas on 17/02/14.
  */
-public interface RequestData {
+public interface RequestData extends Serializable {
 
     String getTitle();
 
@@ -22,4 +24,6 @@ public interface RequestData {
     long getSourceId();
 
     void incrementCurrent();
+
+    void delete();
 }

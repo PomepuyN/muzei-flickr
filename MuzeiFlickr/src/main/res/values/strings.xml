@@ -84,4 +84,6 @@
     <string name="remove">Remove</string>
     <string name="select_all">Select all</string>
     <string name="no_favorite">No favorite for now.\nYou can add favorites from the Muzei menu or the widget.\nYou can also import your favorites from Flickr when logged.</string>
+    <string name="join_group">Join</string>
+    <string name="view_flickr">View in Flickr</string>
 </resources>

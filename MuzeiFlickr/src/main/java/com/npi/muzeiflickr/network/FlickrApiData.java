@@ -47,6 +47,7 @@ public class FlickrApiData {
     public static class Person {
         public Username realname;
         public Username username;
+        public Username profileurl;
     }
 
     public static class Username {
@@ -125,5 +126,13 @@ public class FlickrApiData {
 
     public static class AddFavoriteResponse {
         public String stat;
+    }
+
+    public static class GroupUrlResponse {
+        public GroupUrl group;
+
+    public static class GroupUrl {
+        public String url;
+    }
     }
 }

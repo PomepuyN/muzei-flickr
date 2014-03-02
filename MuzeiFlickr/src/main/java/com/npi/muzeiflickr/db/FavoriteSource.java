@@ -2,7 +2,9 @@ package com.npi.muzeiflickr.db;
 
 import android.content.Context;
 
+import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
+import com.npi.muzeiflickr.data.PreferenceKeys;
 
 /**
  * Created by nicolas on 23/02/14.
@@ -58,5 +60,11 @@ public class FavoriteSource implements RequestData {
     @Override
     public void incrementCurrent() {
 
+    }
+
+    @Override
+    public void delete() {
+        FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, false);
+        FlickrMuzeiApplication.getEditor().commit();
     }
 }

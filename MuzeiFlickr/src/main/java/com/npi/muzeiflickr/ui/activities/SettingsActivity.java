@@ -59,6 +59,7 @@ import com.npi.muzeiflickr.ui.adapters.RequestAdapter;
 import com.npi.muzeiflickr.ui.adapters.SourceSpinnerAdapter;
 import com.npi.muzeiflickr.ui.dialogs.GroupChooserDialog;
 import com.npi.muzeiflickr.ui.dialogs.GroupImportDialog;
+import com.npi.muzeiflickr.ui.dialogs.SourceInfoDialog;
 import com.npi.muzeiflickr.ui.dialogs.UserImportDialog;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerDialogFragment;
@@ -95,7 +96,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  * Created by nicolas on 14/02/14.
  * Main settings activity
  */
-public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler, GroupChooserDialog.ChooseGroupDialogListener, UserImportDialog.ImportDialogListener {
+public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler, GroupChooserDialog.ChooseGroupDialogListener, UserImportDialog.ImportDialogListener, SourceInfoDialog.SourceDialogListener {
     public static final String PREFS_NAME = "main_prefs";
     private static final String TAG = SettingsActivity.class.getSimpleName();
     private TextView mRefreshRate;
@@ -215,6 +216,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 RequestData item = mRequestAdapter.get(position);
                 if (item instanceof FavoriteSource) {
                     FavoritesActivity.launchActivity(SettingsActivity.this);
+                } else {
+                    mADialogIsShowing = true;
+                    hideContent();
+                    SourceInfoDialog.show(SettingsActivity.this, item);
                 }
                 mRequestList.clearChoices();
                 mRequestList.requestLayout();
@@ -464,7 +469,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                     UserImportDialog.show(SettingsActivity.this);
                                     break;
                                 case R.id.menu_my_stream:
-                                    getUserId(FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.LOGIN_USERNAME, ""),new UserInfoListener<User>() {
+                                    getUserId(FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.LOGIN_USERNAME, ""), new UserInfoListener<User>() {
                                         @Override
                                         public void onSuccess(User user) {
 
@@ -1141,6 +1146,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             items.add(new FavoriteSource(this));
         }
         return items;
+    }
+
+    @Override
+    public void onFinishSourceDialog() {
+        mADialogIsShowing = false;
+        showContent();
+        mRequestAdapter.setItems(getRequestDatas());
     }
 
 

@@ -262,6 +262,20 @@ public class FlickrService {
         });
     }
 
+    public void getGroupUrl(String groupId, final FlickrServiceInterface.IRequestListener<FlickrApiData.GroupUrlResponse> listener) {
+        getService().getGroupUrl(groupId, new Callback<FlickrApiData.GroupUrlResponse>() {
+            @Override
+            public void success(FlickrApiData.GroupUrlResponse addFavoriteResponse, Response response) {
+                listener.onSuccess(addFavoriteResponse);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
+
     public void invalidateAdapter() {
         mRestAdapter = null;
     }
