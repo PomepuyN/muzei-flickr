@@ -163,7 +163,7 @@ public class FavoritesActivity extends Activity {
                 if (force || mActionMode != null) {
                     mFavoriteList.setItemChecked(position + 1, !mFavoriteList.isItemChecked(position + 1));
                     if (mFavoriteList.getCheckedItemCount() == 0) {
-                        mActionMode.finish();
+                        if (mActionMode != null) mActionMode.finish();
                         return;
                     }
                 } else {
