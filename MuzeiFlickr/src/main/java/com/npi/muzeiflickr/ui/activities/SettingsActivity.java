@@ -195,7 +195,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mSettingsContainer = (LinearLayout) findViewById(R.id.settings_container);
         oauthWebView = (WebView) findViewById(R.id.oauth_webview);
         mMainContainer = (RelativeLayout) findViewById(R.id.main_container);
-        ImageView mSetting = (ImageView) findViewById(R.id.settings_button);
+        final ImageView mSetting = (ImageView) findViewById(R.id.settings_button);
 
         List<RequestData> items = getRequestDatas();
 
@@ -304,6 +304,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mSetting.setImageDrawable(getResources().getDrawable(R.drawable.ic_source_settings));
                 if (mSettingsContainer.getVisibility() == View.VISIBLE) {
                     mSettingsContainer.animate().alpha(0.8F).scaleY(0.8F).scaleX(0.8F).setDuration(200).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
                         @Override
@@ -369,6 +370,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
 
                 } else {
+                    mSetting.setImageDrawable(getResources().getDrawable(R.drawable.ic_list));
                     mRequestList.animate().alpha(0.8F).scaleY(0.8F).scaleX(0.8F).setDuration(200).setInterpolator(new AccelerateDecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
                         @Override
                         public void onAnimationStart(Animator animation) {
