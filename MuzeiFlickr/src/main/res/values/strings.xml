@@ -87,4 +87,5 @@
     <string name="join_group">Join</string>
     <string name="view_flickr">View in Flickr</string>
     <string name="oauth_connection_error">Unable to reach Flickr. Please make sure you have a connection</string>
+    <string name="interestingness">Interestingness</string>
 </resources>

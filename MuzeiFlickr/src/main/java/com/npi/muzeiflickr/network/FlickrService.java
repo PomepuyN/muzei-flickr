@@ -6,11 +6,16 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.network.retrofitsigner.RetrofitHttpOAuthConsumer;
 import com.npi.muzeiflickr.network.retrofitsigner.SigningOkClient;
 import com.npi.muzeiflickr.ui.activities.SettingsActivity;
 import com.npi.muzeiflickr.utils.Config;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -267,6 +272,34 @@ public class FlickrService {
             @Override
             public void success(FlickrApiData.GroupUrlResponse addFavoriteResponse, Response response) {
                 listener.onSuccess(addFavoriteResponse);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
+
+    public void getInterrestingness(final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String today = sdf.format(new Date());
+        if (BuildConfig.DEBUG) Log.d(TAG, "interestingness Today: "+today);
+        int page = FlickrMuzeiApplication.getSettings().getInt(PreferenceKeys.INTERESTINGNESS_PAGE, 0);
+        if (!FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.INTERESTINGNESS_DATE, "").equals(today)) {
+            page = 0;
+            FlickrMuzeiApplication.getEditor().putInt(PreferenceKeys.INTERESTINGNESS_PAGE, 0);
+            FlickrMuzeiApplication.getEditor().putString(PreferenceKeys.INTERESTINGNESS_DATE, today);
+            FlickrMuzeiApplication.getEditor().commit();
+            if (BuildConfig.DEBUG) Log.d(TAG, "interestingness new day: reset ");
+        }
+        if (BuildConfig.DEBUG) Log.d(TAG, "interestingness new page: "+page);
+
+        getService().getInterrestingness(String.valueOf(page), new Callback<FlickrApiData.PhotosResponse>() {
+            @Override
+            public void success(FlickrApiData.PhotosResponse photos, Response response) {
+                listener.onSuccess(photos);
             }
 
             @Override

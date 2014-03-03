@@ -6,5 +6,6 @@
         <item >Tag</item>
         <item >Group</item>
         <item >Favorites</item>
+        <item >Interestingness</item>
     </string-array>
 </resources>

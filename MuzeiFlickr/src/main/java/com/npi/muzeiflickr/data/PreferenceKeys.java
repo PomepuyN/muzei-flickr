@@ -49,4 +49,7 @@ public class PreferenceKeys {
     public static final String LOGIN_NSID = "login_nsid";
     public static final String USE_FAVORITES = "use_favorites";
     public static final String CURRENT_PHOTO_ID = "current_photo_id";
+    public static final String USE_INTERESTINGNESS = "use_interestingness";
+    public static final String INTERESTINGNESS_DATE = "interestingness_date";
+    public static final String INTERESTINGNESS_PAGE = "interestingness_page";
 }

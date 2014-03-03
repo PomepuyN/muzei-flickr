@@ -54,7 +54,12 @@ public class RequestAdapter extends ArrayAdapter<RequestData> {
 
         holder.title.setText(item.getTitle());
         holder.title.setCompoundDrawablesRelativeWithIntrinsicBounds(mContext.getResources().getDrawable(item.getIconRessource()), null, null,null);
-        holder.photoCount.setText(item.getCurrentPhotoIndex()+" / "+item.getPhotoTotal());
+        if (item.getPhotoTotal().equals("0")) {
+            holder.photoCount.setVisibility(View.GONE);
+        } else {
+            holder.photoCount.setText(item.getCurrentPhotoIndex()+" / "+item.getPhotoTotal());
+            holder.photoCount.setVisibility(View.VISIBLE);
+        }
 
         return convertView;
     }

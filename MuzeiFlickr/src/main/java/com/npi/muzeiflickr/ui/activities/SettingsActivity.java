@@ -47,6 +47,7 @@ import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.FGroup;
 import com.npi.muzeiflickr.db.Favorite;
 import com.npi.muzeiflickr.db.FavoriteSource;
+import com.npi.muzeiflickr.db.InterestingnessSource;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
@@ -128,6 +129,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             ((FGroup) item).delete();
                         } else if (item instanceof FavoriteSource) {
                             FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, false);
+                            FlickrMuzeiApplication.getEditor().commit();
+                        }else if (item instanceof InterestingnessSource) {
+                            FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_INTERESTINGNESS, false);
                             FlickrMuzeiApplication.getEditor().commit();
                         }
                         mLastDeletedItem = item;
@@ -232,7 +236,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         //Wifi status and setting
         randomize.setChecked(settings.getBoolean(PreferenceKeys.RANDOMIZE, false));
 
-        wifiOnly.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        randomize.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 editor.putBoolean(PreferenceKeys.RANDOMIZE, isChecked);
@@ -299,6 +303,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     group.save();
                 } else if (mLastDeletedItem instanceof FavoriteSource) {
                     FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, true);
+                    FlickrMuzeiApplication.getEditor().commit();
+                }else if (mLastDeletedItem instanceof InterestingnessSource) {
+                    FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_INTERESTINGNESS, true);
                     FlickrMuzeiApplication.getEditor().commit();
                 }
                 mRequestAdapter.add(mLastDeletedItem);
@@ -730,6 +737,14 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     } else {
                         mFooterSearchButton.setEnabled(true);
                     }
+                } else if (position == 5) {
+                    mFooterTerm.setVisibility(View.GONE);
+                    mFooterSearchButton.setImageDrawable(getResources().getDrawable(R.drawable.icon_add));
+                    if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_INTERESTINGNESS, false)) {
+                        mFooterSearchButton.setEnabled(false);
+                    } else {
+                        mFooterSearchButton.setEnabled(true);
+                    }
                 } else {
                     mFooterTerm.setVisibility(View.VISIBLE);
                     mFooterSearchButton.setImageDrawable(getResources().getDrawable(R.drawable.icon_search));
@@ -890,6 +905,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, true);
                         FlickrMuzeiApplication.getEditor().commit();
                         mRequestAdapter.add(new FavoriteSource(SettingsActivity.this));
+                        mRequestAdapter.notifyDataSetChanged();
+                        hideSearch();
+                        break;
+                    case 5:
+                        FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_INTERESTINGNESS, true);
+                        FlickrMuzeiApplication.getEditor().commit();
+                        mRequestAdapter.add(new InterestingnessSource(SettingsActivity.this));
                         mRequestAdapter.notifyDataSetChanged();
                         hideSearch();
                         break;
@@ -1156,6 +1178,9 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         items.addAll(FGroup.listAll(FGroup.class));
         if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_FAVORITES, false)) {
             items.add(new FavoriteSource(this));
+        }
+        if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_INTERESTINGNESS, false)) {
+            items.add(new InterestingnessSource(this));
         }
         return items;
     }

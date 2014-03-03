@@ -74,6 +74,9 @@ public interface FlickrServiceInterface {
     @POST("/?&method=flickr.urls.getGroup&format=json&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getGroupUrl(@Query("group_id") String groupId, Callback<FlickrApiData.GroupUrlResponse> callback);
 
+    @POST("/?&method=flickr.interestingness.getList&per_page=5&format=json&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getInterrestingness(@Query("page") String page, Callback<FlickrApiData.PhotosResponse> callback);
+
     public interface IRequestListener<T> {
         void onFailure();
 

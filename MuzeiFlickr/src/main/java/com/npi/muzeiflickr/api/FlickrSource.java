@@ -39,6 +39,7 @@ import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.FGroup;
 import com.npi.muzeiflickr.db.Favorite;
+import com.npi.muzeiflickr.db.InterestingnessSource;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
@@ -141,7 +142,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         try {
             if (photo.getSource(this) != null) photo.getSource(this).incrementCurrent();
         } catch (IllegalStateException e) {
-            Log.e(TAG, e.getMessage(), e);
+            if (BuildConfig.DEBUG) Log.e(TAG, e.getMessage(), e);
         }
 
 
@@ -288,7 +289,6 @@ public class FlickrSource extends RemoteMuzeiArtSource {
     }
 
 
-
     @Override
     protected void onNetworkAvailable() {
         super.onNetworkAvailable();
@@ -423,6 +423,20 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                     }
                 });
             }
+
+        }
+        if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_INTERESTINGNESS, false)) {
+            FlickrService.getInstance(this).getInterrestingness(new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse>() {
+                @Override
+                public void onFailure() {
+
+                }
+
+                @Override
+                public void onSuccess(final FlickrApiData.PhotosResponse response) {
+                    managePhotoResponse(new InterestingnessSource(FlickrSource.this), response);
+                }
+            });
 
         }
 

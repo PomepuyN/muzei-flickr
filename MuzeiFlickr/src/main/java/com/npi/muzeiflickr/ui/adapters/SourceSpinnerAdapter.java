@@ -55,6 +55,9 @@ public class SourceSpinnerAdapter extends ArrayAdapter<CharSequence> {
             case 4:
                 textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.icon_favorite), null, null, null);
                 break;
+            case 5:
+                textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.thumb_up), null, null, null);
+                break;
         }
         textView.setText(getItem(position));
         textView.setCompoundDrawablePadding(Utils.convertDPItoPixels(mContext, 5));
