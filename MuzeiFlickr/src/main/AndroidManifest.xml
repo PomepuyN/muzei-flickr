@@ -39,6 +39,8 @@
         <meta-data android:name="QUERY_LOG" android:value="true" />
         <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.npi.muzeiflickr.db" />
 
+        <meta-data android:name="com.crashlytics.ApiKey" android:value="78076e28f892add3a72f8832c9a03ed31a5aa40a"/>
+
 
         <activity
             android:name=".ui.activities.SettingsActivity"
