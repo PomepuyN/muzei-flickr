@@ -111,7 +111,9 @@ public class SourceInfoDialog extends BaseDialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         SourceDialogListener activity = (SourceDialogListener) getActivity();
-        activity.onFinishSourceDialog();
+        if (activity != null) {
+            activity.onFinishSourceDialog();
+        }
     }
 
     public interface SourceDialogListener {
