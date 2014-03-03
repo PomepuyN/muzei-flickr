@@ -556,7 +556,19 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         Scanner in = new Scanner(System.in);
 
         // Obtain the Request Token
-        mRequestToken = service.getRequestToken();
+        try {
+            mRequestToken = service.getRequestToken();
+
+        } catch (Exception e) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(SettingsActivity.this, getString(R.string.oauth_connection_error), Toast.LENGTH_LONG).show();
+                }
+            });
+            return;
+
+        }
         final String authorizationUrl = service.getAuthorizationUrl(mRequestToken);
         mHandler.post(new Runnable() {
             @Override

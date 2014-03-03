@@ -86,4 +86,5 @@
     <string name="no_favorite">No favorite for now.\nYou can add favorites from the Muzei menu or the widget.\nYou can also import your favorites from Flickr when logged.</string>
     <string name="join_group">Join</string>
     <string name="view_flickr">View in Flickr</string>
+    <string name="oauth_connection_error">Unable to reach Flickr. Please make sure you have a connection</string>
 </resources>
