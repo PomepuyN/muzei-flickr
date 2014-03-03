@@ -42,7 +42,6 @@ public class SourceInfoDialog extends BaseDialogFragment {
     }
 
 
-
     @Override
     public Builder build(Builder builder) {
         mLayoutView = View.inflate(getActivity(), R.layout.source_settings_dialog, null);
@@ -52,7 +51,7 @@ public class SourceInfoDialog extends BaseDialogFragment {
         final RequestData item = (RequestData) getArguments().getSerializable(ARG_REQUEST_DATA);
 
 
-        if (!(item instanceof User) && !(item instanceof FGroup) ) {
+        if (!(item instanceof User) && !(item instanceof FGroup)) {
             viewInFlickr.setVisibility(View.GONE);
         }
 
@@ -68,9 +67,14 @@ public class SourceInfoDialog extends BaseDialogFragment {
 
                         @Override
                         public void onSuccess(FlickrApiData.UserResponse response) {
-                            if (BuildConfig.DEBUG) Log.d(TAG, "URL: "+response.person.profileurl._content);
+                            if (BuildConfig.DEBUG)
+                                Log.d(TAG, "URL: " + response.person.profileurl._content);
                             Intent intent = new Intent(new Intent(Intent.ACTION_VIEW, Uri.parse(response.person.profileurl._content)));
-                            startActivity(intent);
+                            try {
+                                startActivity(intent);
+                            } catch (IllegalStateException e) {
+                                Log.e(TAG, e.getMessage(), e);
+                            }
                         }
                     });
                 } else if (item instanceof FGroup) {
@@ -82,9 +86,13 @@ public class SourceInfoDialog extends BaseDialogFragment {
 
                         @Override
                         public void onSuccess(FlickrApiData.GroupUrlResponse response) {
-                            if (BuildConfig.DEBUG) Log.d(TAG, "URL: "+response.group.url);
+                            if (BuildConfig.DEBUG) Log.d(TAG, "URL: " + response.group.url);
                             Intent intent = new Intent(new Intent(Intent.ACTION_VIEW, Uri.parse(response.group.url)));
-                            startActivity(intent);
+                            try {
+                                startActivity(intent);
+                            } catch (IllegalStateException e) {
+                                Log.e(TAG, e.getMessage(), e);
+                            }
                         }
                     });
                 }
@@ -100,11 +108,9 @@ public class SourceInfoDialog extends BaseDialogFragment {
         });
 
 
-
         builder.setView(mLayoutView).setTitle(item.getTitle());
         return builder;
     }
-
 
 
     @Override
