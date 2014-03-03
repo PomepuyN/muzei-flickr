@@ -67,7 +67,6 @@ import com.npi.muzeiflickr.utils.Config;
 import com.npi.muzeiflickr.utils.Utils;
 
 import org.scribe.builder.ServiceBuilder;
-import org.scribe.exceptions.OAuthConnectionException;
 import org.scribe.model.Token;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
@@ -560,7 +559,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         try {
             mRequestToken = service.getRequestToken();
 
-        } catch (OAuthConnectionException e) {
+        } catch (Exception e) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
