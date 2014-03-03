@@ -70,7 +70,7 @@ public class FlickrService {
     public void getPopularPhotos(String text, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
 
 
-        getService().getPopularPhotos(text, page, new Callback<FlickrApiData.PhotosResponse>() {
+        getService().getPopularPhotos(getPrivacy(), text, page, new Callback<FlickrApiData.PhotosResponse>() {
             @Override
             public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
                 listener.onSuccess(photosResponse);
@@ -83,8 +83,17 @@ public class FlickrService {
         });
     }
 
+    private String getPrivacy() {
+        String token = FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.LOGIN_TOKEN, "");
+        String secret = FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.LOGIN_SECRET, "");
+        if (!TextUtils.isEmpty(token) && !TextUtils.isEmpty(secret)) {
+            return  "5";
+        }
+        return "1";
+    }
+
     public void getPopularPhotosByUser(String text, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
-        getService().getPopularPhotosByUser(text, page, new Callback<FlickrApiData.PhotosResponse>() {
+        getService().getPopularPhotosByUser(getPrivacy(), text, page, new Callback<FlickrApiData.PhotosResponse>() {
             @Override
             public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
                 listener.onSuccess(photosResponse);
@@ -156,7 +165,7 @@ public class FlickrService {
 
 
     public void getPopularPhotosByTag(String text, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosResponse> listener) {
-        getService().getPopularPhotosByTag(text, page, new Callback<FlickrApiData.PhotosResponse>() {
+        getService().getPopularPhotosByTag(getPrivacy(), text, page, new Callback<FlickrApiData.PhotosResponse>() {
             @Override
             public void success(FlickrApiData.PhotosResponse photosResponse, Response response) {
                 listener.onSuccess(photosResponse);
