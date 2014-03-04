@@ -46,7 +46,6 @@ public class GroupChooserDialog extends BaseDialogFragment {
     }
 
 
-
     @Override
     public Builder build(Builder builder) {
         mLayoutView = View.inflate(getActivity(), R.layout.group_chooser_dialog, null);
@@ -54,10 +53,6 @@ public class GroupChooserDialog extends BaseDialogFragment {
         mList = (ListView) mLayoutView.findViewById(android.R.id.list);
         final ProgressBar mProgress = (ProgressBar) mLayoutView.findViewById(R.id.progress);
         final TextView mError = (TextView) mLayoutView.findViewById(R.id.error);
-
-
-
-
 
 
         FlickrService.getInstance(getActivity()).getGroups(getArguments().getString(ARG_GROUP_SEARCH), new FlickrServiceInterface.IRequestListener<FlickrApiData.GroupsResponse>() {
@@ -76,7 +71,7 @@ public class GroupChooserDialog extends BaseDialogFragment {
                     mProgress.setVisibility(View.GONE);
                     mList.setVisibility(View.VISIBLE);
 
-                    mAdapter = new GroupChooserAdapter(getActivity(), 0,photosResponse.groups.group);
+                    mAdapter = new GroupChooserAdapter(getActivity(), 0, photosResponse.groups.group);
                     mList.setAdapter(mAdapter);
                     mAdapter.notifyDataSetChanged();
                     mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -94,12 +89,9 @@ public class GroupChooserDialog extends BaseDialogFragment {
         });
 
 
-
-
         builder.setView(mLayoutView).setTitle(getString(R.string.choose_group));
         return builder;
     }
-
 
 
     private class GroupChooserAdapter extends ArrayAdapter<FlickrApiData.Group> {
@@ -119,7 +111,6 @@ public class GroupChooserDialog extends BaseDialogFragment {
             TextView groupName = (TextView) convertView.findViewById(R.id.text);
 
 
-
             groupName.setText(mItems.get(position).name);
             return convertView;
         }
@@ -130,7 +121,8 @@ public class GroupChooserDialog extends BaseDialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         ChooseGroupDialogListener activity = (ChooseGroupDialogListener) getActivity();
-        activity.onFinishChoosingDialog(mChosenGroup);
+        if (activity != null)
+            activity.onFinishChoosingDialog(mChosenGroup);
     }
 
     public interface ChooseGroupDialogListener {
