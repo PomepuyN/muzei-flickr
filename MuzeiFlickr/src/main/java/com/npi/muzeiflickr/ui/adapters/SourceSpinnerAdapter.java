@@ -7,18 +7,19 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.npi.muzeiflickr.R;
+import com.npi.muzeiflickr.data.SourceAdapterItem;
 import com.npi.muzeiflickr.utils.Utils;
 
 
 /**
  * Created by nicolas on 21/02/14.
  */
-public class SourceSpinnerAdapter extends ArrayAdapter<CharSequence> {
+public class SourceSpinnerAdapter extends ArrayAdapter<SourceAdapterItem> {
 
     private final Context mContext;
 
-    public SourceSpinnerAdapter(Context context, int resource, CharSequence[] objects) {
-        super(context, resource, objects);
+    public SourceSpinnerAdapter(Context context, int resource) {
+        super(context, resource, SourceAdapterItem.getFilteredEntries());
         mContext = context;
     }
 
@@ -38,33 +39,43 @@ public class SourceSpinnerAdapter extends ArrayAdapter<CharSequence> {
 
     private View getCustomView(View convertView, int position, boolean dropdown) {
 
+        SourceAdapterItem item = getItem(position);
+
         TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
-        switch (position) {
-            case 0:
+        switch (item) {
+            case SEARCH:
                 textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.icon_search), null, null, null);
                 break;
-            case 1:
+            case USER:
                 textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.icon_user), null, null, null);
                 break;
-            case 2:
+            case TAG:
                 textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.icon_tag), null, null, null);
                 break;
-            case 3:
+            case GROUP:
                 textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.icon_group), null, null, null);
                 break;
-            case 4:
+            case FAVORITES:
                 textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.icon_favorite), null, null, null);
                 break;
-            case 5:
+            case INTERESTINGNESS:
                 textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.thumb_up), null, null, null);
                 break;
         }
-        textView.setText(getItem(position));
+        textView.setText(mContext.getString(item.getTitleResource()));
         textView.setCompoundDrawablePadding(Utils.convertDPItoPixels(mContext, 5));
         if (dropdown) {
             textView.setHeight(Utils.convertDPItoPixels(mContext, 40));
         }
 
         return convertView;
+    }
+
+    public void reload() {
+
+        clear();
+        addAll(SourceAdapterItem.getFilteredEntries());
+
+
     }
 }

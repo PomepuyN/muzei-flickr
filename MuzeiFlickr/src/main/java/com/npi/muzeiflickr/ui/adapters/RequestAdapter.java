@@ -1,11 +1,13 @@
 package com.npi.muzeiflickr.ui.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nhaarman.listviewanimations.ArrayAdapter;
+import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.db.RequestData;
 
@@ -16,13 +18,16 @@ import java.util.List;
  */
 public class RequestAdapter extends ArrayAdapter<RequestData> {
 
+    private static final String TAG = RequestAdapter.class.getSimpleName();
     private final List<RequestData> mRequests;
     private final Context mContext;
+    private final OnRequestAdapterChanged mListener;
 
-    public RequestAdapter(Context context, List<RequestData> requests) {
+    public RequestAdapter(Context context, List<RequestData> requests, OnRequestAdapterChanged listener) {
         super(requests);
         mRequests = requests;
         mContext = context;
+        mListener = listener;
     }
 
     @Override
@@ -64,6 +69,13 @@ public class RequestAdapter extends ArrayAdapter<RequestData> {
         return convertView;
     }
 
+    @Override
+    public void notifyDataSetChanged() {
+        mListener.OnNotifyDataSetChanged();
+        if (BuildConfig.DEBUG) Log.d(TAG, "Adapter OnNotifyDataSetChanged");
+        super.notifyDataSetChanged();
+    }
+
     public void setItems(List<RequestData> items) {
         mRequests.clear();
         mRequests.addAll(items);
@@ -73,5 +85,9 @@ public class RequestAdapter extends ArrayAdapter<RequestData> {
     static class LocalHolder {
         public TextView title;
         public TextView photoCount;
+    }
+
+    public interface OnRequestAdapterChanged {
+        void OnNotifyDataSetChanged();
     }
 }

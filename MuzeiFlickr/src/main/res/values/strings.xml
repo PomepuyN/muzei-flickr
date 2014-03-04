@@ -88,4 +88,9 @@
     <string name="view_flickr">View in Flickr</string>
     <string name="oauth_connection_error">Unable to reach Flickr. Please make sure you have a connection</string>
     <string name="interestingness">Interestingness</string>
+    <string name="search">Search</string>
+    <string name="user">User</string>
+    <string name="tag">Tag</string>
+    <string name="group">Group</string>
+    <string name="set">Set</string>
 </resources>
