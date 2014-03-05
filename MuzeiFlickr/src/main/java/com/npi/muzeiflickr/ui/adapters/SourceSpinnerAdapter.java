@@ -7,19 +7,19 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.npi.muzeiflickr.R;
-import com.npi.muzeiflickr.data.SourceAdapterItem;
+import com.npi.muzeiflickr.data.SourceDescriptor;
 import com.npi.muzeiflickr.utils.Utils;
 
 
 /**
  * Created by nicolas on 21/02/14.
  */
-public class SourceSpinnerAdapter extends ArrayAdapter<SourceAdapterItem> {
+public class SourceSpinnerAdapter extends ArrayAdapter<SourceDescriptor> {
 
     private final Context mContext;
 
     public SourceSpinnerAdapter(Context context, int resource) {
-        super(context, resource, SourceAdapterItem.getFilteredEntries());
+        super(context, resource, SourceDescriptor.getFilteredEntries());
         mContext = context;
     }
 
@@ -39,7 +39,7 @@ public class SourceSpinnerAdapter extends ArrayAdapter<SourceAdapterItem> {
 
     private View getCustomView(View convertView, int position, boolean dropdown) {
 
-        SourceAdapterItem item = getItem(position);
+        SourceDescriptor item = getItem(position);
 
         TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
         switch (item) {
@@ -61,6 +61,9 @@ public class SourceSpinnerAdapter extends ArrayAdapter<SourceAdapterItem> {
             case INTERESTINGNESS:
                 textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.thumb_up), null, null, null);
                 break;
+            case SET:
+                textView.setCompoundDrawablesWithIntrinsicBounds(mContext.getResources().getDrawable(R.drawable.icon_set), null, null, null);
+                break;
         }
         textView.setText(mContext.getString(item.getTitleResource()));
         textView.setCompoundDrawablePadding(Utils.convertDPItoPixels(mContext, 5));
@@ -74,7 +77,7 @@ public class SourceSpinnerAdapter extends ArrayAdapter<SourceAdapterItem> {
     public void reload() {
 
         clear();
-        addAll(SourceAdapterItem.getFilteredEntries());
+        addAll(SourceDescriptor.getFilteredEntries());
 
 
     }

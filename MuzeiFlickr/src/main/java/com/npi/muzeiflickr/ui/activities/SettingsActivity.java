@@ -43,8 +43,9 @@ import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.api.FlickrApi;
 import com.npi.muzeiflickr.api.FlickrSource;
 import com.npi.muzeiflickr.data.PreferenceKeys;
-import com.npi.muzeiflickr.data.SourceAdapterItem;
+import com.npi.muzeiflickr.data.SourceDescriptor;
 import com.npi.muzeiflickr.db.FGroup;
+import com.npi.muzeiflickr.db.FSet;
 import com.npi.muzeiflickr.db.Favorite;
 import com.npi.muzeiflickr.db.FavoriteSource;
 import com.npi.muzeiflickr.db.InterestingnessSource;
@@ -60,6 +61,7 @@ import com.npi.muzeiflickr.ui.adapters.RequestAdapter;
 import com.npi.muzeiflickr.ui.adapters.SourceSpinnerAdapter;
 import com.npi.muzeiflickr.ui.dialogs.GroupChooserDialog;
 import com.npi.muzeiflickr.ui.dialogs.GroupImportDialog;
+import com.npi.muzeiflickr.ui.dialogs.SetChooserDialog;
 import com.npi.muzeiflickr.ui.dialogs.SourceInfoDialog;
 import com.npi.muzeiflickr.ui.dialogs.UserImportDialog;
 import com.npi.muzeiflickr.ui.hhmmpicker.HHmsPickerBuilder;
@@ -97,7 +99,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  * Created by nicolas on 14/02/14.
  * Main settings activity
  */
-public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler, GroupChooserDialog.ChooseGroupDialogListener, UserImportDialog.ImportDialogListener, SourceInfoDialog.SourceDialogListener {
+public class SettingsActivity extends FragmentActivity implements HHmsPickerDialogFragment.HHmsPickerDialogHandler, GroupChooserDialog.ChooseGroupDialogListener, UserImportDialog.ImportDialogListener, SourceInfoDialog.SourceDialogListener, SetChooserDialog.ChooseSetDialogListener {
     public static final String PREFS_NAME = "main_prefs";
     private static final String TAG = SettingsActivity.class.getSimpleName();
     private TextView mRefreshRate;
@@ -118,21 +120,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     for (int position : reverseSortedPositions) {
                         RequestData item = mRequestAdapter.getItem(position);
                         managePhotoFromSourceDeletion();
-                        if (item instanceof User) {
-                            ((User) item).delete();
-                        } else if (item instanceof Search) {
-                            ((Search) item).delete();
-                        } else if (item instanceof Tag) {
-                            ((Tag) item).delete();
-                        } else if (item instanceof FGroup) {
-                            ((FGroup) item).delete();
-                        } else if (item instanceof FavoriteSource) {
-                            FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, false);
-                            FlickrMuzeiApplication.getEditor().commit();
-                        }else if (item instanceof InterestingnessSource) {
-                            FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_INTERESTINGNESS, false);
-                            FlickrMuzeiApplication.getEditor().commit();
-                        }
+                        item.delete();
                         mRequestAdapter.remove(item);
                         mLastDeletedItem = item;
 //                        mRequestAdapter.notifyDataSetChanged();
@@ -311,7 +299,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                 } else if (mLastDeletedItem instanceof FavoriteSource) {
                     FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, true);
                     FlickrMuzeiApplication.getEditor().commit();
-                }else if (mLastDeletedItem instanceof InterestingnessSource) {
+                } else if (mLastDeletedItem instanceof InterestingnessSource) {
                     FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_INTERESTINGNESS, true);
                     FlickrMuzeiApplication.getEditor().commit();
                 }
@@ -736,7 +724,12 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         mFooterModeChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (mSpinnerAdapter.getItem(position) == SourceAdapterItem.FAVORITES) {
+                Utils.hideKeyboard(mFooterTerm);
+                if (mSpinnerAdapter.getItem(position) == SourceDescriptor.SET) {
+                    mFooterTerm.setVisibility(View.GONE);
+                    mFooterSearchButton.setImageDrawable(getResources().getDrawable(R.drawable.icon_add));
+
+                } else if (mSpinnerAdapter.getItem(position) == SourceDescriptor.FAVORITES) {
                     mFooterTerm.setVisibility(View.GONE);
                     mFooterSearchButton.setImageDrawable(getResources().getDrawable(R.drawable.icon_add));
                     if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_FAVORITES, false)) {
@@ -744,7 +737,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                     } else {
                         mFooterSearchButton.setEnabled(true);
                     }
-                } else if (mSpinnerAdapter.getItem(position) == SourceAdapterItem.INTERESTINGNESS) {
+                } else if (mSpinnerAdapter.getItem(position) == SourceDescriptor.INTERESTINGNESS) {
                     mFooterTerm.setVisibility(View.GONE);
                     mFooterSearchButton.setImageDrawable(getResources().getDrawable(R.drawable.icon_add));
                     if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_INTERESTINGNESS, false)) {
@@ -908,6 +901,14 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                             }
                         });
                         break;
+                    case SET:
+                        //It's an set
+                        mADialogIsShowing = true;
+                        hideContent();
+                        SetChooserDialog.show(SettingsActivity.this);
+
+
+                        break;
                     case FAVORITES:
                         FlickrMuzeiApplication.getEditor().putBoolean(PreferenceKeys.USE_FAVORITES, true);
                         FlickrMuzeiApplication.getEditor().commit();
@@ -938,9 +939,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
     }
 
     private void hideSearch() {
-        mFooterSearchButton.setVisibility(View.VISIBLE);
-        mFooterTerm.setText("");
-        mFooterModeChooser.setSelection(0);
+
         mAddItemContainer.animate().alpha(0F);
         mFooterButton.animate().alpha(1F).setListener(new Animator.AnimatorListener() {
             @Override
@@ -951,6 +950,10 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
             @Override
             public void onAnimationEnd(Animator animation) {
+                mFooterSearchButton.setVisibility(View.VISIBLE);
+                mFooterTerm.setText("");
+                mFooterModeChooser.setSelection(0);
+                mFooterProgress.setVisibility(View.GONE);
             }
 
             @Override
@@ -961,7 +964,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
             public void onAnimationRepeat(Animator animation) {
             }
         });
-        mFooterProgress.setVisibility(View.GONE);
+
 
     }
 
@@ -1182,6 +1185,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
         items.addAll(Search.listAll(Search.class));
         items.addAll(User.listAll(User.class));
         items.addAll(Tag.listAll(Tag.class));
+        items.addAll(FSet.listAll(FSet.class));
         items.addAll(FGroup.listAll(FGroup.class));
         if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_FAVORITES, false)) {
             items.add(new FavoriteSource(this));
@@ -1194,6 +1198,13 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
 
     @Override
     public void onFinishSourceDialog() {
+        mADialogIsShowing = false;
+        showContent();
+        mRequestAdapter.setItems(getRequestDatas());
+    }
+
+    @Override
+    public void onFinishChoosingDialog(FlickrApiData.PhotoSet set) {
         mADialogIsShowing = false;
         showContent();
         mRequestAdapter.setItems(getRequestDatas());

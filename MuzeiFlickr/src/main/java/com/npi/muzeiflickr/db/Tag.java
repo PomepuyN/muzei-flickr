@@ -3,6 +3,7 @@ package com.npi.muzeiflickr.db;
 import android.content.Context;
 
 import com.npi.muzeiflickr.R;
+import com.npi.muzeiflickr.data.SourceDescriptor;
 import com.orm.SugarRecord;
 
 /**
@@ -60,7 +61,7 @@ public class Tag extends SugarRecord<Tag> implements RequestData {
 
     @Override
     public int getSourceType() {
-        return SourceTypeEnum.TAG.ordinal();
+        return SourceDescriptor.TAG.getId();
     }
 
     @Override

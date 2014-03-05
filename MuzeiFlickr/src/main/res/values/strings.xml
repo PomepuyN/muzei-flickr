@@ -93,4 +93,8 @@
     <string name="tag">Tag</string>
     <string name="group">Group</string>
     <string name="set">Set</string>
+    <string name="set_owner">Set\'s owner</string>
+    <string name="choose_set">Choose set</string>
+    <string name="next">Next</string>
+    <string name="user_not_set">User has no set</string>
 </resources>

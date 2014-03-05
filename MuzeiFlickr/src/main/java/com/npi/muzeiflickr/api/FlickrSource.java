@@ -37,13 +37,14 @@ import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.data.SourceDescriptor;
 import com.npi.muzeiflickr.db.FGroup;
+import com.npi.muzeiflickr.db.FSet;
 import com.npi.muzeiflickr.db.Favorite;
 import com.npi.muzeiflickr.db.InterestingnessSource;
 import com.npi.muzeiflickr.db.Photo;
 import com.npi.muzeiflickr.db.RequestData;
 import com.npi.muzeiflickr.db.Search;
-import com.npi.muzeiflickr.db.SourceTypeEnum;
 import com.npi.muzeiflickr.db.Tag;
 import com.npi.muzeiflickr.db.User;
 import com.npi.muzeiflickr.network.FlickrApiData;
@@ -320,6 +321,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         List<Search> searches = Search.listAll(Search.class);
         List<Tag> tags = Tag.listAll(Tag.class);
         List<FGroup> groups = FGroup.listAll(FGroup.class);
+        List<FSet> sets = FSet.listAll(FSet.class);
 
         if (FlickrMuzeiApplication.getSettings().getBoolean(PreferenceKeys.USE_FAVORITES, false)) {
             List<Favorite> favs = Favorite.listAll(Favorite.class);
@@ -403,7 +405,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                                             photoEntity.title = photo.photo.title._content;
                                             photoEntity.photoId = photo.photo.id;
                                             photoEntity.owner = photo.photo.owner.username;
-                                            photoEntity.sourceType = SourceTypeEnum.FAVORITES.ordinal();
+                                            photoEntity.sourceType = SourceDescriptor.FAVORITES.getId();
                                             photoEntity.sourceId = favorite.getId();
 
                                             if (storedPhotos == null) {
@@ -517,13 +519,29 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
 
         }
+        for (final FSet set : sets) {
+
+            FlickrService.getInstance(this).getSetPhotos(set.setId, set.page, new FlickrServiceInterface.IRequestListener<FlickrApiData.SetPhotosResponse>() {
+                @Override
+                public void onFailure() {
+
+                }
+
+                @Override
+                public void onSuccess(FlickrApiData.SetPhotosResponse response) {
+                    managePhotoResponse(set, response);
+                }
+            });
+
+
+        }
 
 
     }
 
-    private void managePhotoResponse(final RequestData requestData, FlickrApiData.PhotosResponse photosResponse) {
+    private void managePhotoResponse(final RequestData requestData, final FlickrApiData.ParsablePhotosResponse photosResponse) {
 
-        if (photosResponse == null || photosResponse.photos.photo == null || photosResponse.photos == null) {
+        if (photosResponse == null || photosResponse.getResponse() == null || photosResponse.getResponse().photo == null) {
             Log.w(TAG, "Unable to get the photo list");
             return;
         }
@@ -531,9 +549,9 @@ public class FlickrSource extends RemoteMuzeiArtSource {
         final SharedPreferences settings = getSharedPreferences(SettingsActivity.PREFS_NAME, 0);
         if (!settings.getBoolean(PreferenceKeys.RANDOMIZE, false)) {
             int currentPage = requestData.getCurrentPage();
-            if (photosResponse.photos.pages < currentPage) {
+            if (photosResponse.getResponse().pages < currentPage) {
                 if (BuildConfig.DEBUG)
-                    Log.d(TAG, "Last page: " + currentPage + "/" + photosResponse.photos.pages);
+                    Log.d(TAG, "Last page: " + currentPage + "/" + photosResponse.getResponse().pages);
                 requestData.setPage(1);
             } else {
                 if (BuildConfig.DEBUG) Log.d(TAG, "Set page to " + String.valueOf(currentPage + 1));
@@ -543,7 +561,7 @@ public class FlickrSource extends RemoteMuzeiArtSource {
 
 
         //Store photos
-        for (final FlickrApiData.Photo photo : photosResponse.photos.photo) {
+        for (final FlickrApiData.Photo photo : photosResponse.getResponse().photo) {
             if (BuildConfig.DEBUG) Log.d(TAG, "Getting infos for photo: " + photo.id);
 
 
@@ -576,7 +594,15 @@ public class FlickrSource extends RemoteMuzeiArtSource {
                         //Request user info (for the title)
                         final FlickrApiData.Size finalLargestSize = largestSize;
 
-                        FlickrService.getInstance(FlickrSource.this).getUser(photo.owner, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserResponse>() {
+                        String owner;
+                        if (photo.owner != null) {
+                            owner = photo.owner;
+                        } else {
+                            owner = photosResponse.getResponse().owner;
+
+                        }
+
+                        FlickrService.getInstance(FlickrSource.this).getUser(owner, new FlickrServiceInterface.IRequestListener<FlickrApiData.UserResponse>() {
                             @Override
                             public void onFailure() {
 

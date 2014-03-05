@@ -26,8 +26,13 @@ public class FlickrApiData {
         public Person person;
     }
 
-    public static class PhotosResponse {
+    public static class PhotosResponse implements ParsablePhotosResponse {
         public Response photos;
+
+        @Override
+        public Response getResponse() {
+            return photos;
+        }
     }
 
 
@@ -45,23 +50,26 @@ public class FlickrApiData {
     }
 
     public static class Person {
-        public Username realname;
-        public Username username;
-        public Username profileurl;
+        public ContentString realname;
+        public ContentString username;
+        public ContentString profileurl;
     }
 
-    public static class Username {
+    public static class ContentString {
         public String _content;
     }
+
     public static class Response {
         public List<Photo> photo;
         public int pages;
         public int total;
+        public String owner;
 
     }
+
     public static class Photo {
         public String id;
-        public  String title;
+        public String title;
         public String owner;
     }
 
@@ -71,7 +79,7 @@ public class FlickrApiData {
     }
 
     public static class UserLoginResult {
-        public Username username;
+        public ContentString username;
         public String id;
     }
 
@@ -81,7 +89,7 @@ public class FlickrApiData {
 
     public static class Group implements Serializable, ImportableData {
         public String nsid;
-        public  String name;
+        public String name;
 
         @Override
         public String getName() {
@@ -116,9 +124,11 @@ public class FlickrApiData {
         public Title title;
         public Owner owner;
     }
+
     public static class Title {
         public String _content;
     }
+
     public static class Owner {
         public String nsid;
         public String username;
@@ -130,9 +140,42 @@ public class FlickrApiData {
 
     public static class GroupUrlResponse {
         public GroupUrl group;
+    }
 
     public static class GroupUrl {
         public String url;
     }
+
+
+    public static class PhotosSetsResponse  {
+        public PhotoSets photosets;
+
+    }
+
+    public static class PhotoSets  {
+        public List<PhotoSet> photoset;
+    }
+    public static class PhotoSet implements ImportableData {
+        public String id;
+        public String photos;
+        public ContentString title;
+
+        @Override
+        public String getName() {
+            return title._content;
+        }
+    }
+
+    public static class SetPhotosResponse implements ParsablePhotosResponse{
+        public Response photoset;
+
+        @Override
+        public Response getResponse() {
+            return photoset;
+        }
+    }
+
+    public interface ParsablePhotosResponse {
+        Response getResponse();
     }
 }

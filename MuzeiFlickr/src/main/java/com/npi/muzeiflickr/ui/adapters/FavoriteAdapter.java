@@ -16,9 +16,9 @@ import android.widget.Toast;
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.R;
+import com.npi.muzeiflickr.data.SourceDescriptor;
 import com.npi.muzeiflickr.db.Favorite;
 import com.npi.muzeiflickr.db.Photo;
-import com.npi.muzeiflickr.db.SourceTypeEnum;
 import com.npi.muzeiflickr.network.FlickrApiData;
 import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.network.FlickrServiceInterface;
@@ -208,7 +208,7 @@ public class FavoriteAdapter extends ArrayAdapter<Favorite> {
                                         photoEntity.title = photo.photo.title._content;
                                         photoEntity.photoId = photo.photo.id;
                                         photoEntity.owner = photo.photo.owner.username;
-                                        photoEntity.sourceType = SourceTypeEnum.FAVORITES.ordinal();
+                                        photoEntity.sourceType = SourceDescriptor.FAVORITES.getId();
                                         photoEntity.sourceId = favorite.getId();
 
                                         for (String photoId : mFlickrFavorites) {

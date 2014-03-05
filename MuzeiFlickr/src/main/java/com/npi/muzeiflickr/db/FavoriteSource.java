@@ -5,6 +5,7 @@ import android.content.Context;
 import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.data.SourceDescriptor;
 
 /**
  * Created by nicolas on 23/02/14.
@@ -49,7 +50,7 @@ public class FavoriteSource implements RequestData {
 
     @Override
     public int getSourceType() {
-        return SourceTypeEnum.FAVORITES.ordinal();
+        return SourceDescriptor.FAVORITES.getId();
     }
 
     @Override

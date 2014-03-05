@@ -1,7 +1,5 @@
 package com.npi.muzeiflickr.db;
 
-import android.content.Context;
-
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.SourceDescriptor;
 import com.orm.SugarRecord;
@@ -9,33 +7,35 @@ import com.orm.SugarRecord;
 /**
  * Created by nicolas on 17/02/14.
  */
-public class Search extends SugarRecord<Search> implements RequestData {
-    public Search() {
-        super();
-    }
+public class FSet extends SugarRecord<FSet> implements RequestData {
 
-    public String term;
-    public int page;
     int total;
     int current;
+    String name;
+    public String setId;
+    public int page;
 
-    public Search(Context context, String term, int page, int current, int total) {
+    public FSet() {
         super();
-        this.term = term;
-        this.page = page;
+    }
+
+    public FSet(String setId, String name, int current, int total) {
+        super();
+        this.name = name;
+        this.setId = setId;
         this.current = current;
         this.total = total;
-
     }
+
 
     @Override
     public String getTitle() {
-        return term;
+        return name;
     }
 
     @Override
     public int getIconRessource() {
-        return R.drawable.icon_search;
+        return R.drawable.icon_set;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class Search extends SugarRecord<Search> implements RequestData {
 
     @Override
     public int getSourceType() {
-        return SourceDescriptor.SEARCH.getId();
+        return SourceDescriptor.SET.getId();
     }
 
     @Override

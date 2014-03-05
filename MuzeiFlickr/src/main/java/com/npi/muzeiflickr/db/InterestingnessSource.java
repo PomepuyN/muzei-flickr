@@ -7,6 +7,7 @@ import com.npi.muzeiflickr.BuildConfig;
 import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.PreferenceKeys;
+import com.npi.muzeiflickr.data.SourceDescriptor;
 
 /**
  * Created by nicolas on 23/02/14.
@@ -54,7 +55,7 @@ public class InterestingnessSource implements RequestData {
 
     @Override
     public int getSourceType() {
-        return SourceTypeEnum.INTERESTINGNESS.ordinal();
+        return SourceDescriptor.INTERESTINGNESS.getId();
     }
 
     @Override

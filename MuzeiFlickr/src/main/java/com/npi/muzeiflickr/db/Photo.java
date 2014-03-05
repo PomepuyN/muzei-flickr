@@ -2,6 +2,7 @@ package com.npi.muzeiflickr.db;
 
 import android.content.Context;
 
+import com.npi.muzeiflickr.data.SourceDescriptor;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 
@@ -29,19 +30,22 @@ public class Photo extends SugarRecord<Photo> {
     }
 
     public RequestData getSource(Context context) {
-        if (sourceType == SourceTypeEnum.SEARCH.ordinal()) {
+        if (sourceType == SourceDescriptor.SEARCH.getId()) {
             return Search.findById(Search.class, sourceId);
         }
-        if (sourceType == SourceTypeEnum.USER.ordinal()) {
+        if (sourceType == SourceDescriptor.USER.getId()) {
             return User.findById(User.class, sourceId);
         }
-        if (sourceType == SourceTypeEnum.TAG.ordinal()) {
+        if (sourceType == SourceDescriptor.TAG.getId()) {
             return Tag.findById(Tag.class, sourceId);
         }
-        if (sourceType == SourceTypeEnum.GROUP.ordinal()) {
+        if (sourceType == SourceDescriptor.SET.getId()) {
+            return FSet.findById(FSet.class, sourceId);
+        }
+        if (sourceType == SourceDescriptor.GROUP.getId()) {
             return FGroup.findById(FGroup.class, sourceId);
         }
-        if (sourceType == SourceTypeEnum.FAVORITES.ordinal()) {
+        if (sourceType == SourceDescriptor.FAVORITES.getId()) {
             return new FavoriteSource(context);
         }
 

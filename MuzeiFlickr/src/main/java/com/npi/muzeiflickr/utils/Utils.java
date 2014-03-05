@@ -14,7 +14,9 @@ import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 
 import com.npi.muzeiflickr.BuildConfig;
@@ -221,5 +223,27 @@ public class Utils {
         mBuilder.setContentIntent(pi);
         mBuilder.setAutoCancel(true);
         mNotificationManager.notify(0, mBuilder.build());
+    }
+
+    /**
+     * Hides the keyboard.
+     *
+     * @param view
+     */
+    public static void hideKeyboard(View view) {
+        Context context = view.getContext();
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    /**
+     * Shows the keyboard.
+     *
+     * @param view
+     */
+    public static void showKeyboard(View view) {
+        Context context = view.getContext();
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
 }

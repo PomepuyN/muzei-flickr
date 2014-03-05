@@ -206,6 +206,20 @@ public class FlickrService {
         });
     }
 
+    public void getSetPhotos(String setId, int page, final FlickrServiceInterface.IRequestListener<FlickrApiData.SetPhotosResponse> listener) {
+        getService().getSetPhotos(setId, page, new Callback<FlickrApiData.SetPhotosResponse>() {
+            @Override
+            public void success(FlickrApiData.SetPhotosResponse photosResponse, Response response) {
+                listener.onSuccess(photosResponse);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
+
     public void getContacts(final FlickrServiceInterface.IRequestListener<FlickrApiData.ContactResponse> listener) {
         getService().getContacts(new Callback<FlickrApiData.ContactResponse>() {
             @Override
@@ -318,6 +332,19 @@ public class FlickrService {
         });
     }
 
+    public void findSetByUser(String userId, final FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosSetsResponse> listener) {
+        getService().findSetByUser(userId, new Callback<FlickrApiData.PhotosSetsResponse>() {
+            @Override
+            public void success(FlickrApiData.PhotosSetsResponse addFavoriteResponse, Response response) {
+                listener.onSuccess(addFavoriteResponse);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                listener.onFailure();
+            }
+        });
+    }
     public void invalidateAdapter() {
         mRestAdapter = null;
     }

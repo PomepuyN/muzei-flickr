@@ -46,6 +46,9 @@ public interface FlickrServiceInterface {
     @GET("/?&method=flickr.groups.pools.getPhotos&format=json&per_page=5&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getGroupPhotos(@Query("group_id") String groupId, @Query("page") int page, Callback<FlickrApiData.PhotosResponse> callback);
 
+    @GET("/?&method=flickr.photosets.getPhotos&format=json&per_page=5&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void getSetPhotos(@Query("photoset_id") String setId, @Query("page") int page, Callback<FlickrApiData.SetPhotosResponse> callback);
+
 
     @GET("/?&method=flickr.photos.getSizes&format=json&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getSize(@Query("photo_id") String photo, Callback<FlickrApiData.SizeResponse> callback);
@@ -76,6 +79,9 @@ public interface FlickrServiceInterface {
 
     @POST("/?&method=flickr.interestingness.getList&per_page=5&format=json&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
     void getInterrestingness(@Query("page") String page, Callback<FlickrApiData.PhotosResponse> callback);
+
+    @POST("/?&method=flickr.photosets.getList&format=json&api_key=" + Config.CONSUMER_KEY + "&nojsoncallback=1")
+    void findSetByUser(@Query("user_id") String userId, Callback<FlickrApiData.PhotosSetsResponse> callback);
 
     public interface IRequestListener<T> {
         void onFailure();
