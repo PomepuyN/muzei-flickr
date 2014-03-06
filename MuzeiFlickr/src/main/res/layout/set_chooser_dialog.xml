@@ -6,40 +6,53 @@
     android:minHeight="100dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <RelativeLayout
-        android:id="@+id/all_container"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="5dp"
-        android:padding="5dp"
-        android:background="#11ffffff"
-        android:visibility="gone">
+        android:layout_height="wrap_content"
+        android:id="@+id/top_container">
 
-        <TextView
+        <RelativeLayout
+            android:id="@+id/all_container"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="5dp"
+            android:padding="5dp"
+            android:background="#11ffffff"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/all"
+                android:layout_centerVertical="true"
+                android:textSize="16sp"
+                style="@style/Settings.Shadow"
+                android:textStyle="bold"/>
+
+            <CheckBox
+                android:id="@+id/checkbox_select_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+        <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/all"
-            android:layout_centerVertical="true"
-            android:textSize="16sp"
-            style="@style/Settings.Shadow"
-            android:textStyle="bold"/>
-
-        <CheckBox
-            android:id="@+id/checkbox_select_all"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"/>
-    </RelativeLayout>
+            android:id="@+id/user"
+            android:hint="@string/set_owner"
+            android:layout_gravity="center"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"/>
+    </FrameLayout>
 
     <ListView xmlns:android="http://schemas.android.com/apk/res/android"
               android:id="@android:id/list"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:layout_below="@+id/all_container"
-              android:visibility="gone">
-
-    </ListView>
+              android:layout_below="@+id/top_container"
+              android:visibility="gone"/>
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -48,12 +61,6 @@
         android:id="@android:id/empty"
         android:visibility="gone"/>
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/user"
-        android:hint="@string/set_owner"
-        android:layout_centerInParent="true"/>
 
     <TextView
         android:layout_width="wrap_content"

@@ -485,6 +485,14 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                                         }
                                     });
                                     break;
+                                case R.id.menu_my_sets:
+                                    User me= new User();
+                                    me.userId = FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.LOGIN_NSID, "");
+                                    me.userName = FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.LOGIN_USERNAME, "");
+                                    SetChooserDialog.show(SettingsActivity.this, me);
+                                    mADialogIsShowing = true;
+                                    hideContent();
+                                    break;
                                 case R.id.menu_groups:
                                     mADialogIsShowing = true;
                                     hideContent();
@@ -905,7 +913,7 @@ public class SettingsActivity extends FragmentActivity implements HHmsPickerDial
                         //It's an set
                         mADialogIsShowing = true;
                         hideContent();
-                        SetChooserDialog.show(SettingsActivity.this);
+                        SetChooserDialog.show(SettingsActivity.this, null);
 
 
                         break;

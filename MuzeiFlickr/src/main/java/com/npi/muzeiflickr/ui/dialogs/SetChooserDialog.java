@@ -1,9 +1,17 @@
 package com.npi.muzeiflickr.ui.dialogs;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -13,9 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.npi.muzeiflickr.BuildConfig;
+import com.npi.muzeiflickr.FlickrMuzeiApplication;
 import com.npi.muzeiflickr.R;
 import com.npi.muzeiflickr.data.ImportableData;
+import com.npi.muzeiflickr.data.PreferenceKeys;
 import com.npi.muzeiflickr.db.FSet;
+import com.npi.muzeiflickr.db.User;
 import com.npi.muzeiflickr.network.FlickrApiData;
 import com.npi.muzeiflickr.network.FlickrService;
 import com.npi.muzeiflickr.network.FlickrServiceInterface;
@@ -33,6 +44,7 @@ import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 public class SetChooserDialog extends BaseDialogFragment {
 
     private static final String TAG = SetChooserDialog.class.getSimpleName();
+    private static final String ARG_SET_USER = "set_user";
     private View mLayoutView;
     private ListView mList;
     private FlickrApiData.PhotoSet mChosenSet;
@@ -42,13 +54,20 @@ public class SetChooserDialog extends BaseDialogFragment {
     private RelativeLayout mSelectAllContainer;
     private TextView mImportResult;
     private ItemImportAdapter mAdapter;
+    private TextView mHeader;
+    private String mUsername;
 
     public SetChooserDialog() {
         super();
     }
 
-    public static void show(FragmentActivity activity) {
+    public static void show(FragmentActivity activity, User user) {
+
         SetChooserDialog dialog = new SetChooserDialog();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_SET_USER, user);
+
+        dialog.setArguments(args);
         dialog.show(activity.getSupportFragmentManager(), TAG);
     }
 
@@ -66,6 +85,51 @@ public class SetChooserDialog extends BaseDialogFragment {
         mImportResult = (TextView) mLayoutView.findViewById(R.id.import_result);
 
         Utils.showKeyboard(mUserEditText);
+
+        User askedUser = (User) getArguments().getSerializable(ARG_SET_USER);
+        if (askedUser != null) {
+            findSet(askedUser.userId);
+            mUsername = askedUser.userName;
+        } else {
+
+
+            if (!TextUtils.isEmpty(FlickrMuzeiApplication.getSettings().getString(PreferenceKeys.LOGIN_USERNAME, ""))) {
+                FlickrService.getInstance(getActivity()).getContacts(new FlickrServiceInterface.IRequestListener<FlickrApiData.ContactResponse>() {
+                    @Override
+                    public void onFailure() {
+
+                    }
+
+                    @Override
+                    public void onSuccess(final FlickrApiData.ContactResponse response) {
+                        List<FlickrApiData.Contact> contactsToShow = response.contacts.contact;
+
+                        if (contactsToShow.size() > 0) {
+
+                            final ContactAdapter adapter = new ContactAdapter(getActivity(), android.R.layout.simple_list_item_1, contactsToShow);
+                            mList.setAdapter(adapter);
+                            mList.setVisibility(View.VISIBLE);
+                            mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    findSet(adapter.getItem(position - 1).nsid);
+                                    mUsername = adapter.getItem(position - 1).username;
+                                }
+                            });
+
+                            mHeader = new TextView(getActivity());
+                            mHeader.setGravity(Gravity.CENTER);
+
+
+                            mHeader.setText("or");
+                            mHeader.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.convertDPItoPixels(getActivity(), 48)));
+                            mList.addHeaderView(mHeader);
+
+                        }
+                    }
+                });
+            }
+        }
 
 
         builder.setView(mLayoutView).setTitle(getString(R.string.choose_set)).setNegativeButton(android.R.string.cancel, new View.OnClickListener() {
@@ -88,6 +152,7 @@ public class SetChooserDialog extends BaseDialogFragment {
                             Toast.makeText(getActivity(), getString(R.string.user_not_found), Toast.LENGTH_LONG).show();
                         } else {
                             findSet(response.user.nsid);
+                            mUsername = mUserEditText.getText().toString();
                         }
                     }
                 });
@@ -98,6 +163,9 @@ public class SetChooserDialog extends BaseDialogFragment {
     }
 
     private void findSet(String userId) {
+        mList.setVisibility(View.GONE);
+        mEmpty.setVisibility(View.VISIBLE);
+        mUserEditText.setVisibility(View.GONE);
         FlickrService.getInstance(getActivity()).findSetByUser(userId, new FlickrServiceInterface.IRequestListener<FlickrApiData.PhotosSetsResponse>() {
             @Override
             public void onFailure() {
@@ -118,11 +186,14 @@ public class SetChooserDialog extends BaseDialogFragment {
 
                     mAdapter = new ItemImportAdapter(getActivity(), 0, sets);
 
+                    mList.removeHeaderView(mHeader);
                     mList.setAdapter(mAdapter);
                     mList.setVisibility(View.VISIBLE);
-                    mUserEditText.setVisibility(View.GONE);
+                    mEmpty.setVisibility(View.GONE);
+
                     Utils.hideKeyboard(mUserEditText);
 
+                    getPositiveButton().setText(getString(android.R.string.ok));
                     getPositiveButton().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -158,11 +229,35 @@ public class SetChooserDialog extends BaseDialogFragment {
             FlickrApiData.PhotoSet setResponse = (FlickrApiData.PhotoSet) item;
 
 
-            FSet set = new FSet(setResponse.id, mUserEditText.getText().toString() + " / " + setResponse.getName(), 0, Integer.valueOf(setResponse.photos));
+            FSet set = new FSet(setResponse.id, mUsername + " / " + setResponse.getName(), 0, Integer.valueOf(setResponse.photos));
             set.save();
 
             dismiss();
         }
+    }
+
+
+    private class ContactAdapter extends ArrayAdapter<FlickrApiData.Contact> {
+
+        private final List<FlickrApiData.Contact> mItems;
+        private Context mContext;
+
+        public ContactAdapter(Context context, int textViewResourceId, List<FlickrApiData.Contact> objects) {
+            super(context, textViewResourceId, objects);
+            mContext = context;
+            mItems = objects;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            convertView = View.inflate(mContext, R.layout.group_chooser_item, null);
+            TextView groupName = (TextView) convertView.findViewById(R.id.text);
+
+
+            groupName.setText(mItems.get(position).getName());
+            return convertView;
+        }
+
     }
 
 

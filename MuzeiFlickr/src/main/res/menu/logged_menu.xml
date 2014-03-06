@@ -20,6 +20,10 @@
         android:id="@+id/menu_my_stream"
         android:title="@string/add_my_stream"/>
 
+    <item
+        android:id="@+id/menu_my_sets"
+        android:title="@string/add_my_sets"/>
+
 
     <item
         android:id="@+id/menu_logout"

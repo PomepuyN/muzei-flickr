@@ -13,7 +13,7 @@ public class User extends SugarRecord<User> implements RequestData {
 
     public int total;
     int current;
-    String userName;
+    public String userName;
     public String userId;
     public int page;
 
